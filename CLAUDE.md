@@ -1,43 +1,53 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
-## Build & Run Commands
-
-```bash
-# Build the project
-./gradlew build
-
-# Run the application
-./gradlew bootRun
-
-# Run all tests
-./gradlew test
-
-# Run a single test class
-./gradlew test --tests "com.jeju.jeju.JejuApplicationTests"
-
-# Clean build
-./gradlew clean build
-```
-
 ## Project Overview
 
-Spring Boot 4.0.5 application with Java 21, using Gradle 9.4.1 as the build system.
+**같이가는 제주** — 무장애 여행 일정 설계 서비스 (2026 한국관광공사 공모전)
 
-### Technology Stack
-- **Web:** Spring MVC with Bean Validation
-- **Security:** Spring Security with OAuth2 Client
-- **Data:** Spring Data JPA with H2 (dev) and MySQL (prod) support
-- **Caching:** Redis
+- **Backend:** Spring Boot 4.0.5 · Java 21 · Gradle 9.4.1
+- **Frontend:** Flutter 3.19+ · Riverpod · Dio
+- Base package: `com.jeju.jeju`
 
-### Package Structure
-Base package: `com.jeju.jeju`
+## Build Commands
 
-## Database Configuration
+### Backend
+```bash
+./gradlew bootRun          # 실행
+./gradlew build            # 빌드
+./gradlew test             # 전체 테스트
+./gradlew clean build      # 클린 빌드
+```
 
-- H2 in-memory database for development/testing (H2 console enabled)
-- MySQL connector available for production
-- Redis for caching layer
+### Frontend
+```bash
+flutter pub get            # 의존성 설치
+flutter run                # 실행 (에뮬레이터/기기)
+flutter build apk          # Android 빌드
+flutter build ios          # iOS 빌드
+flutter test               # 테스트
+```
 
-Configuration file: `src/main/resources/application.yml`
+## Tech Stack
+
+| 영역 | 기술 |
+|------|------|
+| Security | Spring Security, OAuth2 (Kakao·Google), JWT |
+| Data | Spring Data JPA, H2 (dev), MySQL (prod) |
+| Cache | Redis |
+| State | Riverpod |
+| Network | Dio |
+
+## Database
+
+- Dev: H2 in-memory (H2 console 활성화)
+- Prod: MySQL
+- Config: `backend/src/main/resources/application.yml`
+
+## API Specification
+
+> 백엔드 작업 시 `backend/CLAUDE.md` 참조
+
+- Notion 명세: https://www.notion.so/33bd2cd2348c819e82d6d4049878824b
+- OpenAPI: `docs/api/openapi.yaml`
+- Base URL: `http://localhost:8080` / `https://api.jeju.app`
+- Prefix: `/api/v1`

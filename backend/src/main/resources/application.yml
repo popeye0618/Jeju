@@ -1,0 +1,116 @@
+spring:
+  application:
+    name: jeju
+
+  # ── 공통 JPA 설정 ───────────────────────────────────────────────
+  jpa:
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+
+  # ── 공통 Redis 설정 ─────────────────────────────────────────────
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:redis1234}
+
+  # ── OAuth2 공통 설정 ────────────────────────────────────────────
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            client-id: ${KAKAO_CLIENT_ID:dummy}
+            client-secret: ${KAKAO_CLIENT_SECRET:dummy}
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/kakao"
+            scope: profile_nickname, account_email
+          google:
+            client-id: ${GOOGLE_CLIENT_ID:dummy}
+            client-secret: ${GOOGLE_CLIENT_SECRET:dummy}
+            scope: profile, email
+        provider:
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            user-name-attribute: id
+
+# ── JWT 설정 ──────────────────────────────────────────────────────
+jwt:
+  secret: ${JWT_SECRET:dev-secret-key-please-change-in-production-32chars}
+  access-token-expiry: 900       # 15분 (초)
+  refresh-token-expiry: 604800   # 7일 (초)
+
+# ── 한국관광공사 OpenAPI ──────────────────────────────────────────
+tour:
+  api:
+    key: ${TOUR_API_KEY:your_api_key_here}
+    base-url: https://apis.data.go.kr/B551011
+    barrier-free-path: /KorWithService1/areaBasedList1
+    tour-info-path: /KorService1/areaBasedList1
+
+# ── 프로파일별 설정 ───────────────────────────────────────────────
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+  # H2 인메모리 DB (개발/테스트)
+  datasource:
+    url: jdbc:h2:mem:jejudb;MODE=MySQL;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+      settings:
+        web-allow-others: false
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+
+logging:
+  level:
+    com.jeju: DEBUG
+    org.hibernate.SQL: DEBUG
+
+server:
+  port: 8080
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  # MySQL (프로덕션)
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:jeju}?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: ${DB_USERNAME:jeju_user}
+    password: ${DB_PASSWORD:jeju_pass}
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+
+logging:
+  level:
+    com.jeju: INFO
+
+server:
+  port: 8080

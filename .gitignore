@@ -36,4 +36,32 @@ out/
 ### VS Code ###
 .vscode/
 
+# ── 환경변수 (절대 커밋 금지) ──────────────
 .env
+.env.prod
+application-secret.yml
+application-secret-*.yml
+
+# ── Flutter ────────────────────────────────
+frontend/.dart_tool/
+frontend/.flutter-plugins
+frontend/.flutter-plugins-dependencies
+frontend/.pub-cache/
+frontend/.pub/
+frontend/build/
+frontend/android/.gradle/
+frontend/android/local.properties
+frontend/android/key.properties
+frontend/*.jks
+frontend/ios/.symlinks/
+frontend/ios/Pods/
+frontend/ios/Flutter/Flutter.framework
+frontend/ios/Flutter/Flutter.podspec
+frontend/pubspec.lock
+
+# ── 로그 ───────────────────────────────────
+*.log
+logs/
+
+.pdf
+.docx

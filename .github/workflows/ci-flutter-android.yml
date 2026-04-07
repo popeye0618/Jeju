@@ -1,0 +1,48 @@
+name: Flutter Android CI
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'frontend/**'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'frontend/**'
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Flutter 설정
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.19.0'
+          channel: 'stable'
+          cache: true
+
+      - name: 의존성 설치
+        working-directory: frontend
+        run: flutter pub get
+
+      - name: 코드 분석
+        working-directory: frontend
+        run: flutter analyze
+
+      - name: 단위 테스트
+        working-directory: frontend
+        run: flutter test
+
+      - name: Android APK 빌드 (릴리즈)
+        working-directory: frontend
+        run: flutter build apk --release
+        if: github.ref == 'refs/heads/main'
+
+      - name: APK 업로드
+        uses: actions/upload-artifact@v4
+        if: github.ref == 'refs/heads/main'
+        with:
+          name: android-release-apk
+          path: frontend/build/app/outputs/flutter-apk/app-release.apk

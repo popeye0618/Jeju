@@ -1,0 +1,2076 @@
+openapi: 3.0.3
+info:
+  title: 같이가는 제주 API
+  description: |
+    **같이가는 제주** 모바일 앱 백엔드 API 명세서입니다.
+
+    ## 공통 응답 구조
+    모든 응답은 아래 구조를 따릅니다.
+
+    **성공:**
+    ```json
+    { "success": true, "code": "SUCCESS", "message": "...", "data": {} }
+    ```
+
+    **에러:**
+    ```json
+    { "success": false, "code": "AUTH_001", "message": "...", "data": null, "errors": [] }
+    ```
+
+    ## 인증
+    Access Token (JWT)을 `Authorization: Bearer {token}` 헤더로 전달합니다.
+    만료 시 `/api/v1/auth/token/refresh`로 재발급하세요.
+  version: 1.0.0
+  contact:
+    name: 같이가는 제주 팀
+servers:
+  - url: http://localhost:8080
+    description: 개발 서버
+  - url: https://api.jeju.app
+    description: 운영 서버 (예정)
+
+tags:
+  - name: Auth
+    description: 인증 (회원가입, 로그인, 소셜 로그인, 토큰 관리)
+  - name: User
+    description: 사용자 (온보딩, 프로필 조회/수정, 회원 탈퇴)
+  - name: Itinerary
+    description: 일정 (추천, 상세, 저장, 직접 만들기, 공유)
+  - name: Place
+    description: 장소 (탐색, 검색, 상세, 찜)
+  - name: Review
+    description: 후기 (작성, 목록 조회, 삭제)
+  - name: Notification
+    description: 알림 (목록, 읽음 처리, 삭제)
+  - name: Report
+    description: 신고 / 정보 정정
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    # ── 공통 응답 래퍼 ──────────────────────────────────────────
+    ApiResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        code:
+          type: string
+          example: SUCCESS
+        message:
+          type: string
+          example: 요청이 성공적으로 처리되었습니다.
+        data:
+          nullable: true
+
+    ApiError:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        code:
+          type: string
+          example: AUTH_001
+        message:
+          type: string
+          example: 이메일 또는 비밀번호가 올바르지 않습니다.
+        data:
+          nullable: true
+          example: null
+        errors:
+          type: array
+          nullable: true
+          items:
+            $ref: '#/components/schemas/FieldError'
+
+    FieldError:
+      type: object
+      properties:
+        field:
+          type: string
+          example: email
+        value:
+          type: string
+          example: not-an-email
+        reason:
+          type: string
+          example: 올바른 이메일 형식이 아닙니다.
+
+    PageMeta:
+      type: object
+      properties:
+        page:
+          type: integer
+          example: 0
+        size:
+          type: integer
+          example: 20
+        totalElements:
+          type: integer
+          example: 100
+        totalPages:
+          type: integer
+          example: 5
+        hasNext:
+          type: boolean
+          example: true
+
+    # ── Auth ────────────────────────────────────────────────────
+    TokenPair:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          example: eyJhbGciOiJIUzI1NiJ9...
+        refreshToken:
+          type: string
+          example: eyJhbGciOiJIUzI1NiJ9...
+        tokenType:
+          type: string
+          example: Bearer
+        expiresIn:
+          type: integer
+          description: Access Token 만료 시간 (초)
+          example: 900
+
+    SocialLoginResponse:
+      allOf:
+        - $ref: '#/components/schemas/TokenPair'
+        - type: object
+          properties:
+            isNewUser:
+              type: boolean
+              description: true이면 온보딩 화면으로 이동 필요
+              example: true
+
+    # ── User ────────────────────────────────────────────────────
+    UserProfile:
+      type: object
+      properties:
+        userId:
+          type: integer
+          example: 1
+        email:
+          type: string
+          example: user@jeju.com
+        nickname:
+          type: string
+          example: 제주나그네
+        provider:
+          type: string
+          enum: [EMAIL, KAKAO, GOOGLE]
+          example: EMAIL
+        companion:
+          type: string
+          enum: [SOLO, COUPLE, FAMILY, FRIENDS]
+          example: COUPLE
+        preference:
+          type: string
+          enum: [INDOOR, OUTDOOR, BOTH]
+          example: OUTDOOR
+        mobility:
+          type: string
+          enum: [WHEELCHAIR, STROLLER, ELDERLY, NORMAL]
+          example: NORMAL
+        savedItineraryCount:
+          type: integer
+          example: 3
+        likedPlaceCount:
+          type: integer
+          example: 7
+
+    # ── Itinerary ───────────────────────────────────────────────
+    ItinerarySummary:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: 성산일출봉 & 섭지코지 코스
+        thumbnail:
+          type: string
+          example: https://...
+        places:
+          type: integer
+          example: 5
+        estimatedTime:
+          type: integer
+          description: 예상 소요 시간 (분)
+          example: 360
+        accessibilityScore:
+          type: integer
+          description: 무장애 접근성 점수 (0~100)
+          example: 92
+
+    Accessibility:
+      type: object
+      properties:
+        hasRamp:
+          type: boolean
+          example: true
+        hasElevator:
+          type: boolean
+          example: false
+        hasAccessibleToilet:
+          type: boolean
+          example: true
+        hasRestZone:
+          type: boolean
+          example: false
+        hasAccessibleParking:
+          type: boolean
+          example: true
+
+    PlaceInItinerary:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 10
+        name:
+          type: string
+          example: 성산일출봉
+        order:
+          type: integer
+          example: 1
+        day:
+          type: integer
+          example: 1
+        lat:
+          type: number
+          format: double
+          example: 33.459
+        lng:
+          type: number
+          format: double
+          example: 126.942
+        estimatedMinutes:
+          type: integer
+          example: 90
+        accessibility:
+          $ref: '#/components/schemas/Accessibility'
+
+    ItineraryDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: 성산일출봉 & 섭지코지 코스
+        days:
+          type: integer
+          example: 1
+        estimatedTime:
+          type: integer
+          example: 360
+        savedCount:
+          type: integer
+          example: 142
+        isSaved:
+          type: boolean
+          example: false
+        places:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlaceInItinerary'
+
+    # ── Place ───────────────────────────────────────────────────
+    PlaceSummary:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 10
+        name:
+          type: string
+          example: 성산일출봉
+        category:
+          type: string
+          enum: [NATURE, FOOD, ACCOMMODATION, CULTURE, SHOPPING]
+          example: NATURE
+        address:
+          type: string
+          example: 제주 서귀포시 성산읍...
+        thumbnail:
+          type: string
+          example: https://...
+        accessibility:
+          $ref: '#/components/schemas/Accessibility'
+        isLiked:
+          type: boolean
+          example: false
+
+    PlaceDetail:
+      allOf:
+        - $ref: '#/components/schemas/PlaceSummary'
+        - type: object
+          properties:
+            tel:
+              type: string
+              example: 064-783-0959
+            lat:
+              type: number
+              example: 33.459
+            lng:
+              type: number
+              example: 126.942
+            openTime:
+              type: string
+              example: "07:00"
+            closeTime:
+              type: string
+              example: "20:00"
+            images:
+              type: array
+              items:
+                type: string
+            reviewCount:
+              type: integer
+              example: 24
+            avgRating:
+              type: number
+              format: float
+              example: 4.6
+
+    # ── Review ──────────────────────────────────────────────────
+    ReviewItem:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 55
+        nickname:
+          type: string
+          example: 제주나그네
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+          example: 5
+        content:
+          type: string
+          example: 접근성이 정말 좋아요!
+        imageUrls:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+          format: date-time
+          example: 2026-04-08T10:00:00
+        isOwner:
+          type: boolean
+          example: false
+
+    # ── Notification ────────────────────────────────────────────
+    NotificationItem:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        type:
+          type: string
+          enum: [WEATHER_ALERT, ITINERARY_SAVED, REVIEW_COMMENT, SYSTEM]
+          example: WEATHER_ALERT
+        title:
+          type: string
+          example: 날씨 변화 알림
+        body:
+          type: string
+          example: 내일 일정에 비가 예상됩니다.
+        isRead:
+          type: boolean
+          example: false
+        createdAt:
+          type: string
+          format: date-time
+          example: 2026-04-08T09:00:00
+
+  responses:
+    Unauthorized:
+      description: Access Token 만료 또는 유효하지 않음 (AUTH_003)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+          example:
+            success: false
+            code: AUTH_003
+            message: Access Token이 만료되었습니다.
+            data: null
+            errors: null
+
+    NotFound:
+      description: 리소스를 찾을 수 없음
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+
+    BadRequest:
+      description: 유효하지 않은 입력값 (COMMON_001)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+
+# ════════════════════════════════════════════════════════════════
+# PATHS
+# ════════════════════════════════════════════════════════════════
+paths:
+
+  # ── Auth ─────────────────────────────────────────────────────
+  /api/v1/auth/signup:
+    post:
+      tags: [Auth]
+      summary: 이메일 회원가입
+      description: 이메일, 비밀번호로 신규 계정을 생성합니다. 가입 후 인증 이메일이 자동 발송됩니다.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@jeju.com
+                password:
+                  type: string
+                  description: 영문 + 숫자 + 특수문자 포함, 8자 이상
+                  example: Password1!
+      responses:
+        '201':
+          description: 회원가입 성공, 인증 이메일 발송됨
+          content:
+            application/json:
+              example:
+                success: true
+                code: SUCCESS
+                message: 인증 이메일이 발송되었습니다.
+                data:
+                  userId: 1
+                  email: user@jeju.com
+                  emailVerified: false
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /api/v1/auth/login:
+    post:
+      tags: [Auth]
+      summary: 이메일 로그인
+      description: 이메일과 비밀번호로 로그인합니다. Access Token(15분)과 Refresh Token(7일)을 반환합니다.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@jeju.com
+                password:
+                  type: string
+                  example: Password1!
+      responses:
+        '200':
+          description: 로그인 성공
+          content:
+            application/json:
+              example:
+                success: true
+                code: SUCCESS
+                message: 로그인 성공
+                data:
+                  accessToken: eyJhbGciOiJIUzI1NiJ9...
+                  refreshToken: eyJhbGciOiJIUzI1NiJ9...
+                  tokenType: Bearer
+                  expiresIn: 900
+        '401':
+          description: AUTH_001 (이메일/비밀번호 불일치) 또는 AUTH_002 (이메일 미인증)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  /api/v1/auth/email/verify:
+    post:
+      tags: [Auth]
+      summary: 이메일 인증 코드 확인
+      description: 가입 시 발송된 6자리 인증 코드를 검증합니다. 코드 유효시간은 10분입니다.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, code]
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@jeju.com
+                code:
+                  type: string
+                  minLength: 6
+                  maxLength: 6
+                  example: "482910"
+      responses:
+        '200':
+          description: 인증 완료
+          content:
+            application/json:
+              example:
+                success: true
+                code: SUCCESS
+                message: 이메일 인증이 완료되었습니다.
+                data:
+                  emailVerified: true
+        '401':
+          description: AUTH_002 (코드 불일치 또는 만료)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  /api/v1/auth/email/resend:
+    post:
+      tags: [Auth]
+      summary: 인증 이메일 재발송
+      description: 인증 이메일을 재발송합니다. 기존 코드는 즉시 무효화됩니다.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@jeju.com
+      responses:
+        '200':
+          description: 재발송 성공
+          content:
+            application/json:
+              example:
+                success: true
+                code: SUCCESS
+                message: 인증 이메일이 재발송되었습니다.
+                data: null
+        '404':
+          description: USER_002 (미가입 이메일)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  /api/v1/auth/password/forgot:
+    post:
+      tags: [Auth]
+      summary: 비밀번호 찾기 이메일 발송
+      description: 입력한 이메일로 비밀번호 재설정 인증 코드를 발송합니다. 코드 유효시간 10분.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@jeju.com
+      responses:
+        '200':
+          description: 발송 성공
+          content:
+            application/json:
+              example:
+                success: true
+                code: SUCCESS
+                message: 비밀번호 재설정 이메일이 발송되었습니다.
+                data: null
+        '404':
+          description: USER_002 (가입되지 않은 이메일)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  /api/v1/auth/password/reset:
+    post:
+      tags: [Auth]
+      summary: 새 비밀번호 설정
+      description: 인증 코드 검증 후 새 비밀번호로 변경합니다.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, code, newPassword]
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@jeju.com
+                code:
+                  type: string
+                  example: "482910"
+                newPassword:
+                  type: string
+                  description: 영문 + 숫자 + 특수문자, 8자 이상
+                  example: NewPass1!
+      responses:
+        '200':
+          description: 비밀번호 변경 성공
+          content:
+            application/json:
+              example:
+                success: true
+                code: SUCCESS
+                message: 비밀번호가 변경되었습니다.
+                data: null
+        '401':
+          description: AUTH_001 (코드 불일치 또는 만료)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  /api/v1/auth/token/refresh:
+    post:
+      tags: [Auth]
+      summary: Access Token 재발급
+      description: Refresh Token으로 만료된 Access Token을 재발급합니다.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refreshToken]
+              properties:
+                refreshToken:
+                  type: string
+                  example: eyJhbGciOiJIUzI1NiJ9...
+      responses:
+        '200':
+          description: 재발급 성공
+          content:
+            application/json:
+              example:
+                success: true
+                code: SUCCESS
+                message: 토큰이 재발급되었습니다.
+                data:
+                  accessToken: eyJhbGciOiJIUzI1NiJ9...
+                  tokenType: Bearer
+                  expiresIn: 900
+        '401':
+          description: AUTH_003 (유효하지 않음) 또는 AUTH_004 (만료, 재로그인 필요)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  /api/v1/auth/logout:
+    delete:
+      tags: [Auth]
+      summary: 로그아웃
+      description: 현재 기기의 Refresh Token을 서버에서 무효화합니다.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 로그아웃 성공
+          content:
+            application/json:
+              example:
+                success: true
+                code: SUCCESS
+                message: 로그아웃 되었습니다.
+                data: null
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/v1/auth/oauth/kakao/callback:
+    get:
+      tags: [Auth]
+      summary: 카카오 소셜 로그인 콜백
+      description: 카카오 OAuth2 인증 후 콜백을 처리합니다. isNewUser가 true이면 온보딩으로 이동하세요.
+      parameters:
+        - name: code
+          in: query
+          required: true
+          schema:
+            type: string
+          description: 카카오 인가 코드
+        - name: state
+          in: query
+          required: false
+          schema:
+            type: string
+          description: CSRF 방지용 state 값
+      responses:
+        '200':
+          description: 소셜 로그인 성공
+          content:
+            application/json:
+              example:
+                success: true
+                code: SUCCESS
+                message: 소셜 로그인 성공
+                data:
+                  accessToken: eyJhbGciOiJIUzI1NiJ9...
+                  refreshToken: eyJhbGciOiJIUzI1NiJ9...
+                  tokenType: Bearer
+                  expiresIn: 900
+                  isNewUser: true
+        '400':
+          description: AUTH_005 (카카오 인증 실패)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  /api/v1/auth/oauth/google/callback:
+    get:
+      tags: [Auth]
+      summary: 구글 소셜 로그인 콜백
+      description: 구글 OAuth2 인증 후 콜백을 처리합니다. isNewUser가 true이면 온보딩으로 이동하세요.
+      parameters:
+        - name: code
+          in: query
+          required: true
+          schema:
+            type: string
+          description: 구글 인가 코드
+      responses:
+        '200':
+          description: 소셜 로그인 성공
+          content:
+            application/json:
+              example:
+                success: true
+                code: SUCCESS
+                message: 소셜 로그인 성공
+                data:
+                  accessToken: eyJhbGciOiJIUzI1NiJ9...
+                  refreshToken: eyJhbGciOiJIUzI1NiJ9...
+                  tokenType: Bearer
+                  expiresIn: 900
+                  isNewUser: false
+        '400':
+          description: AUTH_005 (구글 인증 실패)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  # ── User ─────────────────────────────────────────────────────
+  /api/v1/users/nickname/check:
+    get:
+      tags: [User]
+      summary: 닉네임 중복 확인
+      description: 온보딩 단계에서 닉네임 중복 여부를 실시간 확인합니다. 클라이언트 300ms debounce 권장.
+      parameters:
+        - name: nickname
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 2
+            maxLength: 10
+          description: 확인할 닉네임
+      responses:
+        '200':
+          description: 확인 완료
+          content:
+            application/json:
+              example:
+                success: true
+                code: SUCCESS
+                message: 사용 가능한 닉네임입니다.
+                data:
+                  available: true
+        '409':
+          description: USER_001 (닉네임 중복)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  /api/v1/users/onboarding:
+    post:
+      tags: [User]
+      summary: 온보딩 정보 저장
+      description: 여행 조건(동반 유형, 실내외 선호, 이동 강도, 여행 일수), 닉네임, 약관 동의를 저장합니다.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [companion, preference, mobility, days, nickname, termsAgreed, privacyAgreed]
+              properties:
+                companion:
+                  type: string
+                  enum: [SOLO, COUPLE, FAMILY, FRIENDS]
+                  example: COUPLE
+                preference:
+                  type: string
+                  enum: [INDOOR, OUTDOOR, BOTH]
+                  example: OUTDOOR
+                mobility:
+                  type: string
+                  enum: [WHEELCHAIR, STROLLER, ELDERLY, NORMAL]
+                  example: NORMAL
+                days:
+                  type: integer
+                  minimum: 1
+                  maximum: 5
+                  example: 2
+                nickname:
+                  type: string
+                  minLength: 2
+                  maxLength: 10
+                  example: 제주나그네
+                termsAgreed:
+                  type: boolean
+                  example: true
+                privacyAgreed:
+                  type: boolean
+                  example: true
+      responses:
+        '200':
+          description: 온보딩 완료
+          content:
+            application/json:
+              example:
+                success: true
+                code: SUCCESS
+                message: 온보딩이 완료되었습니다.
+                data:
+                  userId: 1
+                  nickname: 제주나그네
+                  onboardingComplete: true
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          description: USER_001 (닉네임 중복)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  /api/v1/users/me:
+    get:
+      tags: [User]
+      summary: 내 프로필 조회
+      description: 로그인한 사용자의 프로필 정보를 조회합니다. 마이페이지 진입 시 호출됩니다.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 조회 성공
+          content:
+            application/json:
+              example:
+                success: true
+                code: SUCCESS
+                message: 조회 성공
+                data:
+                  userId: 1
+                  email: user@jeju.com
+                  nickname: 제주나그네
+                  provider: EMAIL
+                  companion: COUPLE
+                  preference: OUTDOOR
+                  mobility: NORMAL
+                  savedItineraryCount: 3
+                  likedPlaceCount: 7
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    patch:
+      tags: [User]
+      summary: 내 프로필 수정
+      description: 변경할 필드만 포함하여 전송합니다 (Partial Update). 닉네임, 여행 조건 수정 가능.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nickname:
+                  type: string
+                  minLength: 2
+                  maxLength: 10
+                  example: 제주스타
+                companion:
+                  type: string
+                  enum: [SOLO, COUPLE, FAMILY, FRIENDS]
+                preference:
+                  type: string
+                  enum: [INDOOR, OUTDOOR, BOTH]
+                mobility:
+                  type: string
+                  enum: [WHEELCHAIR, STROLLER, ELDERLY, NORMAL]
+      responses:
+        '200':
+          description: 수정 성공
+          content:
+            application/json:
+              example:
+                success: true
+                code: SUCCESS
+                message: 프로필이 수정되었습니다.
+                data:
+                  userId: 1
+                  nickname: 제주스타
+                  companion: SOLO
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          description: USER_001 (닉네임 중복)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+    delete:
+      tags: [User]
+      summary: 회원 탈퇴
+      description: 계정을 영구 삭제합니다. 저장 일정, 찜 목록, 후기 등 모든 데이터가 삭제되며 복구 불가합니다.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
+                  enum: [LACK_OF_CONTENT, PRIVACY_CONCERN, DUPLICATE_ACCOUNT, OTHER]
+                  example: LACK_OF_CONTENT
+      responses:
+        '200':
+          description: 탈퇴 완료
+          content:
+            application/json:
+              example:
+                success: true
+                code: SUCCESS
+                message: 회원 탈퇴가 완료되었습니다.
+                data: null
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # ── Itinerary ─────────────────────────────────────────────────
+  /api/v1/itineraries/recommend:
+    get:
+      tags: [Itinerary]
+      summary: 맞춤 일정 추천
+      description: 사용자의 온보딩 조건 기반으로 맞춤 일정 3개를 추천합니다. 홈 화면 진입 시 호출됩니다.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: date
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+          description: 여행 예정일 (YYYY-MM-DD)
+        - name: refresh
+          in: query
+          required: false
+          schema:
+            type: boolean
+          description: true이면 캐시 무시하고 재추천
+      responses:
+        '200':
+          description: 추천 성공
+          content:
+            application/json:
+              example:
+                success: true
+                code: SUCCESS
+                data:
+                  content:
+                    - id: 1
+                      title: 성산일출봉 & 섭지코지 코스
+                      thumbnail: https://...
+                      places: 5
+                      estimatedTime: 360
+                      accessibilityScore: 92
+                  page: 0
+                  size: 3
+                  totalElements: 3
+                  totalPages: 1
+                  hasNext: false
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/v1/itineraries/my:
+    get:
+      tags: [Itinerary]
+      summary: 내 저장 일정 목록
+      description: 내가 저장하거나 직접 만든 일정 목록을 조회합니다. 마이페이지 '내 일정' 탭에서 사용됩니다.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: 조회 성공
+          content:
+            application/json:
+              example:
+                success: true
+                code: SUCCESS
+                data:
+                  content:
+                    - id: 1
+                      title: 성산일출봉 & 섭지코지 코스
+                      thumbnail: https://...
+                      places: 5
+                      savedAt: 2026-04-01T10:00:00
+                      type: RECOMMENDED
+                  page: 0
+                  size: 10
+                  totalElements: 3
+                  totalPages: 1
+                  hasNext: false
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/v1/itineraries:
+    post:
+      tags: [Itinerary]
+      summary: 일정 직접 만들기
+      description: 사용자가 직접 장소를 선택해 일정을 구성하고 저장합니다. 일정 빌더 화면에서 사용됩니다.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title, days, places]
+              properties:
+                title:
+                  type: string
+                  minLength: 1
+                  maxLength: 30
+                  example: 나만의 제주 1일 코스
+                days:
+                  type: integer
+                  minimum: 1
+                  maximum: 5
+                  example: 1
+                places:
+                  type: array
+                  items:
+                    type: object
+                    required: [placeId, order, day]
+                    properties:
+                      placeId:
+                        type: integer
+                        example: 10
+                      order:
+                        type: integer
+                        example: 1
+                      day:
+                        type: integer
+                        example: 1
+      responses:
+        '201':
+          description: 일정 생성 성공
+          content:
+            application/json:
+              example:
+                success: true
+                code: SUCCESS
+                message: 일정이 저장되었습니다.
+                data:
+                  id: 99
+                  title: 나만의 제주 1일 코스
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          description: PLACE_001 (존재하지 않는 장소 ID 포함)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  /api/v1/itineraries/{id}:
+    get:
+      tags: [Itinerary]
+      summary: 일정 상세 조회
+      description: 일정의 상세 정보를 조회합니다. 비로그인도 조회 가능합니다.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: 일정 ID
+      responses:
+        '200':
+          description: 조회 성공
+          content:
+            application/json:
+              example:
+                success: true
+                code: SUCCESS
+                data:
+                  id: 1
+                  title: 성산일출봉 & 섭지코지 코스
+                  days: 1
+                  estimatedTime: 360
+                  savedCount: 142
+                  isSaved: false
+                  places:
+                    - id: 10
+                      name: 성산일출봉
+                      order: 1
+                      day: 1
+                      lat: 33.459
+                      lng: 126.942
+                      estimatedMinutes: 90
+                      accessibility:
+                        hasRamp: true
+                        hasElevator: false
+                        hasAccessibleToilet: true
+                        hasRestZone: false
+        '404':
+          description: ITIN_001 (존재하지 않는 일정)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+    put:
+      tags: [Itinerary]
+      summary: 일정 수정
+      description: 내가 직접 만든 일정의 제목과 장소 리스트를 전체 교체합니다.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title, days, places]
+              properties:
+                title:
+                  type: string
+                  example: 수정된 제주 코스
+                days:
+                  type: integer
+                  example: 1
+                places:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      placeId:
+                        type: integer
+                      order:
+                        type: integer
+                      day:
+                        type: integer
+      responses:
+        '200':
+          description: 수정 성공
+          content:
+            application/json:
+              example:
+                success: true
+                code: SUCCESS
+                message: 일정이 수정되었습니다.
+                data:
+                  id: 99
+                  title: 수정된 제주 코스
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: ITIN_002 (타인의 일정)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: ITIN_001 (존재하지 않는 일정)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+    delete:
+      tags: [Itinerary]
+      summary: 일정 삭제
+      description: 내가 직접 만든 일정을 삭제합니다. 타인의 일정은 삭제 불가.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 삭제 성공
+          content:
+            application/json:
+              example:
+                success: true
+                code: SUCCESS
+                message: 일정이 삭제되었습니다.
+                data: null
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: ITIN_002 (타인의 일정)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+        '404':
+          description: ITIN_001 (존재하지 않는 일정)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  /api/v1/itineraries/{id}/save:
+    post:
+      tags: [Itinerary]
+      summary: 일정 저장
+      description: 추천된 일정을 내 일정 목록에 저장합니다.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 저장 성공
+          content:
+            application/json:
+              example:
+                success: true
+                code: SUCCESS
+                message: 일정이 저장되었습니다.
+                data:
+                  saved: true
+                  savedCount: 143
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      tags: [Itinerary]
+      summary: 일정 저장 취소
+      description: 저장한 일정을 내 일정 목록에서 제거합니다.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 저장 취소 성공
+          content:
+            application/json:
+              example:
+                success: true
+                code: SUCCESS
+                message: 저장이 취소되었습니다.
+                data:
+                  saved: false
+                  savedCount: 142
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/v1/itineraries/{id}/alternative:
+    get:
+      tags: [Itinerary]
+      summary: 대체 코스 추천
+      description: 날씨 변화나 접근성 이슈 등에 대응하는 대체 코스를 추천합니다.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: 원본 일정 ID
+        - name: reason
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [WEATHER, ACCESSIBILITY, PREFERENCE]
+      responses:
+        '200':
+          description: 대체 코스 추천 성공
+          content:
+            application/json:
+              example:
+                success: true
+                code: SUCCESS
+                data:
+                  - id: 2
+                    title: 실내 중심 대체 코스
+                    reason: WEATHER
+                    thumbnail: https://...
+                    places: 4
+                    estimatedTime: 300
+                    accessibilityScore: 88
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/v1/itineraries/{id}/share:
+    post:
+      tags: [Itinerary]
+      summary: 일정 공유 링크 생성
+      description: 일정의 공유 링크를 생성합니다. 최대 30일간 유효하며 비로그인도 열람 가능합니다.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 공유 링크 생성 성공
+          content:
+            application/json:
+              example:
+                success: true
+                code: SUCCESS
+                data:
+                  shareUrl: https://jeju.app/share/abc123xyz
+                  expiresAt: 2026-05-08T00:00:00
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # ── Place ─────────────────────────────────────────────────────
+  /api/v1/places:
+    get:
+      tags: [Place]
+      summary: 장소 목록 조회 (탐색)
+      description: 탐색 화면에서 보여줄 장소 목록을 조회합니다. 한국관광공사 OpenAPI 데이터 기반.
+      parameters:
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [NATURE, FOOD, ACCOMMODATION, CULTURE, SHOPPING]
+        - name: barrierFree
+          in: query
+          required: false
+          schema:
+            type: boolean
+          description: true이면 무장애 인증 장소만 필터링
+        - name: areaCode
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: 지역 코드 (한국관광공사 기준)
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: 조회 성공
+          content:
+            application/json:
+              example:
+                success: true
+                code: SUCCESS
+                data:
+                  content:
+                    - id: 10
+                      name: 성산일출봉
+                      category: NATURE
+                      address: 제주 서귀포시 성산읍...
+                      thumbnail: https://...
+                      accessibility:
+                        hasRamp: true
+                      isLiked: false
+                  page: 0
+                  size: 20
+                  totalElements: 245
+                  totalPages: 13
+                  hasNext: true
+        '502':
+          description: PLACE_002 (한국관광공사 외부 API 오류)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  /api/v1/places/search:
+    get:
+      tags: [Place]
+      summary: 장소 검색
+      description: 키워드로 장소를 검색합니다.
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 1
+          description: 검색어
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: 검색 완료
+          content:
+            application/json:
+              example:
+                success: true
+                code: SUCCESS
+                data:
+                  keyword: 성산
+                  content:
+                    - id: 10
+                      name: 성산일출봉
+                      category: NATURE
+                      address: 제주 서귀포시...
+                  page: 0
+                  size: 20
+                  totalElements: 5
+                  totalPages: 1
+                  hasNext: false
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /api/v1/places/search/autocomplete:
+    get:
+      tags: [Place]
+      summary: 검색 자동완성
+      description: 검색창 타이핑 중 실시간 자동완성 후보를 제공합니다. 클라이언트 300ms debounce 권장.
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 1
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 5
+            maximum: 10
+      responses:
+        '200':
+          description: 자동완성 결과
+          content:
+            application/json:
+              example:
+                success: true
+                code: SUCCESS
+                data:
+                  - id: 10
+                    name: 성산일출봉
+                    category: NATURE
+                  - id: 15
+                    name: 성산항 어시장
+                    category: FOOD
+
+  /api/v1/places/liked:
+    get:
+      tags: [Place]
+      summary: 찜한 장소 목록
+      description: 내가 찜한 장소 목록을 조회합니다. 마이페이지 '찜한 코스' 탭에서 사용됩니다.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: 조회 성공
+          content:
+            application/json:
+              example:
+                success: true
+                code: SUCCESS
+                data:
+                  content:
+                    - id: 10
+                      name: 성산일출봉
+                      category: NATURE
+                      thumbnail: https://...
+                      likedAt: 2026-04-01T10:00:00
+                  page: 0
+                  size: 20
+                  totalElements: 7
+                  totalPages: 1
+                  hasNext: false
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/v1/places/recent:
+    get:
+      tags: [Place]
+      summary: 최근 본 장소 목록
+      description: 최근 상세 조회한 장소 목록을 최대 20개까지 내림차순으로 반환합니다.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+            maximum: 20
+      responses:
+        '200':
+          description: 조회 성공
+          content:
+            application/json:
+              example:
+                success: true
+                code: SUCCESS
+                data:
+                  - id: 10
+                    name: 성산일출봉
+                    category: NATURE
+                    thumbnail: https://...
+                    viewedAt: 2026-04-07T15:30:00
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/v1/places/{id}:
+    get:
+      tags: [Place]
+      summary: 장소 상세 조회
+      description: 특정 장소의 상세 정보를 조회합니다. 무장애 접근성 정보, 운영시간, 평점, 후기 수 포함.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: 장소 ID
+      responses:
+        '200':
+          description: 조회 성공
+          content:
+            application/json:
+              example:
+                success: true
+                code: SUCCESS
+                data:
+                  id: 10
+                  name: 성산일출봉
+                  category: NATURE
+                  address: 제주 서귀포시 성산읍 성산리 1
+                  tel: 064-783-0959
+                  lat: 33.459
+                  lng: 126.942
+                  openTime: "07:00"
+                  closeTime: "20:00"
+                  accessibility:
+                    hasRamp: true
+                    hasElevator: false
+                    hasAccessibleToilet: true
+                    hasRestZone: false
+                    hasAccessibleParking: true
+                  reviewCount: 24
+                  avgRating: 4.6
+                  isLiked: false
+        '404':
+          description: PLACE_001 (존재하지 않는 장소)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  /api/v1/places/{id}/like:
+    post:
+      tags: [Place]
+      summary: 장소 찜
+      description: 장소를 찜(좋아요) 목록에 추가합니다.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 찜 추가 성공
+          content:
+            application/json:
+              example:
+                success: true
+                code: SUCCESS
+                message: 찜 목록에 추가되었습니다.
+                data:
+                  liked: true
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      tags: [Place]
+      summary: 장소 찜 취소
+      description: 찜 목록에서 장소를 제거합니다.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 찜 취소 성공
+          content:
+            application/json:
+              example:
+                success: true
+                code: SUCCESS
+                message: 찜이 취소되었습니다.
+                data:
+                  liked: false
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # ── Review ────────────────────────────────────────────────────
+  /api/v1/reviews:
+    post:
+      tags: [Review]
+      summary: 후기 작성
+      description: 장소 또는 일정에 대한 후기를 작성합니다. 동일 대상 중복 후기 불가.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [targetType, targetId, rating, content]
+              properties:
+                targetType:
+                  type: string
+                  enum: [PLACE, ITINERARY]
+                  example: PLACE
+                targetId:
+                  type: integer
+                  example: 10
+                rating:
+                  type: integer
+                  minimum: 1
+                  maximum: 5
+                  example: 5
+                content:
+                  type: string
+                  minLength: 10
+                  maxLength: 500
+                  example: 접근성이 정말 좋아요!
+                imageUrls:
+                  type: array
+                  maxItems: 5
+                  items:
+                    type: string
+                    format: uri
+      responses:
+        '201':
+          description: 후기 등록 성공
+          content:
+            application/json:
+              example:
+                success: true
+                code: SUCCESS
+                message: 후기가 등록되었습니다.
+                data:
+                  id: 55
+                  rating: 5
+                  createdAt: 2026-04-08T10:00:00
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          description: REVIEW_001 (중복 후기)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+    get:
+      tags: [Review]
+      summary: 후기 목록 조회
+      description: 특정 장소 또는 일정에 달린 후기 목록을 조회합니다.
+      parameters:
+        - name: targetType
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [PLACE, ITINERARY]
+        - name: targetId
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: 조회 성공
+          content:
+            application/json:
+              example:
+                success: true
+                code: SUCCESS
+                data:
+                  avgRating: 4.6
+                  totalCount: 24
+                  content:
+                    - id: 55
+                      nickname: 제주나그네
+                      rating: 5
+                      content: 접근성이 정말 좋아요!
+                      imageUrls: []
+                      createdAt: 2026-04-08T10:00:00
+                      isOwner: false
+                  page: 0
+                  size: 10
+                  totalElements: 24
+                  totalPages: 3
+                  hasNext: true
+
+  /api/v1/reviews/{id}:
+    delete:
+      tags: [Review]
+      summary: 후기 삭제
+      description: 내가 작성한 후기를 삭제합니다. 본인 후기만 삭제 가능합니다.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: 삭제할 후기 ID
+      responses:
+        '200':
+          description: 삭제 성공
+          content:
+            application/json:
+              example:
+                success: true
+                code: SUCCESS
+                message: 후기가 삭제되었습니다.
+                data: null
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: ITIN_002 (타인의 후기)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+
+  # ── Notification ──────────────────────────────────────────────
+  /api/v1/notifications:
+    get:
+      tags: [Notification]
+      summary: 알림 목록 조회
+      description: 내 알림 목록을 조회합니다. 읽지 않은 알림 수를 함께 반환합니다.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+        - name: unreadOnly
+          in: query
+          required: false
+          schema:
+            type: boolean
+          description: true이면 읽지 않은 알림만 조회
+      responses:
+        '200':
+          description: 조회 성공
+          content:
+            application/json:
+              example:
+                success: true
+                code: SUCCESS
+                data:
+                  unreadCount: 2
+                  content:
+                    - id: 1
+                      type: WEATHER_ALERT
+                      title: 날씨 변화 알림
+                      body: 내일 일정에 비가 예상됩니다.
+                      isRead: false
+                      createdAt: 2026-04-08T09:00:00
+                  page: 0
+                  size: 20
+                  totalElements: 5
+                  totalPages: 1
+                  hasNext: false
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/v1/notifications/read-all:
+    patch:
+      tags: [Notification]
+      summary: 알림 전체 읽음 처리
+      description: 알림함의 모든 알림을 읽음 상태로 일괄 변경합니다.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 전체 읽음 처리 성공
+          content:
+            application/json:
+              example:
+                success: true
+                code: SUCCESS
+                message: 모든 알림을 읽음으로 표시했습니다.
+                data:
+                  updatedCount: 5
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/v1/notifications/{id}/read:
+    patch:
+      tags: [Notification]
+      summary: 알림 읽음 처리
+      description: 특정 알림을 읽음 상태로 변경합니다.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 읽음 처리 성공
+          content:
+            application/json:
+              example:
+                success: true
+                code: SUCCESS
+                message: 알림을 읽음으로 표시했습니다.
+                data:
+                  id: 1
+                  isRead: true
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/v1/notifications/{id}:
+    delete:
+      tags: [Notification]
+      summary: 알림 삭제
+      description: 특정 알림을 삭제합니다.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 삭제 성공
+          content:
+            application/json:
+              example:
+                success: true
+                code: SUCCESS
+                message: 알림이 삭제되었습니다.
+                data: null
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # ── Report ────────────────────────────────────────────────────
+  /api/v1/reports:
+    post:
+      tags: [Report]
+      summary: 신고 / 정보 정정 요청
+      description: 장소 정보 오류 신고 또는 후기/콘텐츠에 대한 신고를 접수합니다. 중복 신고 불가.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [targetType, targetId, reason]
+              properties:
+                targetType:
+                  type: string
+                  enum: [PLACE, REVIEW]
+                  example: PLACE
+                targetId:
+                  type: integer
+                  example: 10
+                reason:
+                  type: string
+                  enum: [WRONG_INFO, INAPPROPRIATE, SPAM, OTHER]
+                  example: WRONG_INFO
+                description:
+                  type: string
+                  maxLength: 500
+                  example: 주차장 정보가 잘못되었습니다.
+                imageUrls:
+                  type: array
+                  maxItems: 3
+                  items:
+                    type: string
+                    format: uri
+      responses:
+        '201':
+          description: 신고 접수 성공
+          content:
+            application/json:
+              example:
+                success: true
+                code: SUCCESS
+                message: 신고가 접수되었습니다.
+                data:
+                  reportId: 7
+                  status: PENDING
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          description: REPORT_001 (이미 신고한 대상)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'

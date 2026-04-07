@@ -1,0 +1,39 @@
+name: Flutter iOS CI (macOS 빌드)
+
+# Windows에서 iOS 빌드 불가 → GitHub Actions macOS 러너 사용
+# main 브랜치 push 시에만 실행 (빌드 시간 절약)
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'frontend/**'
+
+jobs:
+  build-ios:
+    runs-on: macos-14   # Apple Silicon M1 러너 (무료 플랜 월 2,000분)
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Flutter 설정
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.19.0'
+          channel: 'stable'
+          cache: true
+
+      - name: 의존성 설치
+        working-directory: frontend
+        run: flutter pub get
+
+      - name: CocoaPods 설치
+        working-directory: frontend/ios
+        run: pod install
+
+      - name: iOS 빌드 (no-codesign — 서명 없이 빌드 검증)
+        working-directory: frontend
+        run: flutter build ios --release --no-codesign
+
+      - name: IPA 아카이브 (선택 — 실제 배포 시 인증서 필요)
+        # App Store 배포를 위해서는 Apple Developer 인증서 설정 필요
+        # 현재는 빌드 검증만 수행
+        run: echo "iOS 빌드 성공. App Store 배포는 Apple Developer 계정 등록 후 설정"

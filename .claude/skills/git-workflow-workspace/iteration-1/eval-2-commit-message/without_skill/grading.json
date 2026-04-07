@@ -1,0 +1,35 @@
+{
+  "eval_id": 2,
+  "configuration": "without_skill",
+  "expectations": [
+    {
+      "text": "커밋 메시지가 type(scope): subject 형식을 따른다",
+      "passed": true,
+      "evidence": "feat(security): JWT 인증 필터 및 토큰 처리 로직 개선 (#42) — 형식 준수"
+    },
+    {
+      "text": "scope가 security 이다",
+      "passed": true,
+      "evidence": "security scope 정확히 사용"
+    },
+    {
+      "text": "Closes #42 또는 Fixes #42 footer가 포함된다",
+      "passed": true,
+      "evidence": "footer에 Closes #42 포함"
+    },
+    {
+      "text": "subject가 50자 이내이다",
+      "passed": true,
+      "evidence": "subject 50자 이내"
+    },
+    {
+      "text": "git commit -m 명령이 포함된다",
+      "passed": true,
+      "evidence": "git commit -m 명령 포함"
+    }
+  ],
+  "pass_count": 5,
+  "total_count": 5,
+  "pass_rate": 1.0,
+  "notes": "subject에 (#42)를 포함한 것은 컨벤션 위반 — 이슈 참조는 footer에만 있어야 함. 검증 assertion에 없어서 pass 처리."
+}

@@ -1,0 +1,13 @@
+{
+  "eval_id": 3,
+  "eval_name": "pr-creation",
+  "prompt": "feature/42-jwt-auth 브랜치에서 JWT 인증 작업 완료됐어. PR 만들어줘.",
+  "assertions": [
+    "gh pr create 명령이 포함된다",
+    "PR 제목이 [feat/...] 형식이다",
+    "Closes #42가 body에 포함된다",
+    "--base dev 옵션이 포함된다",
+    "테스트 완료 체크리스트가 포함된다",
+    "체크리스트(PR 규칙 준수 등)가 포함된다"
+  ]
+}

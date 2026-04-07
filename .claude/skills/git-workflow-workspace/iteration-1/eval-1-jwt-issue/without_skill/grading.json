@@ -1,0 +1,39 @@
+{
+  "eval_id": 1,
+  "configuration": "without_skill",
+  "expectations": [
+    {
+      "text": "출력에 gh issue create 명령이 포함된다",
+      "passed": true,
+      "evidence": "gh issue create 명령이 포함됨"
+    },
+    {
+      "text": "Issue 제목이 [feat] 로 시작한다",
+      "passed": false,
+      "evidence": "제목이 'feat: JWT 인증 기능 구현' 형식 — [feat] 대괄호 형식이 아님"
+    },
+    {
+      "text": "라벨에 type/feature, stack/backend, priority/high 가 모두 포함된다",
+      "passed": false,
+      "evidence": "라벨이 'feature,backend,priority:high' — 프로젝트 컨벤션(type/, stack/, priority/) 형식과 다름"
+    },
+    {
+      "text": "Issue body에 Backend (Spring) 섹션이 포함된다",
+      "passed": false,
+      "evidence": "백엔드 관련 내용은 있지만 '### Backend (Spring)' 섹션 헤더가 없고 개별 클래스 섹션(SecurityConfig 등)으로 대체됨"
+    },
+    {
+      "text": "완료 조건 체크리스트가 포함된다",
+      "passed": false,
+      "evidence": "## ✅ 완료 조건 섹션 없음. 작업 항목 체크리스트는 있지만 완료 조건 형식이 아님"
+    },
+    {
+      "text": "브랜치명 제안이 feature/{번호}-jwt 형식으로 포함된다",
+      "passed": true,
+      "evidence": "feature/jwt-authentication 및 feature/42-jwt-authentication 두 형식 모두 언급됨"
+    }
+  ],
+  "pass_count": 2,
+  "total_count": 6,
+  "pass_rate": 0.333
+}

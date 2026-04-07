@@ -1,0 +1,13 @@
+{
+  "eval_id": 1,
+  "eval_name": "jwt-issue",
+  "prompt": "JWT 인증 기능 구현하려고 해. SecurityConfig에서 필터 체인 설정하고, JwtAuthenticationFilter랑 TokenProvider 클래스 만들어서 발급/검증 로직 구현할 거야. 백엔드 작업이고 우선순위 높아.",
+  "assertions": [
+    "출력에 gh issue create 명령이 포함된다",
+    "Issue 제목이 [feat] 로 시작한다",
+    "라벨에 type/feature, stack/backend, priority/high 가 모두 포함된다",
+    "Issue body에 Backend (Spring) 섹션이 포함된다",
+    "완료 조건 체크리스트가 포함된다",
+    "브랜치명 제안이 feature/{번호}-jwt 형식으로 포함된다"
+  ]
+}

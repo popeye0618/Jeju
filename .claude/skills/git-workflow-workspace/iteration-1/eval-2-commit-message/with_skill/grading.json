@@ -1,0 +1,35 @@
+{
+  "eval_id": 2,
+  "configuration": "with_skill",
+  "expectations": [
+    {
+      "text": "커밋 메시지가 type(scope): subject 형식을 따른다",
+      "passed": true,
+      "evidence": "refactor(security): JWT 인증 구성 리팩토링 — 형식 정확히 준수"
+    },
+    {
+      "text": "scope가 security 이다",
+      "passed": true,
+      "evidence": "파일 매핑 테이블로 분석 후 security scope 결정, 정확"
+    },
+    {
+      "text": "Closes #42 또는 Fixes #42 footer가 포함된다",
+      "passed": true,
+      "evidence": "footer에 Closes #42 포함"
+    },
+    {
+      "text": "subject가 50자 이내이다",
+      "passed": true,
+      "evidence": "'JWT 인증 구성 리팩토링' — 13자로 50자 이내"
+    },
+    {
+      "text": "git commit -m 명령이 포함된다",
+      "passed": true,
+      "evidence": "git add + git commit -m heredoc 형식으로 전체 명령 포함"
+    }
+  ],
+  "pass_count": 5,
+  "total_count": 5,
+  "pass_rate": 1.0,
+  "notes": "type을 refactor로 선택한 것은 맥락상 feat가 더 적합할 수 있음 (새 기능 추가). 개선 포인트."
+}

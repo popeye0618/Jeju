@@ -1,0 +1,39 @@
+{
+  "eval_id": 4,
+  "configuration": "without_skill",
+  "expectations": [
+    {
+      "text": "gh issue create 명령이 포함된다",
+      "passed": true,
+      "evidence": "gh issue create 명령 포함"
+    },
+    {
+      "text": "라벨에 stack/fullstack이 포함된다",
+      "passed": false,
+      "evidence": "라벨이 'feature,auth,oauth2' — stack/fullstack 없음, 프로젝트 라벨 형식도 다름"
+    },
+    {
+      "text": "브랜치명에 social 또는 oauth가 포함된다",
+      "passed": true,
+      "evidence": "feature/social-login, feature/oauth2-social-login 등 포함"
+    },
+    {
+      "text": "브랜치명 형식이 feature/{번호}-... 이다",
+      "passed": false,
+      "evidence": "추천 브랜치가 feature/social-login — 이슈 번호 없음"
+    },
+    {
+      "text": "사용자 확인을 요청하거나 확인 의사를 묻는다",
+      "passed": true,
+      "evidence": "'마음에 드시면 실제로 생성을 진행할까요?' 확인 요청 포함"
+    },
+    {
+      "text": "git checkout -b 명령이 포함된다",
+      "passed": true,
+      "evidence": "git checkout -b feature/social-login main — 명령 포함되나 main에서 파생 (컨벤션 위반)"
+    }
+  ],
+  "pass_count": 4,
+  "total_count": 6,
+  "pass_rate": 0.667
+}

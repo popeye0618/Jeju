@@ -1,0 +1,29 @@
+{
+  "skill_name": "git-workflow",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "JWT 인증 기능 구현하려고 해. SecurityConfig에서 필터 체인 설정하고, JwtAuthenticationFilter랑 TokenProvider 클래스 만들어서 발급/검증 로직 구현할 거야. 백엔드 작업이고 우선순위 높아.",
+      "expected_output": "[feat] 제목으로 GitHub Issue를 gh CLI로 생성하고, type/feature, stack/backend, priority/high 라벨을 붙이고, 브랜치명(feature/{번호}-jwt-...) 을 제안한다.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "SecurityConfig.java, JwtAuthenticationFilter.java, TokenProvider.java 수정했어. 이슈 #42 관련이야. 커밋 메시지 작성해줘.",
+      "expected_output": "파일 경로를 분석해 scope를 security로 판단하고, feat(security) 또는 적절한 type으로 Conventional Commits 형식의 커밋 메시지를 생성한다. Closes #42 footer 포함.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "feature/42-jwt-auth 브랜치에서 JWT 인증 작업 완료됐어. PR 만들어줘.",
+      "expected_output": "현재 브랜치 기준으로 [feat/security] 형식의 PR 제목, 관련 이슈 #42 참조, 변경사항/테스트/체크리스트가 포함된 PR body로 gh pr create --base dev 를 실행한다.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "소셜 로그인 기능 추가하려고 해. OAuth2 설정하고 구글이랑 카카오 로그인 구현할 건데, 백엔드랑 프론트 둘 다 작업해야 해. 브랜치 이름 추천해줘. 좋으면 바로 만들어줘.",
+      "expected_output": "GitHub Issue를 생성하고 브랜치명 feature/{번호}-social-login-oauth2 (혹은 유사한 이름)을 제안한다. 사용자가 확인하면 git checkout dev && git pull origin dev && git checkout -b {브랜치명} 을 실행하고 현재 브랜치를 확인해 알린다.",
+      "files": []
+    }
+  ]
+}

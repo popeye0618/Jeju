@@ -1,0 +1,44 @@
+{
+  "skill_name": "git-workflow",
+  "iteration": 1,
+  "configurations": [
+    {
+      "name": "with_skill",
+      "pass_rate": 0.957,
+      "pass_rate_std": 0.049,
+      "avg_duration_seconds": 36.6,
+      "avg_tokens": 15069,
+      "evals": [
+        { "eval_id": 1, "eval_name": "jwt-issue",       "pass_rate": 1.0,  "duration_seconds": 33.9, "tokens": 14368 },
+        { "eval_id": 2, "eval_name": "commit-message",  "pass_rate": 1.0,  "duration_seconds": 31.4, "tokens": 14415 },
+        { "eval_id": 3, "eval_name": "pr-creation",     "pass_rate": 1.0,  "duration_seconds": 37.9, "tokens": 16101 },
+        { "eval_id": 4, "eval_name": "branch-checkout", "pass_rate": 1.0,  "duration_seconds": 44.1, "tokens": 15393 }
+      ]
+    },
+    {
+      "name": "without_skill",
+      "pass_rate": 0.739,
+      "pass_rate_std": 0.279,
+      "avg_duration_seconds": 36.5,
+      "avg_tokens": 12874,
+      "evals": [
+        { "eval_id": 1, "eval_name": "jwt-issue",       "pass_rate": 0.333, "duration_seconds": 31.2, "tokens": 11109 },
+        { "eval_id": 2, "eval_name": "commit-message",  "pass_rate": 1.0,   "duration_seconds": 37.1, "tokens": 11429 },
+        { "eval_id": 3, "eval_name": "pr-creation",     "pass_rate": 1.0,   "duration_seconds": 48.1, "tokens": 18111 },
+        { "eval_id": 4, "eval_name": "branch-checkout", "pass_rate": 0.667, "duration_seconds": 29.7, "tokens": 10847 }
+      ]
+    }
+  ],
+  "delta": {
+    "pass_rate": +0.218,
+    "duration_seconds": +0.1,
+    "tokens": +2195
+  },
+  "analyst_notes": [
+    "Eval-2(commit-message)와 Eval-3(pr-creation)은 with/without 모두 100% — 이 케이스들은 차별화 능력이 낮음. without-skill 에이전트가 memo.txt를 읽어 컨벤션을 파악했기 때문.",
+    "Eval-1(jwt-issue)에서 가장 큰 차이 — 라벨 형식, Issue 제목 형식, 완료 조건 섹션, 브랜치 베이스(dev vs main) 모두 스킬 있을 때만 정확.",
+    "Eval-4(branch-checkout)에서도 스킬이 stack/fullstack 라벨과 이슈 번호 포함 브랜치명에서 우위.",
+    "Eval-2 with_skill에서 type을 refactor로 선택한 것은 feat가 더 적합할 수 있음 — 스킬에 type 판단 가이드 보강 필요.",
+    "without-skill이 memo.txt에 접근 가능한 환경에서는 PR 생성처럼 명확한 케이스는 차이가 없음. 스킬의 진가는 라벨/브랜치 컨벤션처럼 프로젝트 특화 규칙에서 드러남."
+  ]
+}

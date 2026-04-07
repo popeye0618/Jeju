@@ -1,0 +1,39 @@
+{
+  "eval_id": 3,
+  "configuration": "with_skill",
+  "expectations": [
+    {
+      "text": "gh pr create 명령이 포함된다",
+      "passed": true,
+      "evidence": "gh pr create 전체 명령 포함"
+    },
+    {
+      "text": "PR 제목이 [feat/...] 형식이다",
+      "passed": true,
+      "evidence": "[feat/security] JWT 인증 구현 — 형식 정확히 준수"
+    },
+    {
+      "text": "Closes #42가 body에 포함된다",
+      "passed": true,
+      "evidence": "## 📌 관련 이슈 섹션에 Closes #42 포함"
+    },
+    {
+      "text": "--base dev 옵션이 포함된다",
+      "passed": true,
+      "evidence": "--base dev 포함 (feature → dev 브랜치 전략 준수)"
+    },
+    {
+      "text": "테스트 완료 체크리스트가 포함된다",
+      "passed": true,
+      "evidence": "## ✅ 테스트 완료 섹션에 4개 항목 포함"
+    },
+    {
+      "text": "체크리스트(PR 규칙 준수 등)가 포함된다",
+      "passed": true,
+      "evidence": "## 📝 체크리스트 섹션에 5개 항목 포함"
+    }
+  ],
+  "pass_count": 6,
+  "total_count": 6,
+  "pass_rate": 1.0
+}

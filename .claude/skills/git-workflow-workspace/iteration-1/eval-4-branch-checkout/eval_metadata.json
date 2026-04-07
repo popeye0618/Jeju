@@ -1,0 +1,13 @@
+{
+  "eval_id": 4,
+  "eval_name": "branch-checkout",
+  "prompt": "소셜 로그인 기능 추가하려고 해. OAuth2 설정하고 구글이랑 카카오 로그인 구현할 건데, 백엔드랑 프론트 둘 다 작업해야 해. 브랜치 이름 추천해줘. 좋으면 바로 만들어줘.",
+  "assertions": [
+    "gh issue create 명령이 포함된다",
+    "라벨에 stack/fullstack이 포함된다",
+    "브랜치명에 social 또는 oauth가 포함된다",
+    "브랜치명 형식이 feature/{번호}-... 이다",
+    "사용자 확인을 요청하거나 확인 의사를 묻는다",
+    "git checkout -b 명령이 포함된다"
+  ]
+}

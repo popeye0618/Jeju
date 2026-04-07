@@ -1,0 +1,12 @@
+{
+  "eval_id": 2,
+  "eval_name": "commit-message",
+  "prompt": "SecurityConfig.java, JwtAuthenticationFilter.java, TokenProvider.java 수정했어. 이슈 #42 관련이야. 커밋 메시지 작성해줘.",
+  "assertions": [
+    "커밋 메시지가 type(scope): subject 형식을 따른다",
+    "scope가 security 이다",
+    "Closes #42 또는 Fixes #42 footer가 포함된다",
+    "subject가 50자 이내이다",
+    "git commit -m 명령이 포함된다"
+  ]
+}

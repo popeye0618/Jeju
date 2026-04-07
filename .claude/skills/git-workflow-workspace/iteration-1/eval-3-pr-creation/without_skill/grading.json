@@ -1,0 +1,40 @@
+{
+  "eval_id": 3,
+  "configuration": "without_skill",
+  "expectations": [
+    {
+      "text": "gh pr create 명령이 포함된다",
+      "passed": true,
+      "evidence": "gh pr create 전체 명령 포함"
+    },
+    {
+      "text": "PR 제목이 [feat/...] 형식이다",
+      "passed": true,
+      "evidence": "[feat/security] JWT 인증 시스템 구현 — 형식 준수. memo.txt를 읽어 컨벤션 파악."
+    },
+    {
+      "text": "Closes #42가 body에 포함된다",
+      "passed": true,
+      "evidence": "Closes #42 포함"
+    },
+    {
+      "text": "--base dev 옵션이 포함된다",
+      "passed": true,
+      "evidence": "--base dev 포함. memo.txt 브랜치 전략 참조."
+    },
+    {
+      "text": "테스트 완료 체크리스트가 포함된다",
+      "passed": true,
+      "evidence": "## ✅ 테스트 완료 섹션 포함"
+    },
+    {
+      "text": "체크리스트(PR 규칙 준수 등)가 포함된다",
+      "passed": true,
+      "evidence": "## 📝 체크리스트 섹션 포함"
+    }
+  ],
+  "pass_count": 6,
+  "total_count": 6,
+  "pass_rate": 1.0,
+  "notes": "without-skill이 memo.txt를 직접 읽어 컨벤션을 파악했기 때문에 높은 점수. 이 eval에서 스킬의 차별점이 드러나지 않음."
+}

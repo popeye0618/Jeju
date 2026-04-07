@@ -1,0 +1,3638 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>같이가는 제주 — Mobile UI Prototype v2</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
+<style>
+  :root{
+    /* Brand — Deep Teal (제주 바다) */
+    --teal-900:#0A3A48;
+    --teal-800:#0F4C5C;
+    --teal-700:#136073;
+    --teal-600:#1E7A8C;
+    --teal-500:#4A8C9C;
+    --teal-100:#E2F1F3;
+    --teal-50:#F1F8F9;
+
+    /* Sand Beige (제주 모래·현무암) */
+    --sand-900:#8C7755;
+    --sand-700:#B89B6E;
+    --sand-500:#D8C9AE;
+    --sand-200:#F4EDDE;
+    --sand-100:#F9F4EA;
+
+    /* Slate (텍스트) */
+    --slate-900:#121827;
+    --slate-700:#384151;
+    --slate-500:#64748B;
+    --slate-400:#94A3B8;
+    --slate-300:#CBD5E1;
+    --slate-200:#E2E8F0;
+    --slate-100:#F1F5F9;
+    --slate-50:#F8FAFC;
+
+    /* Surface */
+    --bg:#FAFAF7;
+    --surface:#FFFFFF;
+
+    /* Semantic — calm */
+    --success-d:#3B7B63;  --success:#5B9D80;  --success-bg:#E8F5ED;
+    --warning-d:#AB7726;  --warning:#D99E41;  --warning-bg:#FCF4E1;
+    --danger-d:#A44646;   --danger:#C65B5B;   --danger-bg:#FBEDED;
+
+    /* Accessibility badges */
+    --ramp-d:#1E6587;     --ramp:#488AAD;     --ramp-bg:#E8F2F8;
+    --elev-d:#633A83;     --elev:#84609E;     --elev-bg:#F2EDF7;
+    --toilet-d:#38835B;   --toilet:#589F78;   --toilet-bg:#EAF5EF;
+    --rest-d:#AB7026;     --rest:#D4943F;     --rest-bg:#FAF2E2;
+
+    --kakao:#FEE500;
+    --kakao-text:#3B2F1D;
+
+    --shadow-sm:0 1px 2px rgba(15,76,92,.05),0 1px 1px rgba(15,76,92,.04);
+    --shadow:0 4px 16px rgba(15,76,92,.06),0 2px 4px rgba(15,76,92,.04);
+    --shadow-lg:0 12px 32px rgba(15,76,92,.12),0 4px 8px rgba(15,76,92,.05);
+  }
+
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;
+    background:#EEF1F4;
+    color:var(--slate-900);
+    -webkit-font-smoothing:antialiased;
+    letter-spacing:-0.01em;
+  }
+
+  /* ─── 페이지 레이아웃 ─── */
+  .header{
+    padding:48px 32px 24px;
+    background:linear-gradient(135deg,var(--teal-800),var(--teal-700));
+    color:#fff;
+  }
+  .header h1{margin:0;font-size:30px;font-weight:800;letter-spacing:-0.02em}
+  .header p{margin:8px 0 0;opacity:.8;font-size:14px}
+  .header .meta{margin-top:20px;display:flex;gap:12px;flex-wrap:wrap}
+  .header .pill{padding:6px 12px;background:rgba(255,255,255,.14);border-radius:99px;font-size:12px;font-weight:500}
+
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(420px,1fr));
+    gap:48px 36px;
+    padding:48px 32px 96px;
+    max-width:2400px;
+    margin:0 auto;
+  }
+  .screen-wrap{display:flex;flex-direction:column;align-items:center}
+  .screen-label{
+    margin:0 0 14px;
+    font-size:13px;
+    font-weight:600;
+    color:var(--slate-700);
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+  }
+  .screen-label span{color:var(--teal-700);font-weight:700}
+
+  /* ─── 폰 프레임 ─── */
+  .phone{
+    width:390px;
+    height:844px;
+    background:var(--bg);
+    border-radius:44px;
+    border:10px solid #1a1d24;
+    box-shadow:var(--shadow-lg),0 0 0 2px #2a2f37;
+    overflow:hidden;
+    position:relative;
+    display:flex;
+    flex-direction:column;
+  }
+  .phone .notch{
+    position:absolute;
+    top:8px;left:50%;
+    transform:translateX(-50%);
+    width:120px;height:28px;
+    background:#1a1d24;
+    border-radius:0 0 18px 18px;
+    z-index:50;
+  }
+  .statusbar{
+    height:44px;flex-shrink:0;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:0 28px 0 32px;
+    font-size:14px;font-weight:600;
+    color:var(--slate-900);
+    z-index:10;
+  }
+  .statusbar.light{color:#fff}
+  .statusbar .right{display:flex;gap:5px;align-items:center;font-size:11px}
+  .scroll{flex:1;overflow-y:auto;overflow-x:hidden}
+  .scroll::-webkit-scrollbar{width:0}
+
+  /* ─── 공통 컴포넌트 ─── */
+  .appbar{
+    height:52px;display:flex;align-items:center;
+    padding:0 16px;position:relative;
+    background:var(--bg);
+  }
+  .appbar .back{font-size:26px;color:var(--slate-900);width:32px;cursor:pointer;font-weight:300;line-height:1}
+  .appbar .title{
+    position:absolute;left:0;right:0;text-align:center;
+    font-size:16px;font-weight:600;color:var(--slate-900);
+    pointer-events:none;
+  }
+  .appbar .right{margin-left:auto;font-size:14px;font-weight:600;color:var(--teal-700)}
+
+  .tabbar{
+    height:72px;flex-shrink:0;
+    background:#fff;
+    border-top:1px solid var(--slate-100);
+    display:flex;
+    padding:6px 0 18px;
+  }
+  .tabbar .tab{
+    flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:4px;font-size:10.5px;color:var(--slate-400);font-weight:500;
+  }
+  .tabbar .tab .ic{font-size:20px}
+  .tabbar .tab.active{color:var(--teal-800);font-weight:700}
+
+  .btn{
+    display:flex;align-items:center;justify-content:center;
+    height:56px;border-radius:14px;
+    font-size:15px;font-weight:600;
+    cursor:pointer;border:none;
+  }
+  .btn-primary{background:var(--teal-800);color:#fff}
+  .btn-primary:hover{background:var(--teal-900)}
+  .btn-secondary{background:#fff;color:var(--slate-900);border:1.5px solid var(--slate-200)}
+  .btn-ghost{background:var(--teal-50);color:var(--teal-800);border:1px solid var(--teal-100)}
+  .btn-kakao{background:var(--kakao);color:var(--kakao-text);font-weight:700}
+  .btn-apple{background:#000;color:#fff;font-weight:600}
+  .btn-block{width:100%}
+  .code-row{display:flex;gap:10px;justify-content:center;margin:24px 0}
+  .code-box{width:48px;height:58px;border-radius:12px;border:1.5px solid var(--slate-200);background:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:var(--teal-900)}
+  .code-box.filled{border-color:var(--teal-700);background:var(--teal-50)}
+  .code-box.cursor{border-color:var(--teal-800);box-shadow:0 0 0 3px var(--teal-100)}
+  .resend-row{text-align:center;font-size:13px;color:var(--slate-500);margin-top:8px}
+  .resend-row a{color:var(--teal-700);font-weight:600;margin-left:6px}
+  .timer{color:var(--teal-700);font-weight:700}
+  .no-sb::-webkit-scrollbar{display:none}
+  .no-sb{-ms-overflow-style:none;scrollbar-width:none}
+  .rank-row{display:grid;grid-template-columns:1fr 1fr;gap:8px 16px}
+  .rank-item{display:flex;align-items:center;gap:10px;padding:6px 0}
+  .rank-num{width:24px;height:24px;border-radius:50%;background:var(--teal-700);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0}
+  .rank-num.cool{background:var(--slate-300)}
+  .rank-text{font-size:13px;font-weight:600;color:var(--teal-900);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .rank-up{font-size:10px;color:#E53935;margin-left:auto;font-weight:700}
+
+  .card{
+    background:#fff;border-radius:18px;
+    border:1px solid var(--slate-100);
+    box-shadow:var(--shadow-sm);
+  }
+
+  /* badges */
+  .badge{
+    display:inline-flex;align-items:center;gap:4px;
+    padding:5px 10px;border-radius:99px;
+    font-size:11px;font-weight:600;
+    line-height:1;white-space:nowrap;
+  }
+  .b-ramp{background:var(--ramp-bg);color:var(--ramp-d)}
+  .b-elev{background:var(--elev-bg);color:var(--elev-d)}
+  .b-toilet{background:var(--toilet-bg);color:var(--toilet-d)}
+  .b-rest{background:var(--rest-bg);color:var(--rest-d)}
+  .b-success{background:var(--success-bg);color:var(--success-d)}
+  .b-warning{background:var(--warning-bg);color:var(--warning-d)}
+  .b-danger{background:var(--danger-bg);color:var(--danger-d)}
+  .b-teal{background:var(--teal-50);color:var(--teal-800)}
+  .b-sand{background:var(--sand-100);color:var(--sand-900)}
+
+  /* ════════════════════════════════════════════ */
+  /* 01. 스플래시                                    */
+  /* ════════════════════════════════════════════ */
+  .splash{
+    background:linear-gradient(160deg,var(--teal-700) 0%,var(--teal-900) 100%);
+    color:#fff;height:100%;
+    position:relative;overflow:hidden;
+  }
+  .splash::before{
+    content:'';position:absolute;
+    width:340px;height:340px;border-radius:50%;
+    top:-100px;right:-120px;
+    background:radial-gradient(circle,rgba(74,140,156,.4),transparent 70%);
+  }
+  .splash::after{
+    content:'';position:absolute;
+    width:280px;height:280px;border-radius:50%;
+    bottom:-80px;left:-100px;
+    background:radial-gradient(circle,rgba(216,201,174,.25),transparent 70%);
+  }
+  .splash-inner{
+    position:relative;height:100%;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:0 32px;
+  }
+  .splash-mark{
+    width:104px;height:104px;border-radius:50%;
+    background:rgba(255,255,255,.95);
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 20px 60px rgba(0,0,0,.25);
+    margin-bottom:36px;
+    position:relative;
+  }
+  .splash-mark::before{
+    content:'';position:absolute;inset:-12px;
+    border-radius:50%;border:1.5px solid rgba(255,255,255,.4);
+  }
+  .splash-mark svg{width:54px;height:54px;color:var(--teal-800)}
+  .splash h1{
+    font-size:34px;font-weight:800;margin:0;
+    letter-spacing:-0.03em;
+  }
+  .splash .tagline{
+    margin-top:12px;font-size:15px;opacity:.85;
+    font-weight:400;
+  }
+  .splash .footer-line{
+    position:absolute;bottom:60px;left:0;right:0;text-align:center;
+    font-size:11px;letter-spacing:0.3em;opacity:.5;font-weight:500;
+  }
+  .splash .dot-loader{
+    position:absolute;bottom:120px;left:50%;transform:translateX(-50%);
+    display:flex;gap:6px;
+  }
+  .splash .dot-loader span{
+    width:6px;height:6px;border-radius:50%;background:#fff;opacity:.5;
+  }
+  .splash .dot-loader span:nth-child(2){opacity:.8}
+
+  /* ════════════════════════════════════════════ */
+  /* 02. 로그인                                      */
+  /* ════════════════════════════════════════════ */
+  .login-body{padding:24px 24px 32px}
+  .brand-row{display:flex;align-items:center;gap:10px;margin-top:12px}
+  .brand-mark{
+    width:36px;height:36px;border-radius:10px;
+    background:var(--teal-800);
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;font-size:18px;
+  }
+  .brand-row .name{font-size:16px;font-weight:700;color:var(--slate-900)}
+
+  .hero-card{
+    margin-top:36px;
+    background:linear-gradient(135deg,var(--teal-50),var(--sand-100));
+    border:1px solid var(--teal-100);
+    border-radius:24px;
+    padding:24px;
+    position:relative;overflow:hidden;
+  }
+  .hero-card::before{
+    content:'';position:absolute;
+    width:160px;height:160px;border-radius:50%;
+    right:-60px;top:-40px;
+    background:radial-gradient(circle,rgba(19,96,115,.08),transparent 70%);
+  }
+  .hero-card .eyebrow{
+    font-size:11px;font-weight:700;color:var(--teal-700);
+    letter-spacing:0.2em;
+  }
+  .hero-card h2{
+    margin:14px 0 0;
+    font-size:21px;font-weight:700;
+    color:var(--slate-900);
+    line-height:1.45;
+    letter-spacing:-0.02em;
+  }
+  .hero-card .chips{
+    display:flex;gap:8px;margin-top:22px;flex-wrap:wrap;
+  }
+  .hero-card .chips .chip{
+    padding:7px 14px;background:#fff;border-radius:99px;
+    border:1px solid var(--teal-100);
+    font-size:12px;font-weight:600;color:var(--teal-700);
+  }
+
+  .login-buttons{margin-top:36px;display:flex;flex-direction:column;gap:12px}
+  .login-buttons .btn{font-size:15.5px}
+  .or-divider{
+    display:flex;align-items:center;gap:14px;
+    margin:24px 0;color:var(--slate-400);font-size:12px;
+  }
+  .or-divider::before,.or-divider::after{
+    content:'';flex:1;height:1px;background:var(--slate-200);
+  }
+
+  .signup-cta{
+    margin-top:32px;text-align:center;
+    font-size:13.5px;color:var(--slate-500);
+  }
+  .signup-cta a{color:var(--teal-700);font-weight:700;margin-left:6px;text-decoration:none}
+  .guest-link{
+    margin-top:18px;text-align:center;
+    font-size:13px;color:var(--slate-500);font-weight:500;
+  }
+  .terms-line{
+    margin-top:auto;padding:24px 0 8px;
+    font-size:11px;color:var(--slate-400);text-align:center;
+    line-height:1.6;
+  }
+
+  /* ════════════════════════════════════════════ */
+  /* 03. 회원가입                                    */
+  /* ════════════════════════════════════════════ */
+  .signup-body{padding:8px 24px 32px}
+  .signup-body h2{
+    margin:16px 0 6px;font-size:24px;font-weight:800;
+    letter-spacing:-0.02em;
+  }
+  .signup-body .lead{margin:0;color:var(--slate-500);font-size:13.5px}
+
+  .field{margin-top:22px}
+  .field label{
+    display:block;font-size:12.5px;font-weight:600;
+    color:var(--slate-700);margin-bottom:8px;
+  }
+  .input{
+    width:100%;height:54px;
+    background:#fff;border:1px solid var(--slate-200);
+    border-radius:13px;padding:0 18px;
+    font-size:14.5px;font-family:inherit;
+    color:var(--slate-900);
+    outline:none;
+  }
+  .input.filled{border-color:var(--teal-700);border-width:1.5px}
+  .input::placeholder{color:var(--slate-400);font-weight:400}
+  .field .helper{
+    margin-top:7px;font-size:11.5px;color:var(--slate-500);
+    display:flex;align-items:center;gap:5px;
+  }
+  .field .helper.success{color:var(--success-d)}
+
+  .terms-card{
+    margin-top:26px;background:var(--slate-50);
+    border-radius:14px;padding:16px 18px;
+  }
+  .terms-card .row{display:flex;align-items:center;gap:10px;padding:6px 0}
+  .terms-card .row.all{padding-bottom:12px;border-bottom:1px solid var(--slate-200);margin-bottom:8px}
+  .check{
+    width:20px;height:20px;border-radius:6px;
+    background:var(--teal-800);color:#fff;font-size:12px;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:700;
+  }
+  .check.line{background:transparent;color:var(--teal-700);width:18px;height:18px;font-size:14px}
+  .terms-card .row .lbl{flex:1;font-size:13px;color:var(--slate-700);font-weight:500}
+  .terms-card .row.all .lbl{font-weight:700;color:var(--slate-900);font-size:14px}
+  .terms-card .row .view{font-size:11px;color:var(--slate-400);font-weight:500}
+
+  /* ════════════════════════════════════════════ */
+  /* 04. 온보딩 (조건 설정)                           */
+  /* ════════════════════════════════════════════ */
+  .progress-bar{padding:0 24px 4px}
+  .progress-bar .track{
+    height:4px;background:var(--slate-100);border-radius:2px;
+    overflow:hidden;
+  }
+  .progress-bar .fill{height:100%;background:var(--teal-700);width:66%;border-radius:2px}
+  .progress-bar .label{
+    margin-top:8px;font-size:11px;color:var(--slate-500);font-weight:500;
+  }
+  .progress-bar .label b{color:var(--teal-700)}
+
+  .ob-section{padding:22px 24px 0}
+  .ob-section h3{
+    margin:0 0 4px;font-size:19px;font-weight:700;
+    color:var(--slate-900);letter-spacing:-0.02em;
+  }
+  .ob-section .desc{margin:0;font-size:12.5px;color:var(--slate-500)}
+
+  .traveler-grid{
+    display:grid;grid-template-columns:1fr 1fr;
+    gap:10px;margin-top:16px;
+  }
+  .traveler-card{
+    background:#fff;border:1.5px solid var(--slate-200);
+    border-radius:16px;padding:16px 14px;
+    cursor:pointer;position:relative;
+    transition:all .2s;
+  }
+  .traveler-card.active{
+    background:var(--teal-50);
+    border-color:var(--teal-700);
+    box-shadow:0 0 0 3px var(--teal-100);
+  }
+  .traveler-card .ic{
+    width:40px;height:40px;border-radius:10px;
+    background:var(--slate-100);
+    display:flex;align-items:center;justify-content:center;
+    font-size:20px;
+  }
+  .traveler-card.active .ic{background:#fff}
+  .traveler-card .name{
+    margin-top:12px;font-size:14px;font-weight:700;
+    color:var(--slate-900);
+  }
+  .traveler-card .sub{
+    margin-top:3px;font-size:11px;color:var(--slate-500);font-weight:500;
+  }
+  .traveler-card .check-dot{
+    position:absolute;top:14px;right:14px;
+    width:20px;height:20px;border-radius:50%;
+    background:var(--teal-800);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;
+  }
+
+  .seg{
+    display:flex;background:var(--slate-100);
+    border-radius:12px;padding:4px;margin-top:14px;
+  }
+  .seg .opt{
+    flex:1;height:42px;
+    display:flex;align-items:center;justify-content:center;gap:6px;
+    font-size:13px;font-weight:600;color:var(--slate-500);
+    border-radius:9px;cursor:pointer;
+  }
+  .seg .opt.active{background:#fff;color:var(--teal-800);box-shadow:var(--shadow-sm)}
+
+  .day-row{display:flex;gap:8px;margin-top:14px}
+  .day-pill{
+    flex:1;height:48px;
+    background:#fff;border:1px solid var(--slate-200);
+    border-radius:12px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:14px;font-weight:600;color:var(--slate-700);
+    cursor:pointer;
+  }
+  .day-pill.active{background:var(--teal-800);color:#fff;border-color:var(--teal-800)}
+
+  .bottom-cta{
+    padding:16px 24px 24px;background:#fff;
+    border-top:1px solid var(--slate-100);
+  }
+
+  /* ════════════════════════════════════════════ */
+  /* 05. 홈                                          */
+  /* ════════════════════════════════════════════ */
+  .home-top{
+    padding:8px 24px 24px;
+    background:linear-gradient(180deg,var(--teal-50),var(--bg));
+  }
+  .greet-row{display:flex;align-items:center;justify-content:space-between}
+  .greet-row .greeting{font-size:13px;color:var(--slate-500);font-weight:500}
+  .greet-row .greeting b{color:var(--slate-900);font-weight:700}
+  .bell{
+    width:40px;height:40px;border-radius:12px;
+    background:#fff;border:1px solid var(--slate-200);
+    display:flex;align-items:center;justify-content:center;
+    position:relative;
+  }
+  .bell::after{
+    content:'';position:absolute;top:10px;right:11px;
+    width:8px;height:8px;border-radius:50%;background:var(--danger);
+    border:2px solid #fff;
+  }
+  .home-headline{
+    margin:14px 0 0;font-size:22px;font-weight:800;
+    color:var(--slate-900);letter-spacing:-0.025em;line-height:1.35;
+  }
+  .home-headline span{color:var(--teal-700)}
+
+  .my-condition{
+    margin-top:18px;background:#fff;
+    border-radius:16px;padding:14px 16px;
+    border:1px solid var(--teal-100);
+    display:flex;align-items:center;gap:12px;
+  }
+  .my-condition .ic{
+    width:40px;height:40px;border-radius:11px;
+    background:var(--teal-50);
+    display:flex;align-items:center;justify-content:center;font-size:18px;
+  }
+  .my-condition .info{flex:1;min-width:0}
+  .my-condition .info .row1{font-size:11px;color:var(--slate-500);font-weight:600}
+  .my-condition .info .row2{
+    margin-top:2px;font-size:13px;font-weight:700;color:var(--slate-900);
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .my-condition .edit{font-size:11px;color:var(--teal-700);font-weight:700}
+
+  .section-head{
+    display:flex;align-items:flex-end;justify-content:space-between;
+    padding:24px 24px 12px;
+  }
+  .section-head .title{font-size:17px;font-weight:800;color:var(--slate-900);letter-spacing:-0.02em}
+  .section-head .more{font-size:12px;color:var(--slate-500);font-weight:600}
+
+  .filter-strip{
+    display:flex;gap:8px;padding:0 24px 16px;
+    overflow-x:auto;
+  }
+  .filter-strip::-webkit-scrollbar{height:0}
+  .filter-chip{
+    flex-shrink:0;
+    padding:8px 14px;border-radius:99px;
+    background:#fff;border:1px solid var(--slate-200);
+    font-size:12.5px;font-weight:600;color:var(--slate-700);
+  }
+  .filter-chip.active{background:var(--teal-800);color:#fff;border-color:var(--teal-800)}
+
+  .itinerary-card{
+    margin:0 24px 14px;
+    background:#fff;border-radius:20px;
+    border:1px solid var(--slate-100);
+    overflow:hidden;
+    box-shadow:var(--shadow-sm);
+  }
+  .ic-cover{
+    height:140px;
+    background:linear-gradient(135deg,#4A8C9C,#0F4C5C);
+    position:relative;overflow:hidden;
+  }
+  .ic-cover.beach{background:linear-gradient(135deg,#7BB6C5,#1E7A8C)}
+  .ic-cover.forest{background:linear-gradient(135deg,#5B9D80,#3B7B63)}
+  .ic-cover.indoor{background:linear-gradient(135deg,#B89B6E,#8C7755)}
+  .ic-cover::before{
+    content:'';position:absolute;
+    width:200px;height:200px;border-radius:50%;
+    right:-60px;top:-50px;
+    background:radial-gradient(circle,rgba(255,255,255,.2),transparent 70%);
+  }
+  .ic-cover::after{
+    content:'';position:absolute;
+    width:140px;height:140px;border-radius:50%;
+    left:-30px;bottom:-50px;
+    background:radial-gradient(circle,rgba(0,0,0,.15),transparent 70%);
+  }
+  .ic-cover .top-row{
+    position:absolute;top:14px;left:14px;right:14px;
+    display:flex;justify-content:space-between;
+  }
+  .ic-cover .tag{
+    padding:5px 11px;border-radius:99px;
+    background:rgba(255,255,255,.95);
+    font-size:11px;font-weight:700;color:var(--teal-800);
+  }
+  .ic-cover .save{
+    width:32px;height:32px;border-radius:50%;
+    background:rgba(255,255,255,.2);
+    backdrop-filter:blur(10px);
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;font-size:14px;
+  }
+  .ic-cover .title{
+    position:absolute;left:18px;bottom:14px;right:18px;
+    color:#fff;
+  }
+  .ic-cover .title h4{
+    margin:0;font-size:18px;font-weight:800;
+    letter-spacing:-0.02em;
+    text-shadow:0 2px 8px rgba(0,0,0,.3);
+  }
+  .ic-cover .title .sub{
+    margin-top:4px;font-size:11.5px;opacity:.9;font-weight:500;
+  }
+
+  .ic-body{padding:16px 18px}
+  .ic-stats{display:flex;gap:18px}
+  .ic-stat{display:flex;flex-direction:column;gap:2px}
+  .ic-stat .l{font-size:10px;color:var(--slate-400);font-weight:600}
+  .ic-stat .v{font-size:13px;font-weight:700;color:var(--slate-900)}
+  .ic-stat .v.warn{color:var(--warning-d)}
+  .ic-stat .v.ok{color:var(--success-d)}
+
+  .ic-reason{
+    margin-top:14px;padding:12px 14px;
+    background:var(--teal-50);
+    border-left:3px solid var(--teal-700);
+    border-radius:8px;
+    font-size:12.5px;color:var(--slate-700);font-weight:500;
+    line-height:1.55;
+  }
+  .ic-reason b{color:var(--teal-800);font-weight:700}
+
+  .ic-foot{
+    display:flex;align-items:center;justify-content:space-between;
+    margin-top:14px;
+  }
+  .ic-foot .badges{display:flex;gap:6px;flex-wrap:wrap}
+  .ic-foot .arrow{font-size:18px;color:var(--slate-400)}
+
+  /* ════════════════════════════════════════════ */
+  /* 06. 일정 상세 ★ 핵심                             */
+  /* ════════════════════════════════════════════ */
+  .detail-cover{
+    height:180px;
+    background:linear-gradient(135deg,#7BB6C5,#0F4C5C);
+    position:relative;
+    color:#fff;
+    padding:20px 24px;
+  }
+  .detail-cover::after{
+    content:'';position:absolute;inset:0;
+    background:linear-gradient(180deg,transparent 30%,rgba(10,58,72,.5) 100%);
+  }
+  .detail-cover .nav-row{
+    position:relative;z-index:2;
+    display:flex;justify-content:space-between;
+  }
+  .detail-cover .icon-btn{
+    width:38px;height:38px;border-radius:50%;
+    background:rgba(255,255,255,.2);
+    backdrop-filter:blur(10px);
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;font-size:18px;
+  }
+  .detail-cover .actions{display:flex;gap:8px}
+  .detail-cover .title-block{
+    position:absolute;left:24px;right:24px;bottom:22px;z-index:2;
+  }
+  .detail-cover .eyebrow{
+    font-size:11px;font-weight:700;letter-spacing:0.2em;
+    opacity:.9;
+  }
+  .detail-cover h2{
+    margin:6px 0 0;font-size:22px;font-weight:800;
+    letter-spacing:-0.02em;line-height:1.3;
+  }
+
+  /* 안전 점수 카드 — 일정 상세의 핵심 위젯 */
+  .score-strip{
+    margin:-30px 20px 0;position:relative;z-index:5;
+    background:#fff;border-radius:18px;
+    box-shadow:var(--shadow-lg);
+    padding:18px 18px 16px;
+    display:flex;align-items:center;gap:16px;
+  }
+  .score-circle{
+    width:64px;height:64px;border-radius:50%;
+    background:conic-gradient(var(--success) 0% 87%, var(--slate-200) 87% 100%);
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;
+  }
+  .score-circle .inner{
+    width:52px;height:52px;border-radius:50%;background:#fff;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+  }
+  .score-circle .v{font-size:18px;font-weight:800;color:var(--success-d);line-height:1}
+  .score-circle .l{font-size:9px;color:var(--slate-500);font-weight:600;margin-top:1px}
+  .score-strip .info{flex:1;min-width:0}
+  .score-strip .info .lbl{font-size:11px;color:var(--slate-500);font-weight:600}
+  .score-strip .info .val{
+    margin-top:2px;font-size:14px;font-weight:700;color:var(--slate-900);
+    line-height:1.35;
+  }
+  .score-strip .info .val span{color:var(--success-d)}
+  .score-strip .stats{
+    display:flex;gap:14px;padding-left:14px;
+    border-left:1px solid var(--slate-100);
+  }
+  .score-strip .stats .it{text-align:center}
+  .score-strip .stats .it .v{font-size:13px;font-weight:800;color:var(--slate-900)}
+  .score-strip .stats .it .l{font-size:10px;color:var(--slate-500);font-weight:600;margin-top:1px}
+
+  /* 위험 안내 배너 (배려형) */
+  .alert-banner{
+    margin:14px 20px 0;
+    background:var(--warning-bg);
+    border:1px solid #F0DCAF;
+    border-radius:14px;
+    padding:14px 16px;
+    display:flex;gap:12px;align-items:flex-start;
+  }
+  .alert-banner .ic{
+    width:32px;height:32px;border-radius:9px;
+    background:#fff;
+    display:flex;align-items:center;justify-content:center;font-size:16px;
+    flex-shrink:0;
+  }
+  .alert-banner .body{flex:1;min-width:0}
+  .alert-banner .body .t{font-size:13px;font-weight:700;color:var(--warning-d)}
+  .alert-banner .body .d{font-size:11.5px;color:var(--slate-700);margin-top:3px;line-height:1.5}
+  .alert-banner .cta{
+    margin-top:10px;font-size:12px;font-weight:700;color:var(--warning-d);
+    text-decoration:underline;text-underline-offset:3px;
+  }
+
+  /* 뷰 토글 */
+  .view-toggle{
+    margin:16px 20px 0;
+    background:var(--slate-100);border-radius:12px;
+    padding:4px;display:flex;
+  }
+  .view-toggle .vt{
+    flex:1;height:38px;
+    display:flex;align-items:center;justify-content:center;gap:6px;
+    font-size:12.5px;font-weight:600;color:var(--slate-500);
+    border-radius:9px;
+  }
+  .view-toggle .vt.active{background:#fff;color:var(--teal-800);box-shadow:var(--shadow-sm)}
+
+  .day-tabs{
+    display:flex;gap:8px;padding:18px 20px 12px;
+  }
+  .day-tab{
+    flex:1;padding:12px 8px;
+    background:#fff;border:1px solid var(--slate-200);
+    border-radius:12px;
+    text-align:center;
+  }
+  .day-tab.active{
+    background:var(--teal-800);border-color:var(--teal-800);
+  }
+  .day-tab .l{font-size:10px;color:var(--slate-500);font-weight:600}
+  .day-tab.active .l{color:rgba(255,255,255,.7)}
+  .day-tab .v{font-size:14px;font-weight:800;color:var(--slate-900);margin-top:2px}
+  .day-tab.active .v{color:#fff}
+
+  /* 타임라인 */
+  .timeline{padding:8px 20px 20px;position:relative}
+  .timeline::before{
+    content:'';position:absolute;
+    left:48px;top:24px;bottom:60px;
+    width:2px;background:var(--slate-200);
+  }
+  .tl-item{
+    display:flex;gap:14px;
+    margin-bottom:14px;
+    position:relative;
+  }
+  .tl-time{
+    width:34px;flex-shrink:0;
+    text-align:right;padding-top:18px;
+    font-size:11px;font-weight:700;color:var(--slate-500);
+  }
+  .tl-dot{
+    width:14px;height:14px;border-radius:50%;
+    background:#fff;border:3px solid var(--teal-700);
+    margin-top:22px;flex-shrink:0;
+    z-index:2;position:relative;
+  }
+  .tl-dot.start{background:var(--teal-700)}
+  .tl-card{
+    flex:1;min-width:0;
+    background:#fff;border-radius:14px;
+    border:1px solid var(--slate-100);
+    padding:12px 14px;
+    box-shadow:var(--shadow-sm);
+  }
+  .tl-card .head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+  .tl-card .head .name{
+    font-size:14px;font-weight:700;color:var(--slate-900);
+    letter-spacing:-0.01em;
+  }
+  .tl-card .head .cat{font-size:10.5px;color:var(--slate-500);font-weight:600;margin-top:2px}
+  .tl-card .badges{display:flex;gap:5px;margin-top:9px;flex-wrap:wrap}
+  .tl-card .reason{
+    margin-top:9px;font-size:11.5px;color:var(--slate-700);
+    line-height:1.5;
+    padding-top:9px;border-top:1px dashed var(--slate-200);
+  }
+  .tl-card .reason b{color:var(--teal-700)}
+
+  .tl-move{
+    display:flex;align-items:center;gap:10px;
+    padding:6px 0 6px 64px;
+    margin-bottom:14px;
+    margin-top:-8px;
+    font-size:11px;color:var(--slate-500);font-weight:600;
+  }
+  .tl-move .ic{
+    width:22px;height:22px;border-radius:7px;
+    background:var(--sand-100);color:var(--sand-900);
+    display:flex;align-items:center;justify-content:center;font-size:11px;
+  }
+  .tl-move .rest{
+    margin-left:auto;
+    color:var(--rest-d);font-weight:700;
+  }
+
+  .detail-actions{
+    padding:14px 20px 20px;background:#fff;
+    border-top:1px solid var(--slate-100);
+    display:flex;gap:10px;
+  }
+  .detail-actions .btn{flex:1;font-size:14px;height:52px}
+  .detail-actions .btn-ghost{flex:0 0 130px;font-size:12.5px}
+
+  /* ════════════════════════════════════════════ */
+  /* 07. 장소 상세                                   */
+  /* ════════════════════════════════════════════ */
+  .place-cover{
+    height:240px;
+    background:linear-gradient(135deg,#5B9D80,#0F4C5C);
+    position:relative;
+  }
+  .place-cover::after{
+    content:'';position:absolute;inset:0;
+    background:linear-gradient(180deg,rgba(0,0,0,.2) 0%,transparent 30%,transparent 60%,rgba(0,0,0,.4) 100%);
+  }
+  .place-cover .top{
+    position:absolute;top:50px;left:16px;right:16px;
+    display:flex;justify-content:space-between;z-index:2;
+  }
+  .place-cover .top .icon-btn{
+    width:38px;height:38px;border-radius:50%;
+    background:rgba(255,255,255,.2);backdrop-filter:blur(10px);
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;font-size:18px;
+  }
+  .place-cover .top .actions{display:flex;gap:8px}
+  .place-cover .pic-count{
+    position:absolute;bottom:14px;right:16px;
+    padding:5px 11px;border-radius:99px;
+    background:rgba(0,0,0,.5);color:#fff;font-size:11px;font-weight:700;
+    backdrop-filter:blur(10px);
+  }
+
+  .place-info{padding:20px 24px 0}
+  .place-info .cat{font-size:12px;color:var(--teal-700);font-weight:700;letter-spacing:0.05em}
+  .place-info h2{
+    margin:6px 0 8px;font-size:24px;font-weight:800;
+    color:var(--slate-900);letter-spacing:-0.025em;
+  }
+  .place-info .meta-row{
+    display:flex;gap:14px;font-size:12px;color:var(--slate-500);
+    align-items:center;
+  }
+  .place-info .stars{color:var(--warning);font-weight:700;font-size:13px}
+
+  /* 무장애 점수 카드 (가장 먼저 노출) */
+  .a11y-card{
+    margin:18px 24px 0;
+    background:linear-gradient(135deg,var(--teal-50),#fff);
+    border:1px solid var(--teal-100);
+    border-radius:16px;
+    padding:16px 18px;
+  }
+  .a11y-card .head{
+    display:flex;justify-content:space-between;align-items:center;
+  }
+  .a11y-card .head .t{font-size:13px;font-weight:700;color:var(--teal-800)}
+  .a11y-card .head .score{
+    font-size:18px;font-weight:800;color:var(--teal-800);
+  }
+  .a11y-card .head .score small{font-size:11px;color:var(--slate-500);font-weight:600;margin-left:2px}
+
+  .a11y-grid{
+    margin-top:14px;
+    display:grid;grid-template-columns:1fr 1fr;
+    gap:8px;
+  }
+  .a11y-item{
+    display:flex;align-items:center;gap:8px;
+    padding:9px 12px;background:#fff;
+    border-radius:10px;
+    border:1px solid var(--slate-100);
+  }
+  .a11y-item .dot{
+    width:18px;height:18px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-size:11px;color:#fff;font-weight:700;
+  }
+  .a11y-item.yes .dot{background:var(--success)}
+  .a11y-item.no .dot{background:var(--slate-300)}
+  .a11y-item .lbl{font-size:11.5px;font-weight:600;color:var(--slate-700)}
+  .a11y-item.no .lbl{color:var(--slate-400)}
+
+  .why-card{
+    margin:16px 24px 0;
+    background:var(--sand-100);
+    border:1px solid var(--sand-500);
+    border-radius:16px;
+    padding:16px 18px;
+  }
+  .why-card .t{
+    font-size:11px;font-weight:700;
+    color:var(--sand-900);letter-spacing:0.1em;
+  }
+  .why-card .body{
+    margin-top:8px;font-size:13px;color:var(--slate-900);
+    font-weight:600;line-height:1.55;
+  }
+  .why-card .body b{color:var(--teal-800)}
+
+  .info-list{padding:20px 24px 16px}
+  .info-list h4{
+    margin:0 0 12px;font-size:14px;font-weight:800;color:var(--slate-900);
+  }
+  .info-row{
+    display:flex;gap:14px;
+    padding:12px 0;
+    border-bottom:1px solid var(--slate-100);
+  }
+  .info-row:last-child{border:0}
+  .info-row .ic{
+    width:32px;height:32px;border-radius:9px;
+    background:var(--slate-100);
+    display:flex;align-items:center;justify-content:center;font-size:14px;
+    flex-shrink:0;
+  }
+  .info-row .body{flex:1;min-width:0}
+  .info-row .body .l{font-size:11px;color:var(--slate-500);font-weight:600}
+  .info-row .body .v{font-size:13px;font-weight:600;color:var(--slate-900);margin-top:2px}
+  .info-row .body .v.ok{color:var(--success-d)}
+
+  .place-foot{
+    padding:14px 20px 20px;background:#fff;
+    border-top:1px solid var(--slate-100);
+    display:flex;gap:10px;
+  }
+  .place-foot .btn-ghost{flex:0 0 90px;font-size:13px}
+  .place-foot .btn-primary{flex:1;font-size:14px}
+
+  /* ════════════════════════════════════════════ */
+  /* 08. 대체 코스 비교                              */
+  /* ════════════════════════════════════════════ */
+  .alt-intro{padding:20px 24px 0}
+  .alt-intro h2{
+    margin:0 0 6px;font-size:21px;font-weight:800;
+    color:var(--slate-900);letter-spacing:-0.025em;
+  }
+  .alt-intro p{margin:0;font-size:13px;color:var(--slate-500);line-height:1.55}
+
+  .compare-grid{padding:18px 20px 0}
+  .compare-card{
+    background:#fff;border-radius:18px;
+    border:1.5px solid var(--slate-200);
+    padding:18px;
+    margin-bottom:12px;
+    position:relative;
+  }
+  .compare-card.recommended{
+    border-color:var(--teal-700);
+    box-shadow:0 0 0 4px var(--teal-50);
+  }
+  .compare-card .ribbon{
+    position:absolute;top:-1px;right:18px;
+    background:var(--teal-700);color:#fff;
+    padding:5px 11px 6px;
+    border-radius:0 0 8px 8px;
+    font-size:10.5px;font-weight:700;letter-spacing:0.05em;
+  }
+  .compare-card .head{
+    display:flex;justify-content:space-between;align-items:flex-start;
+  }
+  .compare-card .head .name{
+    font-size:15px;font-weight:800;color:var(--slate-900);
+  }
+  .compare-card .head .name .tag{
+    display:inline-block;font-size:10px;
+    padding:2px 7px;border-radius:5px;
+    background:var(--slate-100);color:var(--slate-500);
+    font-weight:700;margin-right:6px;vertical-align:1px;
+  }
+  .compare-card .head .name .tag.cur{background:var(--slate-200);color:var(--slate-700)}
+
+  .compare-stats{
+    margin-top:14px;
+    display:grid;grid-template-columns:1fr 1fr 1fr;
+    gap:8px;
+    background:var(--slate-50);border-radius:12px;
+    padding:12px 8px;
+  }
+  .compare-stat{text-align:center;position:relative}
+  .compare-stat:not(:last-child)::after{
+    content:'';position:absolute;right:0;top:14%;bottom:14%;
+    width:1px;background:var(--slate-200);
+  }
+  .compare-stat .l{font-size:10px;color:var(--slate-500);font-weight:600}
+  .compare-stat .v{font-size:13.5px;font-weight:800;color:var(--slate-900);margin-top:3px}
+
+  .diff-list{margin-top:14px}
+  .diff-item{
+    display:flex;align-items:center;gap:8px;
+    font-size:12px;color:var(--slate-700);font-weight:600;
+    padding:5px 0;
+  }
+  .diff-item .ic{
+    width:18px;height:18px;border-radius:50%;
+    background:var(--success-bg);color:var(--success-d);
+    display:flex;align-items:center;justify-content:center;
+    font-size:11px;font-weight:800;flex-shrink:0;
+  }
+  .diff-item.minus .ic{background:var(--danger-bg);color:var(--danger-d)}
+  .diff-item b{color:var(--teal-800)}
+
+  .compare-card .pick-btn{
+    margin-top:14px;width:100%;height:46px;
+    border-radius:11px;border:none;cursor:pointer;
+    font-size:13.5px;font-weight:700;
+    font-family:inherit;
+  }
+  .compare-card.recommended .pick-btn{background:var(--teal-800);color:#fff}
+  .compare-card:not(.recommended) .pick-btn{background:var(--slate-100);color:var(--slate-500)}
+
+  /* ════════════════════════════════════════════ */
+  /* 09. 마이페이지                                  */
+  /* ════════════════════════════════════════════ */
+  .my-header{
+    padding:8px 24px 24px;
+    background:linear-gradient(135deg,var(--teal-800) 0%,var(--teal-700) 100%);
+    color:#fff;position:relative;overflow:hidden;
+  }
+  .my-header::before{
+    content:'';position:absolute;
+    width:240px;height:240px;border-radius:50%;
+    right:-80px;top:-80px;
+    background:radial-gradient(circle,rgba(216,201,174,.18),transparent 70%);
+  }
+  .my-header .nav{
+    display:flex;justify-content:space-between;align-items:center;
+    height:44px;
+  }
+  .my-header .nav .t{font-size:16px;font-weight:700}
+  .my-header .nav .ic{font-size:20px;opacity:.85}
+
+  .profile-row{
+    margin-top:8px;display:flex;align-items:center;gap:14px;
+    position:relative;z-index:2;
+  }
+  .avatar{
+    width:64px;height:64px;border-radius:50%;
+    background:rgba(255,255,255,.18);
+    border:2px solid rgba(255,255,255,.3);
+    display:flex;align-items:center;justify-content:center;
+    font-size:30px;
+  }
+  .profile-row .info{flex:1;min-width:0}
+  .profile-row .info .name{font-size:18px;font-weight:800;letter-spacing:-0.02em}
+  .profile-row .info .name .badge-mini{
+    display:inline-block;font-size:10px;padding:2px 7px;
+    background:rgba(255,255,255,.18);border-radius:6px;
+    margin-left:6px;font-weight:700;vertical-align:2px;
+  }
+  .profile-row .info .email{font-size:11.5px;opacity:.75;margin-top:3px}
+
+  .stat-strip{
+    margin:18px -4px 0;
+    display:grid;grid-template-columns:1fr 1fr 1fr;
+    gap:8px;position:relative;z-index:2;
+  }
+  .stat-cell{
+    background:rgba(255,255,255,.12);
+    backdrop-filter:blur(10px);
+    border-radius:12px;padding:12px 8px;text-align:center;
+    border:1px solid rgba(255,255,255,.15);
+  }
+  .stat-cell .v{font-size:18px;font-weight:800}
+  .stat-cell .l{font-size:10px;opacity:.8;margin-top:3px;font-weight:500}
+
+  .my-condition-card{
+    margin:-14px 20px 0;background:#fff;
+    border-radius:16px;
+    box-shadow:var(--shadow);
+    padding:16px 18px;
+    position:relative;z-index:5;
+  }
+  .my-condition-card .head{display:flex;justify-content:space-between;align-items:center}
+  .my-condition-card .head .t{font-size:13px;font-weight:800;color:var(--slate-900)}
+  .my-condition-card .head .edit{font-size:11px;color:var(--teal-700);font-weight:700}
+  .my-condition-card .tags{
+    display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;
+  }
+  .my-condition-card .tags .tag{
+    padding:5px 11px;border-radius:99px;
+    background:var(--teal-50);color:var(--teal-800);
+    font-size:11.5px;font-weight:600;
+  }
+
+  .my-section{padding:22px 24px 6px}
+  .my-section h3{
+    margin:0 0 12px;font-size:14px;font-weight:800;color:var(--slate-900);
+    display:flex;align-items:center;justify-content:space-between;
+  }
+  .my-section h3 .more{font-size:11px;color:var(--slate-500);font-weight:600}
+
+  .my-itin{
+    background:#fff;border-radius:14px;
+    border:1px solid var(--slate-100);
+    padding:14px;display:flex;gap:12px;
+    margin-bottom:8px;
+  }
+  .my-itin .thumb{
+    width:54px;height:54px;border-radius:11px;
+    background:linear-gradient(135deg,#7BB6C5,#0F4C5C);
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;font-size:22px;flex-shrink:0;
+  }
+  .my-itin .thumb.b{background:linear-gradient(135deg,#5B9D80,#3B7B63)}
+  .my-itin .body{flex:1;min-width:0}
+  .my-itin .body .name{font-size:13.5px;font-weight:700;color:var(--slate-900)}
+  .my-itin .body .meta{font-size:11px;color:var(--slate-500);margin-top:3px}
+  .my-itin .body .badges{display:flex;gap:5px;margin-top:7px}
+  .my-itin .arrow{align-self:center;color:var(--slate-300);font-size:18px}
+
+  .menu-list{margin:6px 24px 0}
+  .menu-row{
+    display:flex;align-items:center;gap:14px;
+    padding:14px 0;
+    border-bottom:1px solid var(--slate-100);
+  }
+  .menu-row:last-child{border:0}
+  .menu-row .ic{
+    width:36px;height:36px;border-radius:10px;
+    background:var(--slate-100);
+    display:flex;align-items:center;justify-content:center;font-size:16px;
+  }
+  .menu-row .lbl{flex:1;font-size:13.5px;font-weight:600;color:var(--slate-900)}
+  .menu-row .arrow{color:var(--slate-300);font-size:18px}
+  .menu-row.danger .lbl{color:var(--danger-d)}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>같이가는 제주 — Mobile UI Prototype</h1>
+  <p>Deep Teal × Sand Beige · 일정 중심의 무장애 여행 설계 서비스</p>
+  <div class="meta">
+    <span class="pill">v2.0</span>
+    <span class="pill">9 Screens</span>
+    <span class="pill">Pretendard</span>
+    <span class="pill">390 × 844</span>
+    <span class="pill">Schedule-first</span>
+  </div>
+</div>
+
+<div class="grid">
+
+  <!-- ══════════ 01. SPLASH ══════════ -->
+  <div class="screen-wrap">
+    <p class="screen-label"><span>01</span> · Splash · 첫인상</p>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="splash">
+        <div class="splash-inner">
+          <div class="splash-mark">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="4" r="2"/><path d="M19 13v-2a7 7 0 1 0-14 0v2"/><path d="M9 13l-1 7"/><path d="M15 13l1 7"/><circle cx="12" cy="13" r="1"/></svg>
+          </div>
+          <h1>같이가는 제주</h1>
+          <div class="tagline">모두를 위한 무장애 여행 일정</div>
+          <div class="dot-loader"><span></span><span></span><span></span></div>
+          <div class="footer-line">제주의 바다처럼 · 누구에게나 열려있게</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 02. LOGIN ══════════ -->
+  <div class="screen-wrap">
+    <p class="screen-label"><span>02</span> · Login · 로그인 선택</p>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="statusbar"><span>9:41</span><span class="right">●●●● 5G</span></div>
+      <div class="scroll">
+        <div class="login-body" style="display:flex;flex-direction:column;height:100%;min-height:calc(844px - 44px)">
+          <div class="brand-row">
+            <div class="brand-mark">♿</div>
+            <div class="name">같이가는 제주</div>
+          </div>
+
+          <div class="hero-card">
+            <div class="eyebrow">JEJU · ACCESSIBLE TRIP</div>
+            <h2>조건만 알려주세요.<br/>일정 전체를 설계해드려요.</h2>
+            <div class="chips">
+              <span class="chip">♿ 휠체어</span>
+              <span class="chip">🍼 유아차</span>
+              <span class="chip">🧓 어르신</span>
+            </div>
+          </div>
+
+          <div class="login-buttons">
+            <button class="btn btn-kakao btn-block">
+              <span style="font-size:18px;margin-right:8px">💬</span>
+              카카오로 3초 만에 시작하기
+            </button>
+            <button class="btn btn-apple btn-block">
+              <span style="font-size:18px;margin-right:8px"></span>
+              Apple로 계속하기
+            </button>
+            <div class="or-divider">또는</div>
+            <button class="btn btn-secondary btn-block">이메일로 로그인</button>
+          </div>
+
+          <div class="signup-cta">
+            처음 오셨나요?<a>회원가입 →</a>
+          </div>
+          <div class="guest-link">먼저 둘러보기 ›</div>
+          <div class="terms-line">로그인 시 서비스 이용약관 및<br/>개인정보처리방침에 동의합니다</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 03. SIGNUP ══════════ -->
+  <div class="screen-wrap">
+    <p class="screen-label"><span>03</span> · Signup · 회원가입</p>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="statusbar"><span>9:41</span><span class="right">●●●● 5G</span></div>
+      <div class="appbar">
+        <div class="back">‹</div>
+        <div class="title">회원가입</div>
+      </div>
+      <div class="scroll">
+        <div class="signup-body">
+          <h2>환영해요 👋</h2>
+          <p class="lead">이메일과 비밀번호를 입력해 주세요</p>
+
+          <div class="field">
+            <label>이메일</label>
+            <input class="input filled" value="popeye0618@catholic.ac.kr" />
+            <div class="helper success">✓ 사용 가능한 이메일이에요</div>
+          </div>
+          <div class="field">
+            <label>비밀번호</label>
+            <input class="input filled" type="password" value="abcdefgh" />
+            <div class="helper success">✓ 영문·숫자 포함 8자 이상</div>
+          </div>
+          <div class="field">
+            <label>비밀번호 확인</label>
+            <input class="input filled" type="password" value="abcdefgh" />
+          </div>
+
+          <div style="margin-top:8px;padding:14px 16px;background:var(--teal-50);border-radius:12px;font-size:13px;color:var(--teal-800);line-height:1.5">
+            ✉️ 다음 단계에서 입력하신 이메일로<br/>
+            <b>6자리 인증 코드</b>를 보내드려요.
+          </div>
+        </div>
+      </div>
+      <div class="bottom-cta">
+        <button class="btn btn-primary btn-block">인증 메일 받기 →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 03b. EMAIL VERIFICATION ══════════ -->
+  <div class="screen-wrap">
+    <p class="screen-label"><span>03b</span> · Verify · 이메일 인증</p>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="statusbar"><span>9:41</span><span class="right">●●●● 5G</span></div>
+      <div class="appbar">
+        <div class="back">‹</div>
+        <div class="title">이메일 인증</div>
+      </div>
+      <div class="scroll">
+        <div class="signup-body">
+          <h2>코드를 입력해 주세요</h2>
+          <p class="lead">popeye0618@catholic.ac.kr 로<br/>6자리 인증 코드를 보냈어요</p>
+
+          <div class="code-row">
+            <div class="code-box filled">4</div>
+            <div class="code-box filled">8</div>
+            <div class="code-box filled">2</div>
+            <div class="code-box cursor">9</div>
+            <div class="code-box">·</div>
+            <div class="code-box">·</div>
+          </div>
+
+          <div class="resend-row">
+            남은 시간 <span class="timer">02:47</span>
+          </div>
+          <div class="resend-row">
+            메일을 못 받으셨나요? <a>다시 보내기</a>
+          </div>
+
+          <div style="margin-top:24px;padding:14px 16px;background:var(--teal-50);border-radius:12px;font-size:13px;color:var(--teal-800);line-height:1.5">
+            💡 메일이 보이지 않는다면 스팸함도 확인해 주세요.
+          </div>
+        </div>
+      </div>
+      <div class="bottom-cta">
+        <button class="btn btn-primary btn-block">인증 완료 →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 03b-err. EMAIL VERIFICATION - 실패 ══════════ -->
+  <div class="screen-wrap">
+    <p class="screen-label"><span>03b'</span> · Verify Error · 인증 실패</p>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="statusbar"><span>9:41</span><span class="right">●●●● 5G</span></div>
+      <div class="appbar">
+        <div class="back">‹</div>
+        <div class="title">이메일 인증</div>
+      </div>
+      <div class="scroll">
+        <div class="signup-body">
+          <h2>코드를 입력해 주세요</h2>
+          <p class="lead">popeye0618@catholic.ac.kr 로<br/>6자리 인증 코드를 보냈어요</p>
+
+          <div class="code-row">
+            <div class="code-box filled" style="border-color:#E53935;background:#FFF1F1;color:#E53935">4</div>
+            <div class="code-box filled" style="border-color:#E53935;background:#FFF1F1;color:#E53935">8</div>
+            <div class="code-box filled" style="border-color:#E53935;background:#FFF1F1;color:#E53935">2</div>
+            <div class="code-box filled" style="border-color:#E53935;background:#FFF1F1;color:#E53935">9</div>
+            <div class="code-box filled" style="border-color:#E53935;background:#FFF1F1;color:#E53935">1</div>
+            <div class="code-box filled" style="border-color:#E53935;background:#FFF1F1;color:#E53935">5</div>
+          </div>
+
+          <div style="text-align:center;color:#E53935;font-size:13px;font-weight:600;margin-top:-8px">
+            ⚠ 인증 코드가 일치하지 않아요 (2/5회)
+          </div>
+
+          <div class="resend-row" style="margin-top:14px">
+            남은 시간 <span class="timer">02:31</span>
+          </div>
+          <div class="resend-row">
+            메일을 못 받으셨나요? <a>다시 보내기</a>
+          </div>
+
+          <div style="margin-top:24px;padding:14px 16px;background:#FFF1F1;border-radius:12px;font-size:13px;color:#B71C1C;line-height:1.5;border:1px solid #FFD4D4">
+            🔒 5회 이상 틀리면 보안을 위해<br/>10분간 재인증이 제한돼요.
+          </div>
+        </div>
+      </div>
+      <div class="bottom-cta">
+        <button class="btn btn-primary btn-block">인증 완료 →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 03c. FORGOT PASSWORD - REQUEST ══════════ -->
+  <div class="screen-wrap">
+    <p class="screen-label"><span>03c</span> · Forgot · 비밀번호 찾기</p>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="statusbar"><span>9:41</span><span class="right">●●●● 5G</span></div>
+      <div class="appbar">
+        <div class="back">‹</div>
+        <div class="title">비밀번호 찾기</div>
+      </div>
+      <div class="scroll">
+        <div class="signup-body">
+          <h2>비밀번호를 잊으셨나요?</h2>
+          <p class="lead">가입하신 이메일을 입력하시면<br/>인증 코드를 보내드려요</p>
+
+          <div class="field">
+            <label>이메일</label>
+            <input class="input filled" value="popeye0618@catholic.ac.kr" />
+            <div class="helper success">✓ 가입된 이메일이에요</div>
+          </div>
+
+          <div style="margin-top:8px;padding:14px 16px;background:var(--sand-100);border-radius:12px;font-size:13px;color:var(--sand-900);line-height:1.5">
+            🔒 보안을 위해 인증 후 새 비밀번호를<br/>직접 설정하실 수 있어요.
+          </div>
+        </div>
+      </div>
+      <div class="bottom-cta">
+        <button class="btn btn-primary btn-block">인증 코드 받기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 03d. RESET PASSWORD ══════════ -->
+  <div class="screen-wrap">
+    <p class="screen-label"><span>03d</span> · Reset · 새 비밀번호 설정</p>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="statusbar"><span>9:41</span><span class="right">●●●● 5G</span></div>
+      <div class="appbar">
+        <div class="back">‹</div>
+        <div class="title">새 비밀번호 설정</div>
+      </div>
+      <div class="scroll">
+        <div class="signup-body">
+          <h2>새 비밀번호를 설정해 주세요</h2>
+          <p class="lead">이전과 다른 비밀번호로 설정해 주세요</p>
+
+          <div class="field">
+            <label>새 비밀번호</label>
+            <input class="input filled" type="password" value="newPass123!" />
+            <div class="helper success">✓ 영문·숫자·특수문자 포함 8자 이상</div>
+          </div>
+          <div class="field">
+            <label>새 비밀번호 확인</label>
+            <input class="input filled" type="password" value="newPass123!" />
+            <div class="helper success">✓ 비밀번호가 일치해요</div>
+          </div>
+
+          <div style="margin-top:8px;padding:14px 16px;background:var(--teal-50);border-radius:12px;font-size:13px;color:var(--teal-800);line-height:1.6">
+            ✅ <b>인증 완료</b><br/>
+            popeye0618@catholic.ac.kr 인증이 완료되었어요.
+          </div>
+        </div>
+      </div>
+      <div class="bottom-cta">
+        <button class="btn btn-primary btn-block">비밀번호 변경하기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 04. ONBOARDING / 조건 설정 ══════════ -->
+  <div class="screen-wrap">
+    <p class="screen-label"><span>04</span> · Onboarding · 여행 조건</p>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="statusbar"><span>9:41</span><span class="right">●●●● 5G</span></div>
+      <div class="appbar">
+        <div class="back">‹</div>
+        <div class="title">여행 조건 설정</div>
+        <div class="right">건너뛰기</div>
+      </div>
+      <div class="progress-bar">
+        <div class="track"><div class="fill" style="width:50%"></div></div>
+        <div class="label"><b>1 / 2</b>  ·  AI가 이 조건으로 일정을 설계해요</div>
+      </div>
+      <div class="scroll">
+
+        <div class="ob-section">
+          <h3>누구와 함께 가시나요?</h3>
+          <p class="desc">복수 선택 가능 · 가장 도움이 필요한 분 기준</p>
+          <div class="traveler-grid">
+            <div class="traveler-card active">
+              <div class="ic">♿</div>
+              <div class="name">휠체어 이용</div>
+              <div class="sub">전동 · 수동 모두</div>
+              <div class="check-dot">✓</div>
+            </div>
+            <div class="traveler-card">
+              <div class="ic">🧓</div>
+              <div class="name">고령자</div>
+              <div class="sub">계단·장거리 부담</div>
+            </div>
+            <div class="traveler-card active">
+              <div class="ic">🍼</div>
+              <div class="name">유아차 동반</div>
+              <div class="sub">수유실·기저귀</div>
+              <div class="check-dot">✓</div>
+            </div>
+            <div class="traveler-card">
+              <div class="ic">🚶</div>
+              <div class="name">제한 없음</div>
+              <div class="sub">일반 여행자</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ob-section">
+          <h3>실내·실외 선호</h3>
+          <p class="desc">날씨에 영향을 덜 받는 코스를 원하면 실내 위주</p>
+          <div class="seg">
+            <div class="opt">🏛️ 실내 위주</div>
+            <div class="opt active">🔀 균형있게</div>
+            <div class="opt">🌿 야외 위주</div>
+          </div>
+        </div>
+
+        <div class="ob-section">
+          <h3>이동 강도</h3>
+          <p class="desc">하루에 이동 가능한 거리·시간 수준</p>
+          <div class="seg">
+            <div class="opt">여유롭게</div>
+            <div class="opt active">보통</div>
+            <div class="opt">활동적</div>
+          </div>
+        </div>
+
+        <div class="ob-section">
+          <h3>여행 일수</h3>
+          <p class="desc">당일치기부터 5일까지 가능해요</p>
+          <div class="day-row">
+            <div class="day-pill">1일</div>
+            <div class="day-pill active">2일</div>
+            <div class="day-pill">3일</div>
+            <div class="day-pill">4일</div>
+            <div class="day-pill">5일+</div>
+          </div>
+        </div>
+
+        <div style="height:24px"></div>
+      </div>
+      <div class="bottom-cta">
+        <button class="btn btn-primary btn-block">다음 →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 04b. ONBOARDING - 닉네임 & 약관 ══════════ -->
+  <div class="screen-wrap">
+    <p class="screen-label"><span>04b</span> · Onboarding · 닉네임 & 약관</p>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="statusbar"><span>9:41</span><span class="right">●●●● 5G</span></div>
+      <div class="appbar">
+        <div class="back">‹</div>
+        <div class="title">프로필 설정</div>
+      </div>
+      <div class="progress-bar">
+        <div class="track"><div class="fill" style="width:100%"></div></div>
+        <div class="label"><b>2 / 2</b>  ·  마지막 단계예요</div>
+      </div>
+      <div class="scroll">
+        <div class="signup-body">
+          <h2>어떻게 불러드릴까요?</h2>
+          <p class="lead">앱에서 사용할 닉네임을 알려주세요</p>
+
+          <div class="field">
+            <label>닉네임</label>
+            <input class="input filled" value="승환" />
+            <div class="helper success">✓ 사용 가능한 닉네임이에요</div>
+          </div>
+
+          <div class="terms-card" style="margin-top:24px">
+            <div class="row all">
+              <div class="check">✓</div>
+              <div class="lbl">전체 동의</div>
+            </div>
+            <div class="row">
+              <div class="check line">✓</div>
+              <div class="lbl">[필수] 만 14세 이상입니다</div>
+            </div>
+            <div class="row">
+              <div class="check line">✓</div>
+              <div class="lbl">[필수] 서비스 이용약관</div>
+              <div class="view">보기</div>
+            </div>
+            <div class="row">
+              <div class="check line">✓</div>
+              <div class="lbl">[필수] 개인정보 처리방침</div>
+              <div class="view">보기</div>
+            </div>
+            <div class="row">
+              <div class="check line" style="color:var(--slate-300)">✓</div>
+              <div class="lbl" style="color:var(--slate-400)">[선택] 마케팅 정보 수신 동의</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="bottom-cta">
+        <button class="btn btn-primary btn-block">맞춤 일정 추천받기 →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 04b-err. 닉네임 중복 ══════════ -->
+  <div class="screen-wrap">
+    <p class="screen-label"><span>04b'</span> · Nickname Error · 중복 실패</p>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="statusbar"><span>9:41</span><span class="right">●●●● 5G</span></div>
+      <div class="appbar">
+        <div class="back">‹</div>
+        <div class="title">프로필 설정</div>
+      </div>
+      <div class="progress-bar">
+        <div class="track"><div class="fill" style="width:100%"></div></div>
+        <div class="label"><b>2 / 2</b>  ·  마지막 단계예요</div>
+      </div>
+      <div class="scroll">
+        <div class="signup-body">
+          <h2>어떻게 불러드릴까요?</h2>
+          <p class="lead">앱에서 사용할 닉네임을 알려주세요</p>
+
+          <div class="field">
+            <label>닉네임</label>
+            <input class="input filled" value="제주여행자" style="border-color:#E53935;background:#FFF1F1" />
+            <div class="helper" style="color:#E53935">⚠ 이미 사용 중인 닉네임이에요</div>
+          </div>
+
+          <div style="margin-top:12px;font-size:13px;color:var(--slate-500);font-weight:600">이런 닉네임은 어때요?</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px">
+            <span class="chip">제주여행자2026</span>
+            <span class="chip">제주여행자_jeju</span>
+            <span class="chip">제주여행자88</span>
+          </div>
+
+          <div class="terms-card" style="margin-top:24px">
+            <div class="row all">
+              <div class="check">✓</div>
+              <div class="lbl">전체 동의</div>
+            </div>
+            <div class="row">
+              <div class="check line">✓</div>
+              <div class="lbl">[필수] 만 14세 이상입니다</div>
+            </div>
+            <div class="row">
+              <div class="check line">✓</div>
+              <div class="lbl">[필수] 서비스 이용약관</div>
+              <div class="view">보기</div>
+            </div>
+            <div class="row">
+              <div class="check line">✓</div>
+              <div class="lbl">[필수] 개인정보 처리방침</div>
+              <div class="view">보기</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="bottom-cta">
+        <button class="btn btn-primary btn-block" style="background:var(--slate-300);color:#fff">맞춤 일정 추천받기 →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 05. HOME ══════════ -->
+  <div class="screen-wrap">
+    <p class="screen-label"><span>05</span> · Home · 일정 추천 (장소 X, 일정 O)</p>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="statusbar"><span>9:41</span><span class="right">●●●● 5G</span></div>
+      <div class="scroll" style="background:var(--bg)">
+        <div class="home-top">
+          <div style="height:8px"></div>
+          <div class="greet-row">
+            <div class="greeting"><b>승환</b>님, 좋은 아침이에요 ☀️</div>
+            <div class="bell">🔔</div>
+          </div>
+          <h1 class="home-headline">오늘의 <span>맞춤 일정</span><br/>3개를 준비했어요</h1>
+
+          <div class="my-condition">
+            <div class="ic">♿</div>
+            <div class="info">
+              <div class="row1">내 여행 조건</div>
+              <div class="row2">휠체어 · 균형있게 · 보통 · 2일</div>
+            </div>
+            <div class="edit">변경</div>
+          </div>
+        </div>
+
+        <div class="filter-strip">
+          <div class="filter-chip active">전체</div>
+          <div class="filter-chip">🌊 동부 해안</div>
+          <div class="filter-chip">⛰️ 한라산</div>
+          <div class="filter-chip">🏛️ 실내 위주</div>
+          <div class="filter-chip">🍽️ 맛집</div>
+        </div>
+
+        <div class="itinerary-card">
+          <div class="ic-cover beach">
+            <div class="top-row">
+              <span class="tag">2일 코스 · 동부</span>
+              <div class="save" style="background:#E53935;color:#fff">♥</div>
+            </div>
+            <div class="title">
+              <h4>성산일출봉 & 섭지코지 코스</h4>
+              <div class="sub">바다와 함께하는 무장애 동선</div>
+            </div>
+          </div>
+          <div class="ic-body">
+            <div class="ic-stats">
+              <div class="ic-stat"><div class="l">총 소요</div><div class="v">2일 · 8h/일</div></div>
+              <div class="ic-stat"><div class="l">이동 난이도</div><div class="v ok">낮음</div></div>
+              <div class="ic-stat"><div class="l">휴식 포인트</div><div class="v">5곳</div></div>
+              <div class="ic-stat"><div class="l">안전 점수</div><div class="v ok">87점</div></div>
+            </div>
+            <div class="ic-reason">
+              💡 <b>"휠체어 이용자에게 추천"</b> — 모든 장소가 경사로·휠체어 화장실을 갖추고, 평균 이동 거리 8km로 부담이 적어요
+            </div>
+            <div class="ic-foot">
+              <div class="badges">
+                <span class="badge b-success">✓ 안전</span>
+                <span class="badge b-ramp">경사로</span>
+                <span class="badge b-toilet">휠체어WC</span>
+              </div>
+              <div class="arrow">›</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="itinerary-card">
+          <div class="ic-cover indoor">
+            <div class="top-row">
+              <span class="tag">1일 코스 · 실내</span>
+              <div class="save">♡</div>
+            </div>
+            <div class="title">
+              <h4>비 와도 괜찮은 박물관 투어</h4>
+              <div class="sub">날씨 걱정 없는 실내 위주 코스</div>
+            </div>
+          </div>
+          <div class="ic-body">
+            <div class="ic-stats">
+              <div class="ic-stat"><div class="l">총 소요</div><div class="v">1일 · 6h</div></div>
+              <div class="ic-stat"><div class="l">이동 난이도</div><div class="v ok">매우 낮음</div></div>
+              <div class="ic-stat"><div class="l">휴식 포인트</div><div class="v">4곳</div></div>
+              <div class="ic-stat"><div class="l">안전 점수</div><div class="v ok">92점</div></div>
+            </div>
+            <div class="ic-reason">
+              💡 <b>"비 오는 날 추천"</b> — 5개 장소가 모두 실내, 주차장에서 입구까지 평균 30m 이내
+            </div>
+            <div class="ic-foot">
+              <div class="badges">
+                <span class="badge b-success">✓ 안전</span>
+                <span class="badge b-elev">엘리베이터</span>
+                <span class="badge b-rest">휴식공간</span>
+              </div>
+              <div class="arrow">›</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="height:8px"></div>
+      </div>
+      <div class="tabbar">
+        <div class="tab active"><div class="ic">🏠</div>홈</div>
+        <div class="tab"><div class="ic">🔍</div>탐색</div>
+        <div class="tab"><div class="ic">📅</div>내 일정</div>
+        <div class="tab"><div class="ic">👤</div>마이</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 06. ITINERARY DETAIL ★ ══════════ -->
+  <div class="screen-wrap">
+    <p class="screen-label"><span>06</span> · Itinerary Detail · 일정 상세 ★ 핵심 화면</p>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="scroll">
+        <div class="detail-cover">
+          <div class="nav-row">
+            <div class="icon-btn">‹</div>
+            <div class="actions">
+              <div class="icon-btn">↗</div>
+              <div class="icon-btn">♡</div>
+            </div>
+          </div>
+          <div class="title-block">
+            <div class="eyebrow">2일 코스 · 동부 해안</div>
+            <h2>성산일출봉 & 섭지코지 코스</h2>
+          </div>
+        </div>
+
+        <!-- 안전 점수 카드 — 가장 먼저 노출 -->
+        <div class="score-strip">
+          <div class="score-circle">
+            <div class="inner">
+              <div class="v">87</div>
+              <div class="l">SAFE</div>
+            </div>
+          </div>
+          <div class="info">
+            <div class="lbl">이 일정의 안전 점수</div>
+            <div class="val"><span>완주 가능</span> 일정이에요</div>
+          </div>
+          <div class="stats">
+            <div class="it"><div class="v">8</div><div class="l">장소</div></div>
+            <div class="it"><div class="v">5</div><div class="l">휴식</div></div>
+          </div>
+        </div>
+
+        <!-- 위험 안내 (배려형) -->
+        <div class="alert-banner">
+          <div class="ic">🌧️</div>
+          <div class="body">
+            <div class="t">우천 시 1일차 오전 동선 주의</div>
+            <div class="d">성산일출봉은 야외 비중이 높아요. 비 예보가 있으면 1일차·2일차 순서를 바꾸시는 걸 추천드려요.</div>
+            <div class="cta">대체 코스 보기 →</div>
+          </div>
+        </div>
+
+        <!-- 뷰 토글 -->
+        <div class="view-toggle">
+          <div class="vt active">📋 타임라인</div>
+          <div class="vt">🗺️ 지도 보기</div>
+        </div>
+
+        <!-- Day 탭 -->
+        <div class="day-tabs">
+          <div class="day-tab active">
+            <div class="l">1일차</div>
+            <div class="v">동부 해안</div>
+          </div>
+          <div class="day-tab">
+            <div class="l">2일차</div>
+            <div class="v">민속·박물관</div>
+          </div>
+        </div>
+
+        <!-- 타임라인 -->
+        <div class="timeline">
+
+          <div class="tl-item">
+            <div class="tl-time">09:00</div>
+            <div class="tl-dot start"></div>
+            <div class="tl-card">
+              <div class="head">
+                <div>
+                  <div class="name">성산일출봉</div>
+                  <div class="cat">자연관광 · 90분 체류</div>
+                </div>
+                <span class="badge b-success">✓ 안전</span>
+              </div>
+              <div class="badges">
+                <span class="badge b-ramp">경사로</span>
+                <span class="badge b-toilet">휠체어WC</span>
+                <span class="badge b-rest">휴식공간</span>
+              </div>
+              <div class="reason">💡 <b>주차장에서 전망대까지 200m 평지</b>, 5곳에 휴식 벤치가 있어 휠체어로도 끝까지 갈 수 있어요</div>
+            </div>
+          </div>
+
+          <div class="tl-move">
+            <span class="ic">🚙</span>
+            차량 이동 6.2km · 약 15분
+            <span class="rest">☕ 휴식 권장</span>
+          </div>
+
+          <div class="tl-item">
+            <div class="tl-time">11:30</div>
+            <div class="tl-dot"></div>
+            <div class="tl-card">
+              <div class="head">
+                <div>
+                  <div class="name">섭지코지</div>
+                  <div class="cat">해안관광 · 60분 체류</div>
+                </div>
+                <span class="badge b-success">✓ 안전</span>
+              </div>
+              <div class="badges">
+                <span class="badge b-ramp">경사로</span>
+                <span class="badge b-rest">휴식공간</span>
+              </div>
+              <div class="reason">💡 산책로가 데크로 연결돼 휠체어·유아차 모두 편해요</div>
+            </div>
+          </div>
+
+          <div class="tl-move">
+            <span class="ic">🚙</span>
+            차량 이동 4.0km · 약 10분
+          </div>
+
+          <div class="tl-item">
+            <div class="tl-time">13:00</div>
+            <div class="tl-dot"></div>
+            <div class="tl-card">
+              <div class="head">
+                <div>
+                  <div class="name">올레 식당</div>
+                  <div class="cat">점심 · 60분</div>
+                </div>
+                <span class="badge b-warning">⚠ 주의</span>
+              </div>
+              <div class="badges">
+                <span class="badge b-elev">엘리베이터</span>
+              </div>
+              <div class="reason">⚠️ 입구에 작은 턱(2cm)이 있어요. 동행 도움이 필요할 수 있어요</div>
+            </div>
+          </div>
+
+          <div class="tl-move">
+            <span class="ic">🚙</span>
+            차량 이동 8.5km · 약 18분
+            <span class="rest">☕ 휴식 권장</span>
+          </div>
+
+          <div class="tl-item">
+            <div class="tl-time">14:30</div>
+            <div class="tl-dot"></div>
+            <div class="tl-card">
+              <div class="head">
+                <div>
+                  <div class="name">제주 민속촌</div>
+                  <div class="cat">문화관광 · 120분 체류</div>
+                </div>
+                <span class="badge b-success">✓ 안전</span>
+              </div>
+              <div class="badges">
+                <span class="badge b-ramp">경사로</span>
+                <span class="badge b-elev">엘리베이터</span>
+                <span class="badge b-toilet">휠체어WC</span>
+              </div>
+              <div class="reason">💡 무장애 점수 4/4, 휠체어 대여도 가능한 곳이에요</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      <div class="detail-actions">
+        <button class="btn btn-ghost" title="다른 코스 보기">🔄 다른 코스</button>
+        <button class="btn btn-primary">일정 저장하기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 07. PLACE DETAIL ══════════ -->
+  <div class="screen-wrap">
+    <p class="screen-label"><span>07</span> · Place Detail · 장소 상세</p>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="scroll">
+        <div class="place-cover">
+          <div class="top">
+            <div class="icon-btn">‹</div>
+            <div class="actions">
+              <div class="icon-btn">↗</div>
+              <div class="icon-btn">♡</div>
+            </div>
+          </div>
+          <div class="pic-count">📷 1 / 12</div>
+        </div>
+        <div class="place-info">
+          <div class="cat">자연관광 · 동부</div>
+          <h2>성산일출봉</h2>
+          <div class="meta-row">
+            <span class="stars">★ 4.8</span>
+            <span>리뷰 1,284</span>
+            <span>·</span>
+            <span>📍 서귀포시 성산읍</span>
+          </div>
+        </div>
+
+        <!-- 무장애 점수 (가장 먼저) -->
+        <div class="a11y-card">
+          <div class="head">
+            <div class="t">♿ 무장애 점수</div>
+            <div class="score">4<small>/ 4</small></div>
+          </div>
+          <div class="a11y-grid">
+            <div class="a11y-item yes"><div class="dot">✓</div><div class="lbl">경사로</div></div>
+            <div class="a11y-item yes"><div class="dot">✓</div><div class="lbl">휠체어 화장실</div></div>
+            <div class="a11y-item yes"><div class="dot">✓</div><div class="lbl">휴식 공간</div></div>
+            <div class="a11y-item no"><div class="dot">−</div><div class="lbl">엘리베이터</div></div>
+          </div>
+        </div>
+
+        <!-- 추천 이유 -->
+        <div class="why-card">
+          <div class="t">WHY · 이 일정에 포함된 이유</div>
+          <div class="body">주차장에서 전망대까지 <b>평지 200m</b>, 5곳의 휴식 벤치, 휠체어 대여 가능. 동부 해안 코스의 <b>완주 가능성</b>이 가장 높은 출발점이에요.</div>
+        </div>
+
+        <div class="info-list">
+          <h4>장소 정보</h4>
+          <div class="info-row">
+            <div class="ic">🕘</div>
+            <div class="body">
+              <div class="l">운영 시간</div>
+              <div class="v">07:00 — 20:00 · 연중무휴</div>
+            </div>
+          </div>
+          <div class="info-row">
+            <div class="ic">⏱</div>
+            <div class="body">
+              <div class="l">추천 체류 시간</div>
+              <div class="v">약 90분 (휴식 포함)</div>
+            </div>
+          </div>
+          <div class="info-row">
+            <div class="ic">🏛️</div>
+            <div class="body">
+              <div class="l">실내 / 실외</div>
+              <div class="v">야외 (그늘쉼터 5곳)</div>
+            </div>
+          </div>
+          <div class="info-row">
+            <div class="ic">📞</div>
+            <div class="body">
+              <div class="l">전화</div>
+              <div class="v">064-783-0959</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="place-foot">
+        <button class="btn btn-ghost">길찾기</button>
+        <button class="btn btn-primary">일정에 추가</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 08. ALTERNATIVE ROUTES ══════════ -->
+  <div class="screen-wrap">
+    <p class="screen-label"><span>08</span> · Alternative · 대체 코스 비교</p>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="statusbar"><span>9:41</span><span class="right">●●●● 5G</span></div>
+      <div class="appbar">
+        <div class="back">‹</div>
+        <div class="title">대체 코스 추천</div>
+      </div>
+      <div class="scroll">
+        <div class="alt-intro">
+          <h2>날씨 변화에 맞춘<br/>새 코스를 찾았어요</h2>
+          <p>내일 오전 비 예보가 있어요. 실내 비중을 높인 대체 코스를 비교해보세요.</p>
+        </div>
+
+        <div class="compare-grid">
+
+          <div class="compare-card">
+            <div class="head">
+              <div class="name"><span class="tag cur">현재</span>동부 해안 코스</div>
+            </div>
+            <div class="compare-stats">
+              <div class="compare-stat"><div class="l">실내 비중</div><div class="v">25%</div></div>
+              <div class="compare-stat"><div class="l">이동거리</div><div class="v">22km</div></div>
+              <div class="compare-stat"><div class="l">안전점수</div><div class="v">87점</div></div>
+            </div>
+            <div class="diff-list">
+              <div class="diff-item minus"><div class="ic">!</div>야외 비중이 높아 우천 시 부담</div>
+              <div class="diff-item minus"><div class="ic">!</div>휴식 포인트 사이 거리 멀어요</div>
+            </div>
+            <button class="pick-btn">현재 코스 유지</button>
+          </div>
+
+          <div class="compare-card recommended">
+            <div class="ribbon">✨ AI 추천</div>
+            <div class="head">
+              <div class="name"><span class="tag">대체</span>박물관 + 카페 코스</div>
+            </div>
+            <div class="compare-stats">
+              <div class="compare-stat"><div class="l">실내 비중</div><div class="v" style="color:var(--success-d)">85%</div></div>
+              <div class="compare-stat"><div class="l">이동거리</div><div class="v" style="color:var(--success-d)">14km</div></div>
+              <div class="compare-stat"><div class="l">안전점수</div><div class="v" style="color:var(--success-d)">93점</div></div>
+            </div>
+            <div class="diff-list">
+              <div class="diff-item"><div class="ic">↑</div><b>실내 비중 +60%</b> · 비 와도 안심</div>
+              <div class="diff-item"><div class="ic">↓</div><b>이동거리 −8km</b> · 부담 감소</div>
+              <div class="diff-item"><div class="ic">+</div><b>휴식 포인트 +2곳</b> 추가</div>
+              <div class="diff-item"><div class="ic">+</div>모든 장소 엘리베이터 보유</div>
+            </div>
+            <button class="pick-btn">이 코스로 변경하기 →</button>
+          </div>
+
+        </div>
+        <div style="height:24px"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 09. MY PAGE ══════════ -->
+  <div class="screen-wrap">
+    <p class="screen-label"><span>09</span> · My Page · 개인화 허브</p>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="scroll">
+        <div class="my-header">
+          <div class="nav">
+            <div class="t"></div>
+            <div class="ic">⚙️</div>
+          </div>
+          <div class="profile-row">
+            <div class="avatar">👤</div>
+            <div class="info">
+              <div class="name">승환님<span class="badge-mini">LV.3 베테랑</span></div>
+              <div class="email">popeye0618@catholic.ac.kr</div>
+            </div>
+          </div>
+          <div style="margin:14px 20px 0;background:rgba(255,255,255,.12);border-radius:12px;padding:12px 14px;backdrop-filter:blur(6px)">
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:rgba(255,255,255,.85);font-weight:600">
+              <div>🏆 다음 레벨 · 가이드</div>
+              <div>185 / 400 P</div>
+            </div>
+            <div style="margin-top:8px;height:6px;background:rgba(255,255,255,.18);border-radius:3px;overflow:hidden">
+              <div style="width:46%;height:100%;background:linear-gradient(90deg,#FFD66E,#FFA000)"></div>
+            </div>
+            <div style="margin-top:6px;font-size:10px;color:rgba(255,255,255,.7)">완료 여행 · 후기 작성 · 방문 인증으로 포인트 적립</div>
+          </div>
+          <div class="stat-strip">
+            <div class="stat-cell"><div class="v">3</div><div class="l">완료한 여행</div></div>
+            <div class="stat-cell"><div class="v">12</div><div class="l">방문 장소</div></div>
+            <div class="stat-cell"><div class="v">87</div><div class="l">평균 안전점수</div></div>
+          </div>
+        </div>
+
+        <div class="my-condition-card">
+          <div class="head">
+            <div class="t">내 여행 조건</div>
+            <div class="edit">변경 ›</div>
+          </div>
+          <div class="tags">
+            <span class="tag">♿ 휠체어</span>
+            <span class="tag">🔀 균형있게</span>
+            <span class="tag">⚡ 보통 강도</span>
+            <span class="tag">📅 2일</span>
+          </div>
+        </div>
+
+        <div class="my-section">
+          <h3>저장한 일정 <span class="more">전체 보기 ›</span></h3>
+          <div class="my-itin">
+            <div class="thumb">🗺️</div>
+            <div class="body">
+              <div class="name">성산일출봉 & 섭지코지 코스</div>
+              <div class="meta">2박 3일 · 동부 · 저장일 03.15</div>
+              <div class="badges">
+                <span class="badge b-success">✓ 87점</span>
+                <span class="badge b-teal">2일</span>
+              </div>
+            </div>
+            <div class="arrow">›</div>
+          </div>
+          <div class="my-itin">
+            <div class="thumb b">⛰️</div>
+            <div class="body">
+              <div class="name">한라산 둘레길 코스</div>
+              <div class="meta">당일 · 중부 · 저장일 02.20</div>
+              <div class="badges">
+                <span class="badge b-warning">⚠ 72점</span>
+                <span class="badge b-teal">1일</span>
+              </div>
+            </div>
+            <div class="arrow">›</div>
+          </div>
+        </div>
+
+        <div class="my-section">
+          <h3>관리</h3>
+          <div class="menu-list">
+            <div class="menu-row">
+              <div class="ic">⭐</div>
+              <div class="lbl">즐겨찾기 장소</div>
+              <div class="arrow">›</div>
+            </div>
+            <div class="menu-row">
+              <div class="ic">🕐</div>
+              <div class="lbl">최근 본 일정</div>
+              <div class="arrow">›</div>
+            </div>
+            <div class="menu-row">
+              <div class="ic">🔔</div>
+              <div class="lbl">알림 설정</div>
+              <div class="arrow">›</div>
+            </div>
+            <div class="menu-row">
+              <div class="ic">❓</div>
+              <div class="lbl">고객 지원</div>
+              <div class="arrow">›</div>
+            </div>
+            <div class="menu-row danger">
+              <div class="ic">🚪</div>
+              <div class="lbl">로그아웃</div>
+              <div class="arrow">›</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="height:8px"></div>
+      </div>
+      <div class="tabbar">
+        <div class="tab"><div class="ic">🏠</div>홈</div>
+        <div class="tab"><div class="ic">🔍</div>탐색</div>
+        <div class="tab"><div class="ic">📅</div>내 일정</div>
+        <div class="tab active"><div class="ic">👤</div>마이</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 10. EXPLORE MAIN ══════════ -->
+  <div class="screen-wrap">
+    <p class="screen-label"><span>10</span> · Explore · 탐색 메인</p>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="statusbar"><span>9:41</span><span class="right">●●●● 5G</span></div>
+      <div class="scroll" style="background:var(--bg)">
+        <div style="padding:20px 20px 12px">
+          <h1 style="font-size:24px;font-weight:800;color:var(--teal-900);margin:8px 0 14px">탐색</h1>
+          <div style="display:flex;align-items:center;gap:10px;background:#fff;border:1.5px solid var(--slate-200);border-radius:14px;padding:14px 16px">
+            <div style="font-size:18px;color:var(--slate-400)">🔍</div>
+            <div style="flex:1;color:var(--slate-400);font-size:14px">장소·일정·"비 오는 날" 검색</div>
+            <div style="font-size:18px;color:var(--teal-700)">🎚️</div>
+          </div>
+        </div>
+
+        <div style="padding:0 20px 20px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <div style="font-size:13px;color:var(--slate-500);font-weight:700">🔥 지금 인기 검색어</div>
+            <div style="font-size:11px;color:var(--slate-400)">04.07 09:00 기준</div>
+          </div>
+          <div style="background:#fff;border:1px solid var(--slate-100);border-radius:14px;padding:14px 16px">
+            <div class="rank-row">
+              <div class="rank-item"><div class="rank-num">1</div><div class="rank-text">휠체어 카페</div><div class="rank-up">▲ 2</div></div>
+              <div class="rank-item"><div class="rank-num">2</div><div class="rank-text">실내 박물관</div><div class="rank-up">NEW</div></div>
+              <div class="rank-item"><div class="rank-num">3</div><div class="rank-text">유아차 산책로</div><div class="rank-up" style="color:var(--slate-400)">−</div></div>
+              <div class="rank-item"><div class="rank-num cool">4</div><div class="rank-text">서귀포 맛집</div><div class="rank-up" style="color:var(--teal-700)">▼ 1</div></div>
+              <div class="rank-item"><div class="rank-num cool">5</div><div class="rank-text">한라산 무장애</div><div class="rank-up">▲ 3</div></div>
+              <div class="rank-item"><div class="rank-num cool">6</div><div class="rank-text">올레길 평지</div><div class="rank-up">NEW</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div style="padding:0 20px 12px">
+          <div style="font-size:15px;font-weight:700;color:var(--teal-900);margin-bottom:12px">카테고리</div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+            <div style="background:#fff;border:1px solid var(--slate-100);border-radius:14px;padding:14px 8px;text-align:center"><div style="font-size:24px">🏛️</div><div style="font-size:11px;font-weight:600;margin-top:6px;color:var(--slate-700)">박물관</div></div>
+            <div style="background:#fff;border:1px solid var(--slate-100);border-radius:14px;padding:14px 8px;text-align:center"><div style="font-size:24px">🌊</div><div style="font-size:11px;font-weight:600;margin-top:6px;color:var(--slate-700)">해안</div></div>
+            <div style="background:#fff;border:1px solid var(--slate-100);border-radius:14px;padding:14px 8px;text-align:center"><div style="font-size:24px">🍽️</div><div style="font-size:11px;font-weight:600;margin-top:6px;color:var(--slate-700)">맛집</div></div>
+            <div style="background:#fff;border:1px solid var(--slate-100);border-radius:14px;padding:14px 8px;text-align:center"><div style="font-size:24px">☕</div><div style="font-size:11px;font-weight:600;margin-top:6px;color:var(--slate-700)">카페</div></div>
+            <div style="background:#fff;border:1px solid var(--slate-100);border-radius:14px;padding:14px 8px;text-align:center"><div style="font-size:24px">🏨</div><div style="font-size:11px;font-weight:600;margin-top:6px;color:var(--slate-700)">숙소</div></div>
+            <div style="background:#fff;border:1px solid var(--slate-100);border-radius:14px;padding:14px 8px;text-align:center"><div style="font-size:24px">🌳</div><div style="font-size:11px;font-weight:600;margin-top:6px;color:var(--slate-700)">자연</div></div>
+            <div style="background:#fff;border:1px solid var(--slate-100);border-radius:14px;padding:14px 8px;text-align:center"><div style="font-size:24px">🎨</div><div style="font-size:11px;font-weight:600;margin-top:6px;color:var(--slate-700)">전시</div></div>
+            <div style="background:#fff;border:1px solid var(--slate-100);border-radius:14px;padding:14px 8px;text-align:center"><div style="font-size:24px">🛁</div><div style="font-size:11px;font-weight:600;margin-top:6px;color:var(--slate-700)">힐링</div></div>
+          </div>
+        </div>
+
+        <div style="padding:8px 20px 20px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <div>
+              <div style="font-size:15px;font-weight:700;color:var(--teal-900)">에디터 큐레이션</div>
+              <div style="font-size:11px;color:var(--slate-500);margin-top:2px">테마별로 골라낸 추천 일정</div>
+            </div>
+            <div style="font-size:12px;color:var(--teal-700);font-weight:600">전체 ›</div>
+          </div>
+          <div class="no-sb" style="display:flex;gap:12px;overflow-x:auto;padding-bottom:4px">
+            <div style="min-width:180px;background:#fff;border-radius:14px;border:1px solid var(--slate-100);overflow:hidden">
+              <div style="height:90px;background:linear-gradient(135deg,var(--teal-700),var(--teal-500))"></div>
+              <div style="padding:10px 12px"><div style="font-size:13px;font-weight:700;color:var(--teal-900)">평지로만 가는 동부 1일</div><div style="font-size:11px;color:var(--slate-500);margin-top:4px">⭐ 4.9 · 132명 저장</div></div>
+            </div>
+            <div style="min-width:180px;background:#fff;border-radius:14px;border:1px solid var(--slate-100);overflow:hidden">
+              <div style="height:90px;background:linear-gradient(135deg,var(--sand-900),var(--sand-500))"></div>
+              <div style="padding:10px 12px"><div style="font-size:13px;font-weight:700;color:var(--teal-900)">실내 위주 비 오는 날</div><div style="font-size:11px;color:var(--slate-500);margin-top:4px">⭐ 4.8 · 98명 저장</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div style="height:8px"></div>
+      </div>
+      <div class="tabbar">
+        <div class="tab"><div class="ic">🏠</div>홈</div>
+        <div class="tab active"><div class="ic">🔍</div>탐색</div>
+        <div class="tab"><div class="ic">📅</div>내 일정</div>
+        <div class="tab"><div class="ic">👤</div>마이</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 11. EXPLORE RESULT ══════════ -->
+  <div class="screen-wrap">
+    <p class="screen-label"><span>11</span> · Search Result · 검색 결과</p>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="statusbar"><span>9:41</span><span class="right">●●●● 5G</span></div>
+      <div style="padding:14px 20px 12px;background:#fff;border-bottom:1px solid var(--slate-100)">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="font-size:22px;color:var(--teal-900)">‹</div>
+          <div style="flex:1;display:flex;align-items:center;gap:8px;background:var(--bg);border-radius:12px;padding:10px 14px">
+            <div style="font-size:15px;color:var(--slate-400)">🔍</div>
+            <div style="flex:1;color:var(--teal-900);font-size:14px;font-weight:600">휠체어 카페</div>
+            <div style="font-size:14px;color:var(--slate-400)">✕</div>
+          </div>
+        </div>
+        <div class="seg" style="margin-top:14px">
+          <div class="opt active">전체 (24)</div>
+          <div class="opt">일정 (6)</div>
+          <div class="opt">장소 (18)</div>
+        </div>
+      </div>
+      <div class="no-sb" style="display:flex;gap:8px;padding:12px 20px;overflow-x:auto;background:#fff;border-bottom:1px solid var(--slate-100)">
+        <span class="filter-chip active">접근성 ↑</span>
+        <span class="filter-chip">평점순</span>
+        <span class="filter-chip">거리순</span>
+        <span class="filter-chip">♿ 휠체어 OK</span>
+        <span class="filter-chip">🚻 휠체어 WC</span>
+      </div>
+      <div class="scroll" style="background:var(--bg)">
+        <div style="padding:14px 20px 8px;font-size:12px;color:var(--slate-500)">총 24개 · 휠체어 접근성 점수 80↑</div>
+
+        <!-- ━━━ 일정 섹션 ━━━ -->
+        <div style="display:flex;align-items:center;gap:8px;padding:6px 20px 8px">
+          <div style="font-size:13px;font-weight:800;color:var(--teal-900)">📋 일정 · 6</div>
+          <div style="flex:1;height:1px;background:var(--slate-200)"></div>
+        </div>
+        <div style="margin:0 20px 10px;background:#fff;border-radius:16px;border:1px solid var(--slate-100);overflow:hidden">
+          <div style="padding:14px">
+            <div style="font-size:15px;font-weight:700;color:var(--teal-900)">평지로만 가는 카페 투어</div>
+            <div style="font-size:12px;color:var(--slate-500);margin-top:4px">1일 · 4곳 · 동부 · 안전점수 91</div>
+            <div style="display:flex;gap:6px;margin-top:10px">
+              <span class="badge b-success">✓ 안전</span>
+              <span class="badge b-ramp">경사로</span>
+              <span class="badge b-toilet">휠체어WC</span>
+            </div>
+          </div>
+        </div>
+        <div style="margin:0 20px 14px;background:#fff;border-radius:16px;border:1px solid var(--slate-100);overflow:hidden">
+          <div style="padding:14px">
+            <div style="font-size:15px;font-weight:700;color:var(--teal-900)">서귀포 무장애 카페 5곳</div>
+            <div style="font-size:12px;color:var(--slate-500);margin-top:4px">1일 · 5곳 · 서부 · 안전점수 88</div>
+            <div style="display:flex;gap:6px;margin-top:10px">
+              <span class="badge b-success">✓ 안전</span>
+              <span class="badge b-elev">엘리베이터</span>
+              <span class="badge b-toilet">휠체어WC</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ━━━ 장소 섹션 ━━━ -->
+        <div style="display:flex;align-items:center;gap:8px;padding:14px 20px 8px;margin-top:4px;border-top:8px solid var(--slate-100)">
+          <div style="font-size:13px;font-weight:800;color:var(--teal-900);margin-top:6px">📍 장소 · 18</div>
+          <div style="flex:1;height:1px;background:var(--slate-200);margin-top:6px"></div>
+        </div>
+        <div style="margin:0 20px 14px;background:#fff;border-radius:16px;border:1px solid var(--slate-100);padding:14px;display:flex;gap:12px">
+          <div style="width:72px;height:72px;border-radius:12px;background:linear-gradient(135deg,var(--teal-500),var(--teal-700));flex-shrink:0"></div>
+          <div style="flex:1">
+            <div style="display:flex;align-items:start;justify-content:space-between"><div style="font-size:14px;font-weight:700;color:var(--teal-900)">델문도 카페</div><div style="font-size:11px;color:var(--slate-500)">📍 1.2km</div></div>
+            <div style="font-size:11px;color:var(--slate-500);margin-top:3px">⭐ 4.8 (213) · 카페 · 조천</div>
+            <div style="display:flex;gap:5px;margin-top:8px;flex-wrap:wrap">
+              <span class="badge b-ramp" style="font-size:10px">경사로</span>
+              <span class="badge b-toilet" style="font-size:10px">휠체어WC</span>
+              <span class="badge b-rest" style="font-size:10px">휴식</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin:0 20px 14px;background:#fff;border-radius:16px;border:1px solid var(--slate-100);padding:14px;display:flex;gap:12px">
+          <div style="width:72px;height:72px;border-radius:12px;background:linear-gradient(135deg,var(--sand-500),var(--sand-900));flex-shrink:0"></div>
+          <div style="flex:1">
+            <div style="display:flex;align-items:start;justify-content:space-between"><div style="font-size:14px;font-weight:700;color:var(--teal-900)">카페 한라산</div><div style="font-size:11px;color:var(--slate-500)">📍 3.4km</div></div>
+            <div style="font-size:11px;color:var(--slate-500);margin-top:3px">⭐ 4.6 (87) · 카페 · 애월</div>
+            <div style="display:flex;gap:5px;margin-top:8px;flex-wrap:wrap">
+              <span class="badge b-ramp" style="font-size:10px">경사로</span>
+              <span class="badge b-elev" style="font-size:10px">엘리베이터</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="height:8px"></div>
+      </div>
+      <div class="tabbar">
+        <div class="tab"><div class="ic">🏠</div>홈</div>
+        <div class="tab active"><div class="ic">🔍</div>탐색</div>
+        <div class="tab"><div class="ic">📅</div>내 일정</div>
+        <div class="tab"><div class="ic">👤</div>마이</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 12. MY ITINERARIES ══════════ -->
+  <div class="screen-wrap">
+    <p class="screen-label"><span>12</span> · My Itineraries · 내 일정 메인</p>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="statusbar"><span>9:41</span><span class="right">●●●● 5G</span></div>
+      <div style="padding:14px 20px 0;background:#fff">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <h1 style="font-size:24px;font-weight:800;color:var(--teal-900);margin:8px 0">내 일정</h1>
+          <div style="font-size:22px;color:var(--teal-700)">＋</div>
+        </div>
+        <div class="seg" style="margin-top:10px">
+          <div class="opt active">진행 중</div>
+          <div class="opt">예정</div>
+          <div class="opt">완료</div>
+          <div class="opt">직접 만든</div>
+        </div>
+      </div>
+
+      <div class="scroll" style="background:var(--bg)">
+        <!-- 진행 중 - 강조 -->
+        <div style="margin:16px 20px;background:linear-gradient(135deg,var(--teal-700),var(--teal-900));border-radius:18px;padding:18px;color:#fff;position:relative;overflow:hidden">
+          <div style="font-size:11px;font-weight:700;letter-spacing:.5px;opacity:.9">🔴 NOW · DAY 2 / 3</div>
+          <div style="font-size:18px;font-weight:800;margin-top:6px">성산일출봉 & 섭지코지 코스</div>
+          <div style="font-size:12px;opacity:.85;margin-top:4px">2026.04.07 - 04.09</div>
+          <div style="margin-top:14px;background:rgba(255,255,255,.15);border-radius:10px;padding:10px 12px;font-size:12px">
+            🚗 다음 일정 · 14:30 · 섭지코지 (2.4km)
+          </div>
+          <div style="display:flex;gap:8px;margin-top:12px">
+            <button class="btn" style="flex:1;height:42px;background:#fff;color:var(--teal-900);font-size:13px">길안내</button>
+            <button class="btn" style="flex:1;height:42px;background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);font-size:13px">전체 보기</button>
+          </div>
+        </div>
+
+        <div style="padding:0 20px 8px;font-size:13px;font-weight:700;color:var(--slate-500)">예정 (2)</div>
+        <div style="margin:0 20px 12px;background:#fff;border-radius:14px;border:1px solid var(--slate-100);padding:14px">
+          <div style="display:flex;align-items:start;justify-content:space-between">
+            <div>
+              <div style="font-size:14px;font-weight:700;color:var(--teal-900)">비 와도 괜찮은 박물관 투어</div>
+              <div style="font-size:11px;color:var(--slate-500);margin-top:3px">2026.04.20 · 1일 · 5곳</div>
+            </div>
+            <span class="badge" style="background:var(--teal-50);color:var(--teal-800)">D-13</span>
+          </div>
+        </div>
+        <div style="margin:0 20px 12px;background:#fff;border-radius:14px;border:1px solid var(--slate-100);padding:14px">
+          <div style="display:flex;align-items:start;justify-content:space-between">
+            <div>
+              <div style="font-size:14px;font-weight:700;color:var(--teal-900)">한라산 둘레길 + 휴양림</div>
+              <div style="font-size:11px;color:var(--slate-500);margin-top:3px">2026.05.03 · 2일 · 7곳</div>
+            </div>
+            <span class="badge" style="background:var(--sand-100);color:var(--sand-900)">D-26</span>
+          </div>
+        </div>
+
+        <div style="padding:8px 20px;font-size:13px;font-weight:700;color:var(--slate-500)">완료 (1)</div>
+        <div style="margin:0 20px 12px;background:#fff;border-radius:14px;border:1px solid var(--slate-100);padding:14px;opacity:.75">
+          <div style="display:flex;align-items:start;justify-content:space-between">
+            <div>
+              <div style="font-size:14px;font-weight:700;color:var(--teal-900)">서귀포 카페 투어</div>
+              <div style="font-size:11px;color:var(--slate-500);margin-top:3px">2026.03.15 · 1일 · ⭐ 후기 작성됨</div>
+            </div>
+            <span style="font-size:11px;color:var(--teal-700);font-weight:700">후기 ›</span>
+          </div>
+        </div>
+
+        <div style="margin:0 20px 16px;background:#fff;border-radius:14px;border:1px dashed var(--slate-200);padding:14px;display:flex;align-items:center;justify-content:space-between">
+          <div>
+            <div style="font-size:13px;font-weight:700;color:var(--teal-900)">📝 후기 작성 대기</div>
+            <div style="font-size:11px;color:var(--slate-500);margin-top:2px">"애월 해안 산책 코스" 어땠나요?</div>
+          </div>
+          <div style="font-size:11px;color:var(--teal-700);font-weight:700">작성 ›</div>
+        </div>
+
+        <div style="height:8px"></div>
+      </div>
+      <div class="tabbar">
+        <div class="tab"><div class="ic">🏠</div>홈</div>
+        <div class="tab"><div class="ic">🔍</div>탐색</div>
+        <div class="tab active"><div class="ic">📅</div>내 일정</div>
+        <div class="tab"><div class="ic">👤</div>마이</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 13. CUSTOM ITINERARY BUILDER ══════════ -->
+  <div class="screen-wrap">
+    <p class="screen-label"><span>13</span> · Builder · 일정 직접 만들기</p>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="statusbar"><span>9:41</span><span class="right">●●●● 5G</span></div>
+      <div class="appbar">
+        <div class="back">‹</div>
+        <div class="title">새 일정 만들기</div>
+        <div class="right">저장</div>
+      </div>
+      <div class="scroll" style="background:var(--bg)">
+        <div style="padding:16px 20px">
+          <input class="input filled" placeholder="일정 이름" value="나만의 동부 코스" style="font-size:16px;font-weight:700"/>
+          <div style="display:flex;gap:10px;margin-top:10px">
+            <input class="input filled" value="2026.05.10" style="flex:1;font-size:13px"/>
+            <input class="input filled" value="1박 2일" style="flex:1;font-size:13px"/>
+          </div>
+        </div>
+
+        <div style="padding:0 20px;display:flex;gap:6px">
+          <div class="filter-chip active">DAY 1</div>
+          <div class="filter-chip">DAY 2</div>
+          <div class="filter-chip" style="background:var(--teal-50);color:var(--teal-700)">＋ 추가</div>
+        </div>
+
+        <div style="padding:14px 20px">
+          <!-- 추가된 장소 카드들 -->
+          <div style="background:#fff;border-radius:14px;border:1px solid var(--slate-100);padding:14px;margin-bottom:10px;display:flex;gap:12px;align-items:center">
+            <div style="width:32px;height:32px;border-radius:50%;background:var(--teal-700);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px">1</div>
+            <div style="flex:1">
+              <div style="font-size:14px;font-weight:700;color:var(--teal-900)">성산일출봉</div>
+              <div style="font-size:11px;color:var(--slate-500);margin-top:2px">09:00 · 1.5시간</div>
+            </div>
+            <div style="font-size:18px;color:var(--slate-300)">⋮⋮</div>
+          </div>
+          <div style="text-align:center;font-size:11px;color:var(--slate-400);margin:6px 0">↓ 차량 12분</div>
+          <div style="background:#fff;border-radius:14px;border:1px solid var(--slate-100);padding:14px;margin-bottom:10px;display:flex;gap:12px;align-items:center">
+            <div style="width:32px;height:32px;border-radius:50%;background:var(--teal-700);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px">2</div>
+            <div style="flex:1">
+              <div style="font-size:14px;font-weight:700;color:var(--teal-900)">섭지코지</div>
+              <div style="font-size:11px;color:var(--slate-500);margin-top:2px">11:00 · 2시간</div>
+            </div>
+            <div style="font-size:18px;color:var(--slate-300)">⋮⋮</div>
+          </div>
+
+          <div style="background:var(--teal-50);border:1.5px dashed var(--teal-700);border-radius:14px;padding:18px;text-align:center;margin-top:6px">
+            <div style="font-size:24px">＋</div>
+            <div style="font-size:13px;font-weight:700;color:var(--teal-800);margin-top:4px">장소 추가하기</div>
+            <div style="font-size:11px;color:var(--teal-700);margin-top:3px">탐색에서 가져오거나 직접 검색</div>
+          </div>
+
+          <div style="margin-top:14px;background:#FFF8E6;border-radius:12px;padding:12px 14px;font-size:12px;color:var(--sand-900);line-height:1.5">
+            💡 <b>AI 코치</b> — 두 장소 사이 쉴 곳이 없어요. 카페 1곳 추가를 추천해요. <span style="color:var(--teal-700);font-weight:700">추천 보기 ›</span>
+          </div>
+        </div>
+        <div style="height:80px"></div>
+      </div>
+      <div class="bottom-cta">
+        <button class="btn btn-primary btn-block">일정 저장</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 14. REVIEW WRITE ══════════ -->
+  <div class="screen-wrap">
+    <p class="screen-label"><span>14</span> · Review · 여행 후기 작성</p>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="statusbar"><span>9:41</span><span class="right">●●●● 5G</span></div>
+      <div class="appbar">
+        <div class="back">‹</div>
+        <div class="title">후기 작성</div>
+      </div>
+      <div class="scroll">
+        <div style="padding:18px 20px">
+          <div style="font-size:11px;font-weight:700;color:var(--teal-700);letter-spacing:.5px">FEEDBACK</div>
+          <h2 style="font-size:20px;font-weight:800;color:var(--teal-900);margin:6px 0 4px">애월 해안 산책 코스, 어떠셨어요?</h2>
+          <p style="font-size:13px;color:var(--slate-500)">2026.03.15 · 1일 코스</p>
+
+          <div style="margin-top:20px;background:var(--teal-50);border-radius:14px;padding:18px;text-align:center">
+            <div style="font-size:13px;color:var(--teal-800);font-weight:600">전체 만족도</div>
+            <div style="font-size:32px;letter-spacing:6px;margin-top:8px">⭐⭐⭐⭐<span style="opacity:.3">⭐</span></div>
+            <div style="font-size:13px;color:var(--teal-700);font-weight:700;margin-top:4px">4.0 / 5.0</div>
+          </div>
+
+          <div style="margin-top:20px">
+            <div style="font-size:13px;font-weight:700;color:var(--teal-900);margin-bottom:10px">접근성은 어땠나요? (복수 선택)</div>
+            <div style="display:flex;flex-wrap:wrap;gap:8px">
+              <span class="filter-chip active">✓ 경사로 충분</span>
+              <span class="filter-chip active">✓ 휠체어 WC 편함</span>
+              <span class="filter-chip">✓ 휴식 공간 부족</span>
+              <span class="filter-chip">✓ 주차장 멀어요</span>
+              <span class="filter-chip">✓ 직원 친절</span>
+            </div>
+          </div>
+
+          <div style="margin-top:20px">
+            <div style="font-size:13px;font-weight:700;color:var(--teal-900);margin-bottom:10px">자세한 후기</div>
+            <div style="background:#fff;border:1.5px solid var(--slate-200);border-radius:12px;padding:14px;min-height:120px;font-size:13px;color:var(--slate-400);line-height:1.6">
+              다른 분들에게 도움이 되는 솔직한 경험을 남겨주세요...
+            </div>
+          </div>
+
+          <div style="margin-top:16px;display:flex;gap:8px">
+            <div style="width:64px;height:64px;border-radius:12px;background:var(--bg);border:1.5px dashed var(--slate-300);display:flex;align-items:center;justify-content:center;font-size:24px;color:var(--slate-400)">📷</div>
+            <div style="width:64px;height:64px;border-radius:12px;background:linear-gradient(135deg,var(--teal-500),var(--teal-700))"></div>
+            <div style="width:64px;height:64px;border-radius:12px;background:linear-gradient(135deg,var(--sand-500),var(--sand-900))"></div>
+          </div>
+        </div>
+        <div style="height:80px"></div>
+      </div>
+      <div class="bottom-cta">
+        <button class="btn btn-primary btn-block">후기 등록</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 15. SETTINGS ══════════ -->
+  <div class="screen-wrap">
+    <p class="screen-label"><span>15</span> · Settings · 설정</p>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="statusbar"><span>9:41</span><span class="right">●●●● 5G</span></div>
+      <div class="appbar">
+        <div class="back">‹</div>
+        <div class="title">설정</div>
+      </div>
+      <div class="scroll" style="background:var(--bg)">
+        <div style="padding:20px 20px 8px;font-size:12px;font-weight:700;color:var(--slate-500);letter-spacing:.5px">계정</div>
+        <div style="margin:0 20px;background:#fff;border-radius:14px;border:1px solid var(--slate-100);overflow:hidden">
+          <div style="padding:14px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--slate-100)"><div style="font-size:14px;color:var(--teal-900)">프로필 수정</div><div style="font-size:18px;color:var(--slate-300)">›</div></div>
+          <div style="padding:14px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--slate-100)"><div style="font-size:14px;color:var(--teal-900)">여행 조건 변경</div><div style="font-size:18px;color:var(--slate-300)">›</div></div>
+          <div style="padding:14px 16px;display:flex;justify-content:space-between;align-items:center"><div style="font-size:14px;color:var(--teal-900)">비밀번호 변경</div><div style="font-size:18px;color:var(--slate-300)">›</div></div>
+        </div>
+
+        <div style="padding:20px 20px 8px;font-size:12px;font-weight:700;color:var(--slate-500);letter-spacing:.5px">알림</div>
+        <div style="margin:0 20px;background:#fff;border-radius:14px;border:1px solid var(--slate-100);overflow:hidden">
+          <div style="padding:14px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--slate-100)"><div style="font-size:14px;color:var(--teal-900)">일정 리마인더</div><div style="width:36px;height:22px;border-radius:11px;background:var(--teal-700);position:relative"><div style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:2px;right:2px"></div></div></div>
+          <div style="padding:14px 16px;display:flex;justify-content:space-between;align-items:center"><div style="font-size:14px;color:var(--teal-900)">날씨·위험 알림</div><div style="width:36px;height:22px;border-radius:11px;background:var(--teal-700);position:relative"><div style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:2px;right:2px"></div></div></div>
+        </div>
+
+        <div style="padding:20px 20px 8px;font-size:12px;font-weight:700;color:var(--slate-500);letter-spacing:.5px">접근성</div>
+        <div style="margin:0 20px;background:#fff;border-radius:14px;border:1px solid var(--slate-100);overflow:hidden">
+          <div style="padding:14px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--slate-100)"><div style="font-size:14px;color:var(--teal-900)">큰 글씨 모드</div><div style="width:36px;height:22px;border-radius:11px;background:var(--slate-200);position:relative"><div style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px"></div></div></div>
+          <div style="padding:14px 16px;display:flex;justify-content:space-between;align-items:center"><div style="font-size:14px;color:var(--teal-900)">고대비 모드</div><div style="width:36px;height:22px;border-radius:11px;background:var(--slate-200);position:relative"><div style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px"></div></div></div>
+        </div>
+
+        <div style="padding:20px 20px 8px;font-size:12px;font-weight:700;color:var(--slate-500);letter-spacing:.5px">정보</div>
+        <div style="margin:0 20px 20px;background:#fff;border-radius:14px;border:1px solid var(--slate-100);overflow:hidden">
+          <div style="padding:14px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--slate-100)"><div style="font-size:14px;color:var(--teal-900)">공지사항</div><div style="font-size:18px;color:var(--slate-300)">›</div></div>
+          <div style="padding:14px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--slate-100)"><div style="font-size:14px;color:var(--teal-900)">이용약관 · 개인정보</div><div style="font-size:18px;color:var(--slate-300)">›</div></div>
+          <div style="padding:14px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--slate-100)"><div style="font-size:14px;color:var(--teal-900)">버전</div><div style="font-size:13px;color:var(--slate-500)">1.0.0</div></div>
+          <div style="padding:14px 16px;display:flex;justify-content:space-between;align-items:center"><div style="font-size:14px;color:#E53935">로그아웃</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 23. LIVE MODE ══════════ -->
+  <div class="screen-wrap">
+    <p class="screen-label"><span>23</span> · Live Mode · 여행 중 라이브 모드 ★</p>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="statusbar"><span>9:41</span><span class="right">●●●● 5G</span></div>
+      <div class="scroll" style="background:var(--bg)">
+        <!-- 상단 라이브 헤더 -->
+        <div style="background:linear-gradient(135deg,var(--teal-700),var(--teal-900));color:#fff;padding:18px 20px 22px">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div style="display:flex;align-items:center;gap:8px"><div style="width:8px;height:8px;border-radius:50%;background:#FF4A4A;box-shadow:0 0 0 4px rgba(255,74,74,.25)"></div><div style="font-size:11px;font-weight:800;letter-spacing:.5px">LIVE · DAY 2 / 3</div></div>
+            <div style="display:flex;gap:10px"><div style="font-size:18px">🔔</div><div style="font-size:18px">⋯</div></div>
+          </div>
+          <div style="font-size:18px;font-weight:800;margin-top:10px">성산일출봉 & 섭지코지 코스</div>
+          <div style="font-size:11px;opacity:.8;margin-top:2px">04.08 (수) · 09:23 · 맑음 24°</div>
+
+          <!-- 진행률 -->
+          <div style="margin-top:16px">
+            <div style="display:flex;justify-content:space-between;font-size:10px;font-weight:700;opacity:.85;margin-bottom:6px"><div>오늘 일정 진행</div><div>2 / 5 완료</div></div>
+            <div style="display:flex;gap:4px">
+              <div style="flex:1;height:6px;border-radius:3px;background:#FFD66E"></div>
+              <div style="flex:1;height:6px;border-radius:3px;background:#FFD66E"></div>
+              <div style="flex:1;height:6px;border-radius:3px;background:rgba(255,255,255,.3)"></div>
+              <div style="flex:1;height:6px;border-radius:3px;background:rgba(255,255,255,.3)"></div>
+              <div style="flex:1;height:6px;border-radius:3px;background:rgba(255,255,255,.3)"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- NEXT 카드 -->
+        <div style="margin:-10px 16px 0;background:#fff;border-radius:18px;padding:18px;box-shadow:var(--shadow-md)">
+          <div style="font-size:10px;font-weight:800;color:var(--teal-700);letter-spacing:.5px">NEXT · 다음 일정</div>
+          <div style="font-size:18px;font-weight:800;color:var(--teal-900);margin-top:4px">섭지코지</div>
+          <div style="display:flex;align-items:center;gap:12px;margin-top:10px;padding:10px 12px;background:var(--teal-50);border-radius:10px">
+            <div style="font-size:18px">🚗</div>
+            <div style="flex:1;font-size:12px;color:var(--teal-800)"><b>2.4km · 7분</b> · 평지 이동</div>
+            <div style="font-size:11px;color:var(--teal-700);font-weight:700">11:00 도착 예정</div>
+          </div>
+          <div style="display:flex;gap:5px;margin-top:10px;flex-wrap:wrap">
+            <span class="badge b-success">✓ 안전</span>
+            <span class="badge b-ramp">경사로</span>
+            <span class="badge b-toilet">휠체어WC</span>
+            <span class="badge b-rest">휴식</span>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:12px">
+            <button class="btn btn-secondary" style="flex:1;height:46px;font-size:13px">상세</button>
+            <button class="btn btn-primary" style="flex:1.4;height:46px;font-size:13px">🧭 길안내 시작</button>
+          </div>
+        </div>
+
+        <!-- 위험 배너 -->
+        <div style="margin:14px 20px 0;background:#FFF1F1;border:1px solid #FFD4D4;border-radius:12px;padding:12px 14px;display:flex;gap:10px">
+          <div style="font-size:18px">⚠️</div>
+          <div style="flex:1;font-size:12px;color:#B71C1C;line-height:1.5"><b>오후 14시부터 강풍 예보</b><br/>오후 일정 순서를 바꾸면 안전해요. <b style="color:var(--teal-700)">대안 보기 ›</b></div>
+        </div>
+
+        <!-- 현재 위치/완료 카드 -->
+        <div style="margin:14px 20px 0;background:#fff;border-radius:14px;padding:14px;border:1px solid var(--slate-100)">
+          <div style="font-size:11px;font-weight:800;color:var(--teal-700)">📍 현재 위치</div>
+          <div style="font-size:14px;font-weight:700;color:var(--teal-900);margin-top:4px">성산일출봉 (방문 중)</div>
+          <div style="font-size:11px;color:var(--slate-500);margin-top:3px">09:00 도착 · 89분 머무는 중</div>
+          <button class="btn btn-ghost" style="margin-top:10px;height:42px;font-size:12px;width:100%">✓ 방문 완료 체크</button>
+        </div>
+
+        <!-- 빠른 액션 -->
+        <div style="padding:14px 20px;font-size:12px;color:var(--slate-500);font-weight:700">빠른 도움</div>
+        <div style="padding:0 20px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+          <div style="background:#fff;border:1px solid var(--slate-100);border-radius:12px;padding:12px 6px;text-align:center"><div style="font-size:20px">🚻</div><div style="font-size:10px;color:var(--slate-700);margin-top:4px;font-weight:600">주변 화장실</div></div>
+          <div style="background:#fff;border:1px solid var(--slate-100);border-radius:12px;padding:12px 6px;text-align:center"><div style="font-size:20px">☕</div><div style="font-size:10px;color:var(--slate-700);margin-top:4px;font-weight:600">쉴 곳</div></div>
+          <div style="background:#fff;border:1px solid var(--slate-100);border-radius:12px;padding:12px 6px;text-align:center"><div style="font-size:20px">🏥</div><div style="font-size:10px;color:var(--slate-700);margin-top:4px;font-weight:600">병원</div></div>
+          <div style="background:#fff;border:1px solid var(--slate-100);border-radius:12px;padding:12px 6px;text-align:center"><div style="font-size:20px">🆘</div><div style="font-size:10px;color:#E53935;margin-top:4px;font-weight:700">SOS</div></div>
+        </div>
+
+        <div style="padding:14px 20px 18px"><div style="background:#FFF8E6;border-radius:12px;padding:12px 14px;font-size:12px;color:var(--sand-900);line-height:1.5">💡 <b>오늘의 코치</b> — 점심 시간이 다가와요. 섭지코지 근처 "델문도 카페"가 휠체어 친화적이에요. <b style="color:var(--teal-700)">담기 ›</b></div></div>
+        <div style="height:8px"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 24. EMPTY / ERROR STATES ══════════ -->
+  <div class="screen-wrap">
+    <p class="screen-label"><span>24</span> · Empty/Error · 빈 상태 모음</p>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="statusbar"><span>9:41</span><span class="right">●●●● 5G</span></div>
+      <div class="scroll" style="background:var(--bg);padding:14px 16px">
+        <!-- 24-1 검색 결과 0 -->
+        <div style="background:#fff;border-radius:14px;padding:28px 20px;text-align:center;margin-bottom:12px;border:1px solid var(--slate-100)">
+          <div style="font-size:42px">🔍</div>
+          <div style="font-size:14px;font-weight:800;color:var(--teal-900);margin-top:8px">"휠체어 클럽"에 대한 결과가 없어요</div>
+          <div style="font-size:12px;color:var(--slate-500);margin-top:4px;line-height:1.5">철자를 확인하거나, 더 짧은 단어로 검색해 보세요</div>
+          <div style="display:flex;gap:6px;justify-content:center;margin-top:12px;flex-wrap:wrap">
+            <span class="chip">휠체어 카페</span>
+            <span class="chip">카페</span>
+          </div>
+        </div>
+
+        <!-- 24-2 오프라인 -->
+        <div style="background:#fff;border-radius:14px;padding:28px 20px;text-align:center;margin-bottom:12px;border:1px solid var(--slate-100)">
+          <div style="font-size:42px">📡</div>
+          <div style="font-size:14px;font-weight:800;color:var(--teal-900);margin-top:8px">인터넷 연결이 없어요</div>
+          <div style="font-size:12px;color:var(--slate-500);margin-top:4px;line-height:1.5">저장된 일정은 오프라인으로도 볼 수 있어요</div>
+          <button class="btn btn-primary" style="margin-top:14px;height:42px;font-size:13px;width:60%;margin-left:auto;margin-right:auto">다시 시도</button>
+        </div>
+
+        <!-- 24-3 추천 일정 없음 (첫 방문) -->
+        <div style="background:#fff;border-radius:14px;padding:28px 20px;text-align:center;margin-bottom:12px;border:1px solid var(--slate-100)">
+          <div style="font-size:42px">🌱</div>
+          <div style="font-size:14px;font-weight:800;color:var(--teal-900);margin-top:8px">첫 일정을 만들어 볼까요?</div>
+          <div style="font-size:12px;color:var(--slate-500);margin-top:4px;line-height:1.5">조건만 알려주시면 AI가 일정을 짜드려요</div>
+          <button class="btn btn-primary" style="margin-top:14px;height:42px;font-size:13px;width:80%;margin-left:auto;margin-right:auto">여행 조건 입력하기 →</button>
+        </div>
+
+        <!-- 24-4 위치 권한 거부 -->
+        <div style="background:#FFF1F1;border:1px solid #FFD4D4;border-radius:14px;padding:24px 20px;text-align:center;margin-bottom:12px">
+          <div style="font-size:42px">📍</div>
+          <div style="font-size:14px;font-weight:800;color:#B71C1C;margin-top:8px">위치 권한이 꺼져 있어요</div>
+          <div style="font-size:12px;color:#B71C1C;opacity:.85;margin-top:4px;line-height:1.5">길안내·주변 장소 추천을 위해 필요해요</div>
+          <button class="btn btn-primary" style="margin-top:14px;height:42px;font-size:13px;width:70%;margin-left:auto;margin-right:auto">설정에서 켜기</button>
+        </div>
+
+        <!-- 24-5 내 일정 비어있음 -->
+        <div style="background:#fff;border-radius:14px;padding:28px 20px;text-align:center;border:1px dashed var(--slate-200)">
+          <div style="font-size:42px">📅</div>
+          <div style="font-size:14px;font-weight:800;color:var(--teal-900);margin-top:8px">아직 저장한 일정이 없어요</div>
+          <div style="font-size:12px;color:var(--slate-500);margin-top:4px;line-height:1.5">홈에서 마음에 드는 일정을 저장해 보세요</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 25. PERMISSION REQUESTS ══════════ -->
+  <div class="screen-wrap">
+    <p class="screen-label"><span>25</span> · Permissions · 권한 사전 안내</p>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="statusbar"><span>9:41</span><span class="right">●●●● 5G</span></div>
+      <div class="scroll" style="background:linear-gradient(180deg,var(--teal-50),var(--bg));padding:32px 24px">
+        <div style="text-align:center;margin-bottom:24px">
+          <div style="font-size:11px;font-weight:800;color:var(--teal-700);letter-spacing:.5px">STEP 1 / 4</div>
+          <h2 style="font-size:22px;font-weight:800;color:var(--teal-900);margin-top:8px">앱 사용을 위해<br/>권한이 필요해요</h2>
+          <p style="font-size:13px;color:var(--slate-500);margin-top:8px">언제든 설정에서 변경할 수 있어요</p>
+        </div>
+
+        <div style="background:#fff;border-radius:16px;padding:18px;margin-bottom:12px;display:flex;gap:14px;align-items:start;border:1.5px solid var(--teal-700);box-shadow:var(--shadow-sm)">
+          <div style="width:44px;height:44px;border-radius:12px;background:var(--teal-50);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">📍</div>
+          <div style="flex:1">
+            <div style="font-size:14px;font-weight:800;color:var(--teal-900)">위치 <span style="color:#E53935">필수</span></div>
+            <div style="font-size:12px;color:var(--slate-500);margin-top:3px;line-height:1.5">현재 위치 기반 길안내, 주변 무장애 장소·화장실 추천</div>
+          </div>
+          <div style="width:24px;height:24px;border-radius:50%;background:var(--teal-700);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px">✓</div>
+        </div>
+
+        <div style="background:#fff;border-radius:16px;padding:18px;margin-bottom:12px;display:flex;gap:14px;align-items:start;border:1px solid var(--slate-100)">
+          <div style="width:44px;height:44px;border-radius:12px;background:var(--teal-50);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">🔔</div>
+          <div style="flex:1">
+            <div style="font-size:14px;font-weight:800;color:var(--teal-900)">알림 <span style="color:var(--slate-400)">선택</span></div>
+            <div style="font-size:12px;color:var(--slate-500);margin-top:3px;line-height:1.5">위험 알림(태풍·공사), 일정 리마인더, 후기 요청</div>
+          </div>
+          <div style="width:36px;height:22px;border-radius:11px;background:var(--teal-700);position:relative"><div style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:2px;right:2px"></div></div>
+        </div>
+
+        <div style="background:#fff;border-radius:16px;padding:18px;margin-bottom:12px;display:flex;gap:14px;align-items:start;border:1px solid var(--slate-100)">
+          <div style="width:44px;height:44px;border-radius:12px;background:var(--sand-100);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">📷</div>
+          <div style="flex:1">
+            <div style="font-size:14px;font-weight:800;color:var(--teal-900)">카메라 <span style="color:var(--slate-400)">선택</span></div>
+            <div style="font-size:12px;color:var(--slate-500);margin-top:3px;line-height:1.5">후기에 사진 첨부, 프로필 사진 촬영</div>
+          </div>
+          <div style="width:36px;height:22px;border-radius:11px;background:var(--slate-200);position:relative"><div style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px"></div></div>
+        </div>
+
+        <div style="background:#fff;border-radius:16px;padding:18px;margin-bottom:18px;display:flex;gap:14px;align-items:start;border:1px solid var(--slate-100)">
+          <div style="width:44px;height:44px;border-radius:12px;background:var(--sand-100);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">🖼️</div>
+          <div style="flex:1">
+            <div style="font-size:14px;font-weight:800;color:var(--teal-900)">사진 <span style="color:var(--slate-400)">선택</span></div>
+            <div style="font-size:12px;color:var(--slate-500);margin-top:3px;line-height:1.5">갤러리에서 후기 사진 선택</div>
+          </div>
+          <div style="width:36px;height:22px;border-radius:11px;background:var(--slate-200);position:relative"><div style="width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px"></div></div>
+        </div>
+
+        <button class="btn btn-primary btn-block">동의하고 시작하기</button>
+        <div style="text-align:center;font-size:11px;color:var(--slate-400);margin-top:10px">필수 권한만 거부하면 핵심 기능 사용이 제한돼요</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 26. TURN-BY-TURN NAV ══════════ -->
+  <div class="screen-wrap">
+    <p class="screen-label"><span>26</span> · Turn-by-turn · 길안내 (무장애 우선)</p>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="statusbar"><span>9:41</span><span class="right">●●●● 5G</span></div>
+      <div style="position:relative;flex:1;overflow:hidden">
+        <!-- 지도 배경 -->
+        <div style="position:absolute;inset:0;background:radial-gradient(circle at 50% 60%,#C5DCC8 0%,#9BC5A0 100%)"></div>
+        <svg style="position:absolute;inset:0;width:100%;height:100%" viewBox="0 0 390 800" preserveAspectRatio="none">
+          <path d="M 80 700 L 150 500 L 240 380 L 280 200" stroke="#0F4C5C" stroke-width="6" fill="none"/>
+          <path d="M 80 700 L 150 500 L 240 380 L 280 200" stroke="#4A8C9C" stroke-width="3" fill="none"/>
+        </svg>
+        <!-- 현 위치 -->
+        <div style="position:absolute;left:64px;top:680px;width:24px;height:24px;border-radius:50%;background:#1976D2;border:4px solid #fff;box-shadow:0 0 0 8px rgba(25,118,210,.25)"></div>
+
+        <!-- 상단 다음 턴 카드 -->
+        <div style="position:absolute;top:14px;left:14px;right:14px;background:var(--teal-900);color:#fff;border-radius:18px;padding:18px;box-shadow:0 8px 24px rgba(0,0,0,.2)">
+          <div style="display:flex;align-items:center;gap:14px">
+            <div style="font-size:42px">↰</div>
+            <div style="flex:1">
+              <div style="font-size:11px;opacity:.8;font-weight:600">120m 앞</div>
+              <div style="font-size:18px;font-weight:800;margin-top:2px">왼쪽 방향</div>
+              <div style="font-size:12px;opacity:.85;margin-top:2px">해안로 → 섭지로</div>
+            </div>
+          </div>
+          <div style="margin-top:12px;padding:10px 12px;background:rgba(255,255,255,.12);border-radius:10px;font-size:12px">
+            ♿ <b>무장애 우선 경로</b> · 평지 위주, 계단·급경사 회피
+          </div>
+        </div>
+
+        <!-- 하단 정보바 -->
+        <div style="position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:20px 20px 0 0;padding:18px 20px 24px;box-shadow:0 -4px 20px rgba(0,0,0,.1)">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div style="font-size:24px;font-weight:800;color:var(--teal-900)">11:00 도착</div>
+              <div style="font-size:12px;color:var(--slate-500);margin-top:2px">7분 · 2.4km · 평지 100%</div>
+            </div>
+            <button style="width:54px;height:54px;border-radius:50%;background:#E53935;color:#fff;border:none;font-size:18px;font-weight:800">✕</button>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:14px">
+            <button class="btn btn-secondary" style="flex:1;height:44px;font-size:12px">🔇 음성</button>
+            <button class="btn btn-secondary" style="flex:1;height:44px;font-size:12px">🗺 전체</button>
+            <button class="btn btn-ghost" style="flex:1;height:44px;font-size:12px">⚙️ 옵션</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 27. SHARE SHEET ══════════ -->
+  <div class="screen-wrap">
+    <p class="screen-label"><span>27</span> · Share · 일정·장소 공유</p>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="statusbar"><span>9:41</span><span class="right">●●●● 5G</span></div>
+      <div style="position:relative;flex:1;background:rgba(0,0,0,.4)">
+        <!-- 어둡게 처리된 배경 -->
+        <div style="position:absolute;inset:0;background:linear-gradient(135deg,#5B9D80,#0F4C5C);opacity:.4"></div>
+        <!-- 시트 -->
+        <div style="position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:24px 24px 0 0;padding:18px 20px 28px">
+          <div style="width:36px;height:4px;background:var(--slate-200);border-radius:2px;margin:0 auto 16px"></div>
+          <div style="display:flex;align-items:center;gap:12px;padding-bottom:14px;border-bottom:1px solid var(--slate-100)">
+            <div style="width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,var(--teal-700),var(--teal-500))"></div>
+            <div style="flex:1">
+              <div style="font-size:14px;font-weight:800;color:var(--teal-900)">성산일출봉 & 섭지코지 코스</div>
+              <div style="font-size:11px;color:var(--slate-500);margin-top:2px">2일 코스 · 안전점수 87</div>
+            </div>
+          </div>
+
+          <div style="font-size:11px;font-weight:700;color:var(--slate-500);margin:14px 0 10px">공유</div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+            <div style="text-align:center"><div style="width:54px;height:54px;border-radius:16px;background:#FEE500;display:flex;align-items:center;justify-content:center;margin:0 auto;font-size:24px">💬</div><div style="font-size:10px;color:var(--slate-700);margin-top:6px;font-weight:600">카카오톡</div></div>
+            <div style="text-align:center"><div style="width:54px;height:54px;border-radius:16px;background:#1976D2;color:#fff;display:flex;align-items:center;justify-content:center;margin:0 auto;font-size:24px">f</div><div style="font-size:10px;color:var(--slate-700);margin-top:6px;font-weight:600">페이스북</div></div>
+            <div style="text-align:center"><div style="width:54px;height:54px;border-radius:16px;background:#000;color:#fff;display:flex;align-items:center;justify-content:center;margin:0 auto;font-size:18px;font-weight:900">𝕏</div><div style="font-size:10px;color:var(--slate-700);margin-top:6px;font-weight:600">X</div></div>
+            <div style="text-align:center"><div style="width:54px;height:54px;border-radius:16px;background:var(--teal-50);display:flex;align-items:center;justify-content:center;margin:0 auto;font-size:24px">⋯</div><div style="font-size:10px;color:var(--slate-700);margin-top:6px;font-weight:600">더보기</div></div>
+          </div>
+
+          <div style="font-size:11px;font-weight:700;color:var(--slate-500);margin:18px 0 10px">기타</div>
+          <div style="background:var(--bg);border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px;margin-bottom:8px"><div style="font-size:18px">🔗</div><div style="flex:1;font-size:12px;color:var(--slate-700)">jeju.app/i/abc123</div><div style="font-size:11px;color:var(--teal-700);font-weight:700">복사</div></div>
+          <div style="background:var(--bg);border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px"><div style="font-size:18px">🖼️</div><div style="flex:1;font-size:12px;color:var(--slate-700)">이미지로 저장</div><div style="font-size:18px;color:var(--slate-300)">›</div></div>
+
+          <button class="btn btn-secondary btn-block" style="margin-top:14px">취소</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 28. REPORT / CORRECTION ══════════ -->
+  <div class="screen-wrap">
+    <p class="screen-label"><span>28</span> · Report · 신고·정보 정정</p>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="statusbar"><span>9:41</span><span class="right">●●●● 5G</span></div>
+      <div class="appbar">
+        <div class="back">‹</div>
+        <div class="title">신고·제보</div>
+      </div>
+      <div class="scroll" style="background:var(--bg)">
+        <div style="padding:16px 20px">
+          <div style="background:#fff;border-radius:14px;padding:14px;display:flex;gap:12px;border:1px solid var(--slate-100);margin-bottom:18px">
+            <div style="width:48px;height:48px;border-radius:10px;background:linear-gradient(135deg,var(--teal-500),var(--teal-700))"></div>
+            <div style="flex:1">
+              <div style="font-size:13px;font-weight:700;color:var(--teal-900)">성산일출봉</div>
+              <div style="font-size:11px;color:var(--slate-500);margin-top:2px">자연 · 동부</div>
+            </div>
+          </div>
+
+          <div style="font-size:13px;font-weight:800;color:var(--teal-900);margin-bottom:10px">어떤 문제가 있나요?</div>
+
+          <div style="background:#fff;border-radius:14px;border:1px solid var(--slate-100);overflow:hidden">
+            <div style="padding:14px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--slate-100)">
+              <div style="width:34px;height:34px;border-radius:10px;background:#FFE5E5;color:#E53935;display:flex;align-items:center;justify-content:center;font-size:16px">⚠</div>
+              <div style="flex:1">
+                <div style="font-size:13px;font-weight:700;color:var(--teal-900)">접근성 정보가 틀려요</div>
+                <div style="font-size:11px;color:var(--slate-500);margin-top:2px">"여기 휠체어 못 들어가요" 같은 정정</div>
+              </div>
+              <div style="font-size:18px;color:var(--slate-300)">›</div>
+            </div>
+            <div style="padding:14px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--slate-100)">
+              <div style="width:34px;height:34px;border-radius:10px;background:#FFF4E0;color:#E68900;display:flex;align-items:center;justify-content:center;font-size:16px">📍</div>
+              <div style="flex:1">
+                <div style="font-size:13px;font-weight:700;color:var(--teal-900)">기본 정보 오류</div>
+                <div style="font-size:11px;color:var(--slate-500);margin-top:2px">위치·운영시간·전화번호 등</div>
+              </div>
+              <div style="font-size:18px;color:var(--slate-300)">›</div>
+            </div>
+            <div style="padding:14px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--slate-100)">
+              <div style="width:34px;height:34px;border-radius:10px;background:#FFE5E5;color:#E53935;display:flex;align-items:center;justify-content:center;font-size:16px">🚫</div>
+              <div style="flex:1">
+                <div style="font-size:13px;font-weight:700;color:var(--teal-900)">폐업·이전</div>
+                <div style="font-size:11px;color:var(--slate-500);margin-top:2px">더 이상 운영하지 않아요</div>
+              </div>
+              <div style="font-size:18px;color:var(--slate-300)">›</div>
+            </div>
+            <div style="padding:14px 16px;display:flex;align-items:center;gap:12px">
+              <div style="width:34px;height:34px;border-radius:10px;background:#FFE5E5;color:#E53935;display:flex;align-items:center;justify-content:center;font-size:16px">🚨</div>
+              <div style="flex:1">
+                <div style="font-size:13px;font-weight:700;color:var(--teal-900)">부적절한 후기·욕설 신고</div>
+                <div style="font-size:11px;color:var(--slate-500);margin-top:2px">스팸, 광고, 혐오 표현</div>
+              </div>
+              <div style="font-size:18px;color:var(--slate-300)">›</div>
+            </div>
+          </div>
+
+          <div style="margin-top:18px;font-size:13px;font-weight:800;color:var(--teal-900);margin-bottom:10px">자세한 설명 (선택)</div>
+          <div style="background:#fff;border:1.5px solid var(--slate-200);border-radius:12px;padding:14px;min-height:100px;font-size:13px;color:var(--slate-400);line-height:1.6">상세 내용을 적어주시면 검토에 큰 도움이 돼요...</div>
+
+          <div style="margin-top:14px;padding:12px 14px;background:var(--teal-50);border-radius:12px;font-size:12px;color:var(--teal-800);line-height:1.5">💚 제보가 채택되면 +10P 적립되고, 다른 사용자에게 큰 도움이 돼요.</div>
+        </div>
+        <div style="height:80px"></div>
+      </div>
+      <div class="bottom-cta"><button class="btn btn-primary btn-block">제보 보내기</button></div>
+    </div>
+  </div>
+
+  <!-- ══════════ 29. SEARCH AUTOCOMPLETE ══════════ -->
+  <div class="screen-wrap">
+    <p class="screen-label"><span>29</span> · Autocomplete · 검색 자동완성</p>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="statusbar"><span>9:41</span><span class="right">●●●● 5G</span></div>
+      <div style="padding:14px 20px 12px;background:#fff;border-bottom:1px solid var(--slate-100)">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="font-size:22px;color:var(--teal-900)">‹</div>
+          <div style="flex:1;display:flex;align-items:center;gap:8px;background:var(--bg);border-radius:12px;padding:10px 14px">
+            <div style="font-size:15px;color:var(--slate-400)">🔍</div>
+            <div style="flex:1;color:var(--teal-900);font-size:14px;font-weight:600">휠체어<span style="display:inline-block;width:1.5px;height:14px;background:var(--teal-700);margin-left:1px;vertical-align:middle"></span></div>
+            <div style="font-size:14px;color:var(--slate-400)">✕</div>
+          </div>
+        </div>
+      </div>
+      <div class="scroll" style="background:#fff">
+        <div style="padding:14px 20px 4px;font-size:11px;font-weight:700;color:var(--slate-500)">자동완성</div>
+        <div style="padding:10px 20px;display:flex;align-items:center;gap:12px"><div style="font-size:14px;color:var(--slate-400)">🔍</div><div style="font-size:14px;color:var(--teal-900)"><b>휠체어</b> 카페</div><div style="margin-left:auto;font-size:14px;color:var(--slate-300)">↖</div></div>
+        <div style="padding:10px 20px;display:flex;align-items:center;gap:12px"><div style="font-size:14px;color:var(--slate-400)">🔍</div><div style="font-size:14px;color:var(--teal-900)"><b>휠체어</b> 화장실 있는 곳</div><div style="margin-left:auto;font-size:14px;color:var(--slate-300)">↖</div></div>
+        <div style="padding:10px 20px;display:flex;align-items:center;gap:12px"><div style="font-size:14px;color:var(--slate-400)">🔍</div><div style="font-size:14px;color:var(--teal-900)"><b>휠체어</b> 대여 제주</div><div style="margin-left:auto;font-size:14px;color:var(--slate-300)">↖</div></div>
+        <div style="padding:10px 20px;display:flex;align-items:center;gap:12px"><div style="font-size:14px;color:var(--slate-400)">🔍</div><div style="font-size:14px;color:var(--teal-900)"><b>휠체어</b> 산책로 평지</div><div style="margin-left:auto;font-size:14px;color:var(--slate-300)">↖</div></div>
+
+        <div style="border-top:8px solid var(--bg);margin-top:6px"></div>
+        <div style="padding:14px 20px 8px;display:flex;justify-content:space-between"><div style="font-size:11px;font-weight:700;color:var(--slate-500)">최근 검색</div><div style="font-size:11px;color:var(--slate-400)">전체 삭제</div></div>
+        <div style="padding:0 20px 12px;display:flex;flex-wrap:wrap;gap:8px">
+          <span class="chip">제주 박물관 ✕</span>
+          <span class="chip">애월 카페 ✕</span>
+          <span class="chip">유아차 산책 ✕</span>
+          <span class="chip">실내 비 오는 날 ✕</span>
+        </div>
+
+        <div style="border-top:8px solid var(--bg);margin-top:6px"></div>
+        <div style="padding:14px 20px 8px;font-size:11px;font-weight:700;color:var(--slate-500)">추천</div>
+        <div style="padding:10px 20px;display:flex;align-items:center;gap:12px"><div style="font-size:14px">📍</div><div style="font-size:14px;color:var(--teal-900)">델문도 카페 <span style="font-size:11px;color:var(--slate-400);margin-left:4px">조천 · 카페</span></div></div>
+        <div style="padding:10px 20px;display:flex;align-items:center;gap:12px"><div style="font-size:14px">📋</div><div style="font-size:14px;color:var(--teal-900)">평지로만 가는 카페 투어 <span style="font-size:11px;color:var(--slate-400);margin-left:4px">1일 코스</span></div></div>
+        <div style="height:8px"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 30. ACCOUNT DELETE ══════════ -->
+  <div class="screen-wrap">
+    <p class="screen-label"><span>30</span> · Delete Account · 회원 탈퇴</p>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="statusbar"><span>9:41</span><span class="right">●●●● 5G</span></div>
+      <div class="appbar">
+        <div class="back">‹</div>
+        <div class="title">회원 탈퇴</div>
+      </div>
+      <div class="scroll">
+        <div style="padding:24px 20px">
+          <div style="text-align:center;font-size:42px">😢</div>
+          <h2 style="font-size:20px;font-weight:800;color:var(--teal-900);text-align:center;margin-top:10px">정말 떠나시겠어요?</h2>
+          <p style="font-size:13px;color:var(--slate-500);text-align:center;margin-top:6px">지금까지 함께해주셔서 감사했어요</p>
+
+          <div style="margin-top:24px;background:#FFF1F1;border:1px solid #FFD4D4;border-radius:14px;padding:16px">
+            <div style="font-size:13px;font-weight:800;color:#B71C1C;margin-bottom:10px">⚠️ 탈퇴 시 다음 정보가 모두 삭제돼요</div>
+            <div style="font-size:12px;color:#B71C1C;line-height:1.8">• 저장한 일정 12개<br/>• 작성한 후기 8개<br/>• 즐겨찾기 장소 12개<br/>• LV.3 (185P) 등급·포인트<br/>• 30일 이내 동일 이메일 재가입 불가</div>
+          </div>
+
+          <div style="margin-top:18px;font-size:13px;font-weight:800;color:var(--teal-900);margin-bottom:10px">탈퇴 사유를 알려주세요</div>
+          <div style="background:#fff;border:1px solid var(--slate-100);border-radius:14px;overflow:hidden">
+            <div style="padding:14px 16px;border-bottom:1px solid var(--slate-100);display:flex;align-items:center;gap:10px"><div style="width:18px;height:18px;border-radius:50%;border:1.5px solid var(--teal-700);background:var(--teal-700);display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px">●</div><div style="font-size:13px;color:var(--teal-900)">원하는 일정을 찾기 어려워요</div></div>
+            <div style="padding:14px 16px;border-bottom:1px solid var(--slate-100);display:flex;align-items:center;gap:10px"><div style="width:18px;height:18px;border-radius:50%;border:1.5px solid var(--slate-200)"></div><div style="font-size:13px;color:var(--slate-700)">앱이 자주 멈춰요</div></div>
+            <div style="padding:14px 16px;border-bottom:1px solid var(--slate-100);display:flex;align-items:center;gap:10px"><div style="width:18px;height:18px;border-radius:50%;border:1.5px solid var(--slate-200)"></div><div style="font-size:13px;color:var(--slate-700)">접근성 정보가 부정확해요</div></div>
+            <div style="padding:14px 16px;display:flex;align-items:center;gap:10px"><div style="width:18px;height:18px;border-radius:50%;border:1.5px solid var(--slate-200)"></div><div style="font-size:13px;color:var(--slate-700)">기타</div></div>
+          </div>
+
+          <div style="margin-top:18px;display:flex;align-items:center;gap:10px;background:var(--bg);border-radius:10px;padding:14px">
+            <div style="width:20px;height:20px;border-radius:5px;border:1.5px solid var(--teal-700);background:var(--teal-700);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px">✓</div>
+            <div style="font-size:12px;color:var(--slate-700)">위 내용을 모두 확인했습니다</div>
+          </div>
+        </div>
+        <div style="height:80px"></div>
+      </div>
+      <div class="bottom-cta" style="display:flex;gap:10px">
+        <button class="btn btn-secondary" style="flex:1">취소</button>
+        <button class="btn" style="flex:1;background:#E53935;color:#fff">탈퇴하기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 31. TERMS / POLICY VIEW ══════════ -->
+  <div class="screen-wrap">
+    <p class="screen-label"><span>31</span> · Legal · 약관·개인정보처리방침</p>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="statusbar"><span>9:41</span><span class="right">●●●● 5G</span></div>
+      <div class="appbar">
+        <div class="back">‹</div>
+        <div class="title">서비스 이용약관</div>
+      </div>
+      <div class="scroll" style="background:#fff">
+        <div style="padding:18px 20px">
+          <div style="font-size:11px;color:var(--slate-500)">시행일 2026.04.01 · v1.0</div>
+          <h2 style="font-size:18px;font-weight:800;color:var(--teal-900);margin-top:6px">같이가는 제주 이용약관</h2>
+
+          <div style="font-size:14px;font-weight:700;color:var(--teal-900);margin-top:18px">제1조 (목적)</div>
+          <p style="font-size:12.5px;color:var(--slate-700);line-height:1.7;margin-top:6px">본 약관은 같이가는 제주(이하 "회사")가 제공하는 무장애 여행 일정 추천 서비스(이하 "서비스")의 이용과 관련하여 회사와 이용자의 권리·의무 및 책임 사항을 규정함을 목적으로 합니다.</p>
+
+          <div style="font-size:14px;font-weight:700;color:var(--teal-900);margin-top:18px">제2조 (정의)</div>
+          <p style="font-size:12.5px;color:var(--slate-700);line-height:1.7;margin-top:6px">① "이용자"란 본 약관에 따라 회사가 제공하는 서비스를 받는 자를 말합니다.<br/>② "회원"이란 회사에 개인정보를 제공하여 회원등록을 한 자로서, 회사의 정보를 지속적으로 제공받으며 회사가 제공하는 서비스를 계속적으로 이용할 수 있는 자를 말합니다.</p>
+
+          <div style="font-size:14px;font-weight:700;color:var(--teal-900);margin-top:18px">제3조 (약관의 게시와 개정)</div>
+          <p style="font-size:12.5px;color:var(--slate-700);line-height:1.7;margin-top:6px">① 회사는 이 약관의 내용을 회원이 쉽게 알 수 있도록 서비스 초기 화면에 게시합니다.<br/>② 회사는 관련 법령을 위배하지 않는 범위에서 이 약관을 개정할 수 있습니다.</p>
+
+          <div style="font-size:14px;font-weight:700;color:var(--teal-900);margin-top:18px">제4조 (이용 계약의 성립)</div>
+          <p style="font-size:12.5px;color:var(--slate-700);line-height:1.7;margin-top:6px">이용 계약은 회원이 되고자 하는 자가 약관의 내용에 대하여 동의를 한 후 회원가입 신청을 하고, 회사가 이러한 신청에 대하여 승낙함으로써 체결됩니다.</p>
+        </div>
+        <div style="height:32px"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 32. COACHMARK ══════════ -->
+  <div class="screen-wrap">
+    <p class="screen-label"><span>32</span> · Coachmark · 첫 방문 가이드</p>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="statusbar"><span>9:41</span><span class="right">●●●● 5G</span></div>
+      <div style="position:relative;flex:1;background:#fff;overflow:hidden">
+        <!-- 흐릿한 홈 미리보기 -->
+        <div style="position:absolute;inset:0;background:var(--bg);filter:blur(.5px)">
+          <div style="padding:20px"><div style="height:24px;background:var(--slate-100);border-radius:6px;width:60%"></div></div>
+          <div style="margin:0 20px;background:#fff;border-radius:14px;height:80px;border:1px solid var(--slate-100)"></div>
+          <div style="margin:14px 20px;background:#fff;border-radius:14px;height:200px;border:1px solid var(--slate-100)"></div>
+        </div>
+        <!-- 어둡게 -->
+        <div style="position:absolute;inset:0;background:rgba(10,58,72,.78)"></div>
+
+        <!-- 하이라이트 영역 (둥근 컷아웃 효과를 박스 + border로) -->
+        <div style="position:absolute;top:114px;left:20px;right:20px;height:80px;border:3px solid #FFD66E;border-radius:16px;box-shadow:0 0 0 9999px rgba(10,58,72,.45),0 0 30px rgba(255,214,110,.5)"></div>
+
+        <!-- 말풍선 -->
+        <div style="position:absolute;top:210px;left:20px;right:20px;background:#fff;border-radius:18px;padding:18px;box-shadow:0 12px 30px rgba(0,0,0,.25)">
+          <div style="position:absolute;top:-10px;left:30px;width:0;height:0;border-left:10px solid transparent;border-right:10px solid transparent;border-bottom:12px solid #fff"></div>
+          <div style="display:flex;align-items:center;justify-content:space-between"><div style="font-size:11px;font-weight:800;color:var(--teal-700);letter-spacing:.5px">TIP 1 / 4</div><div style="font-size:11px;color:var(--slate-400);font-weight:600">건너뛰기</div></div>
+          <h3 style="font-size:16px;font-weight:800;color:var(--teal-900);margin-top:6px">내 여행 조건이 표시돼요</h3>
+          <p style="font-size:12.5px;color:var(--slate-600);margin-top:6px;line-height:1.6">언제든 "변경"을 눌러 휠체어·동행자·일수를 바꿀 수 있어요. 모든 추천이 이 조건을 따라요.</p>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px">
+            <div style="display:flex;gap:6px">
+              <div style="width:8px;height:8px;border-radius:50%;background:var(--teal-700)"></div>
+              <div style="width:8px;height:8px;border-radius:50%;background:var(--slate-200)"></div>
+              <div style="width:8px;height:8px;border-radius:50%;background:var(--slate-200)"></div>
+              <div style="width:8px;height:8px;border-radius:50%;background:var(--slate-200)"></div>
+            </div>
+            <button class="btn btn-primary" style="height:38px;font-size:12px;padding:0 18px">다음 →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 33. PUSH PREVIEW ══════════ -->
+  <div class="screen-wrap">
+    <p class="screen-label"><span>33</span> · Push Preview · 푸시 알림 미리보기</p>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="statusbar"><span>9:41</span><span class="right">●●●● 5G</span></div>
+      <div style="flex:1;background:linear-gradient(180deg,#0A3A48,#136073);padding:20px;display:flex;flex-direction:column;gap:10px">
+        <div style="text-align:center;color:#fff;font-size:48px;font-weight:200;margin:18px 0 6px">9:41</div>
+        <div style="text-align:center;color:rgba(255,255,255,.85);font-size:13px;margin-bottom:18px">화요일 4월 7일</div>
+
+        <!-- 알림 1: 위험 -->
+        <div style="background:rgba(255,255,255,.95);backdrop-filter:blur(20px);border-radius:18px;padding:14px;display:flex;gap:12px;align-items:start">
+          <div style="width:38px;height:38px;border-radius:9px;background:linear-gradient(135deg,var(--teal-700),var(--teal-900));display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px">♿</div>
+          <div style="flex:1">
+            <div style="display:flex;justify-content:space-between"><div style="font-size:11px;font-weight:700;color:var(--slate-700)">같이가는 제주</div><div style="font-size:10px;color:var(--slate-400)">방금</div></div>
+            <div style="font-size:13px;font-weight:700;color:#000;margin-top:2px">⚠️ 내일 강풍 예보 — 일정 영향 있음</div>
+            <div style="font-size:12px;color:var(--slate-600);margin-top:1px;line-height:1.4">"성산일출봉 코스" 대체 코스 추천을 확인하세요.</div>
+          </div>
+        </div>
+
+        <!-- 알림 2: 일정 시작 -->
+        <div style="background:rgba(255,255,255,.95);border-radius:18px;padding:14px;display:flex;gap:12px;align-items:start">
+          <div style="width:38px;height:38px;border-radius:9px;background:linear-gradient(135deg,var(--teal-700),var(--teal-900));display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px">♿</div>
+          <div style="flex:1">
+            <div style="display:flex;justify-content:space-between"><div style="font-size:11px;font-weight:700;color:var(--slate-700)">같이가는 제주</div><div style="font-size:10px;color:var(--slate-400)">2시간 전</div></div>
+            <div style="font-size:13px;font-weight:700;color:#000;margin-top:2px">📅 내일 여행 시작!</div>
+            <div style="font-size:12px;color:var(--slate-600);margin-top:1px;line-height:1.4">D-1 · 준비물을 확인해 보세요.</div>
+          </div>
+        </div>
+
+        <!-- 알림 3: 위치 기반 -->
+        <div style="background:rgba(255,255,255,.85);border-radius:18px;padding:14px;display:flex;gap:12px;align-items:start;opacity:.85">
+          <div style="width:38px;height:38px;border-radius:9px;background:linear-gradient(135deg,var(--teal-700),var(--teal-900));display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px">♿</div>
+          <div style="flex:1">
+            <div style="display:flex;justify-content:space-between"><div style="font-size:11px;font-weight:700;color:var(--slate-700)">같이가는 제주</div><div style="font-size:10px;color:var(--slate-400)">어제</div></div>
+            <div style="font-size:13px;font-weight:700;color:#000;margin-top:2px">📍 근처에 휠체어 화장실이 있어요</div>
+            <div style="font-size:12px;color:var(--slate-600);margin-top:1px;line-height:1.4">100m 앞 · 카페 한라산</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 34. PRO PLAN ══════════ -->
+  <div class="screen-wrap">
+    <p class="screen-label"><span>34</span> · Pro · 프리미엄 (광고 제거·고급 기능)</p>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="statusbar"><span>9:41</span><span class="right">●●●● 5G</span></div>
+      <div class="scroll">
+        <div style="background:linear-gradient(160deg,var(--teal-900),var(--teal-700));padding:36px 24px 60px;color:#fff;text-align:center;position:relative">
+          <div style="position:absolute;top:14px;right:18px;font-size:22px">✕</div>
+          <div style="font-size:36px">✨</div>
+          <div style="font-size:11px;font-weight:800;letter-spacing:1px;margin-top:8px;opacity:.85">JEJU PRO</div>
+          <h2 style="font-size:24px;font-weight:800;margin-top:6px;line-height:1.3">광고 없이,<br/>더 똑똑한 여행</h2>
+          <p style="font-size:12px;opacity:.85;margin-top:8px">14일 무료 체험 후 월 4,900원</p>
+        </div>
+
+        <div style="margin:-30px 20px 0;background:#fff;border-radius:18px;padding:20px;box-shadow:var(--shadow-md)">
+          <div style="display:flex;align-items:center;gap:14px;padding:10px 0;border-bottom:1px solid var(--slate-100)">
+            <div style="font-size:22px">🚫</div>
+            <div style="flex:1"><div style="font-size:13px;font-weight:700;color:var(--teal-900)">광고 완전 제거</div><div style="font-size:11px;color:var(--slate-500);margin-top:2px">모든 화면에서 광고가 사라져요</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:14px;padding:10px 0;border-bottom:1px solid var(--slate-100)">
+            <div style="font-size:22px">🤖</div>
+            <div style="flex:1"><div style="font-size:13px;font-weight:700;color:var(--teal-900)">AI 일정 무제한</div><div style="font-size:11px;color:var(--slate-500);margin-top:2px">무료 5개 → 무제한 생성</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:14px;padding:10px 0;border-bottom:1px solid var(--slate-100)">
+            <div style="font-size:22px">📥</div>
+            <div style="flex:1"><div style="font-size:13px;font-weight:700;color:var(--teal-900)">오프라인 지도</div><div style="font-size:11px;color:var(--slate-500);margin-top:2px">데이터 없이도 일정·지도 사용</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:14px;padding:10px 0">
+            <div style="font-size:22px">🎯</div>
+            <div style="flex:1"><div style="font-size:13px;font-weight:700;color:var(--teal-900)">실시간 위험 알림 우선</div><div style="font-size:11px;color:var(--slate-500);margin-top:2px">기상·공사·혼잡 알림을 먼저 받아요</div></div>
+          </div>
+        </div>
+
+        <div style="padding:20px">
+          <div style="background:#fff;border:2px solid var(--teal-700);border-radius:14px;padding:16px;position:relative">
+            <div style="position:absolute;top:-10px;right:14px;background:var(--teal-700);color:#fff;font-size:10px;font-weight:800;padding:4px 10px;border-radius:8px">BEST</div>
+            <div style="display:flex;justify-content:space-between;align-items:center"><div style="font-size:14px;font-weight:800;color:var(--teal-900)">연간 결제</div><div style="font-size:11px;color:var(--teal-700);font-weight:700">−40%</div></div>
+            <div style="font-size:22px;font-weight:800;color:var(--teal-900);margin-top:4px">35,000원<span style="font-size:12px;color:var(--slate-500);font-weight:500"> / 년</span></div>
+            <div style="font-size:11px;color:var(--slate-500);margin-top:2px;text-decoration:line-through">58,800원</div>
+          </div>
+          <div style="background:#fff;border:1px solid var(--slate-200);border-radius:14px;padding:16px;margin-top:10px">
+            <div style="font-size:14px;font-weight:800;color:var(--teal-900)">월간 결제</div>
+            <div style="font-size:18px;font-weight:800;color:var(--teal-900);margin-top:4px">4,900원<span style="font-size:12px;color:var(--slate-500);font-weight:500"> / 월</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="bottom-cta">
+        <button class="btn btn-primary btn-block">14일 무료로 시작</button>
+        <div style="text-align:center;font-size:10px;color:var(--slate-400);margin-top:8px">언제든 취소 가능 · 자동 결제됩니다</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 35. ADMIN CMS (web) ══════════ -->
+  <div class="screen-wrap">
+    <p class="screen-label"><span>35</span> · Admin · 관리자 CMS (참고용)</p>
+    <div class="phone" style="width:560px;height:auto;min-height:844px">
+      <div class="scroll" style="background:var(--bg);padding:0">
+        <div style="background:#fff;padding:14px 24px;border-bottom:1px solid var(--slate-100);display:flex;align-items:center;gap:14px">
+          <div style="font-size:16px;font-weight:800;color:var(--teal-900)">♿ 같이가는 제주 · Admin</div>
+          <div style="margin-left:auto;display:flex;gap:14px;font-size:12px;color:var(--slate-500)"><div>대시보드</div><div style="color:var(--teal-800);font-weight:700">큐레이션</div><div>위험 알림</div><div>제보</div><div>유저</div></div>
+          <div style="width:32px;height:32px;border-radius:50%;background:var(--teal-100)"></div>
+        </div>
+
+        <div style="padding:20px 24px">
+          <div style="display:flex;justify-content:space-between;align-items:center"><h1 style="font-size:20px;font-weight:800;color:var(--teal-900)">큐레이션 일정 관리</h1><button class="btn btn-primary" style="height:38px;font-size:12px;padding:0 16px">+ 새 일정 등록</button></div>
+
+          <div style="display:flex;gap:10px;margin-top:14px"><div class="filter-chip active">전체 32</div><div class="filter-chip">공개 28</div><div class="filter-chip">비공개 4</div></div>
+
+          <div style="margin-top:14px;background:#fff;border-radius:12px;border:1px solid var(--slate-100);overflow:hidden">
+            <div style="display:grid;grid-template-columns:60px 2fr 1fr 1fr 100px 80px;padding:12px 16px;background:var(--bg);font-size:11px;font-weight:700;color:var(--slate-500)">
+              <div>#</div><div>제목</div><div>테마</div><div>저장수</div><div>상태</div><div></div>
+            </div>
+            <div style="display:grid;grid-template-columns:60px 2fr 1fr 1fr 100px 80px;padding:14px 16px;border-top:1px solid var(--slate-100);font-size:12px;align-items:center"><div style="color:var(--slate-500)">#001</div><div style="color:var(--teal-900);font-weight:600">평지로만 가는 카페 투어</div><div style="color:var(--slate-700)">휠체어</div><div style="color:var(--slate-700)">132</div><div><span class="badge b-success" style="font-size:10px">공개</span></div><div style="color:var(--teal-700);font-weight:700">편집</div></div>
+            <div style="display:grid;grid-template-columns:60px 2fr 1fr 1fr 100px 80px;padding:14px 16px;border-top:1px solid var(--slate-100);font-size:12px;align-items:center"><div style="color:var(--slate-500)">#002</div><div style="color:var(--teal-900);font-weight:600">비 와도 괜찮은 박물관 투어</div><div style="color:var(--slate-700)">실내</div><div style="color:var(--slate-700)">98</div><div><span class="badge b-success" style="font-size:10px">공개</span></div><div style="color:var(--teal-700);font-weight:700">편집</div></div>
+            <div style="display:grid;grid-template-columns:60px 2fr 1fr 1fr 100px 80px;padding:14px 16px;border-top:1px solid var(--slate-100);font-size:12px;align-items:center"><div style="color:var(--slate-500)">#003</div><div style="color:var(--teal-900);font-weight:600">한라산 둘레길 평지 코스</div><div style="color:var(--slate-700)">자연</div><div style="color:var(--slate-700)">76</div><div><span class="badge b-warning" style="font-size:10px">검토중</span></div><div style="color:var(--teal-700);font-weight:700">편집</div></div>
+          </div>
+
+          <h2 style="font-size:16px;font-weight:800;color:var(--teal-900);margin-top:24px">위험 알림 즉시 발송</h2>
+          <div style="background:#fff;border:1px solid var(--slate-100);border-radius:12px;padding:18px;margin-top:10px">
+            <div style="display:flex;gap:10px"><input class="input filled" placeholder="알림 제목" value="강풍 주의보" style="flex:1"/><div style="background:var(--teal-50);color:var(--teal-800);padding:0 14px;border-radius:10px;display:flex;align-items:center;font-size:12px;font-weight:700">동부 지역</div></div>
+            <div style="background:var(--bg);border-radius:10px;padding:12px;margin-top:10px;font-size:12px;color:var(--slate-700);line-height:1.5">오늘 14시부터 강풍이 예보됩니다. 야외 일정 사용자에게 자동 발송됩니다.</div>
+            <div style="display:flex;justify-content:space-between;margin-top:12px;font-size:11px;color:var(--slate-500)"><div>대상: <b style="color:var(--teal-800)">동부 야외 일정 사용자 1,284명</b></div><button class="btn" style="background:#E53935;color:#fff;height:36px;font-size:12px;padding:0 18px">즉시 발송</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 16. NOTIFICATIONS ══════════ -->
+  <div class="screen-wrap">
+    <p class="screen-label"><span>16</span> · Notifications · 알림함</p>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="statusbar"><span>9:41</span><span class="right">●●●● 5G</span></div>
+      <div class="appbar">
+        <div class="back">‹</div>
+        <div class="title">알림</div>
+        <div class="right">모두 읽음</div>
+      </div>
+      <div class="scroll" style="background:var(--bg)">
+        <div style="padding:8px 20px 8px;font-size:11px;font-weight:700;color:var(--slate-500);letter-spacing:.5px">새로운 알림</div>
+
+        <div style="margin:0 20px 10px;background:#fff;border-radius:14px;padding:14px;border:1px solid var(--teal-100);background:var(--teal-50);display:flex;gap:12px">
+          <div style="width:36px;height:36px;border-radius:10px;background:#FFE5E5;color:#E53935;display:flex;align-items:center;justify-content:center;flex-shrink:0">⚠</div>
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:700;color:var(--teal-900)">위험 알림 · 일정 영향 있음</div>
+            <div style="font-size:12px;color:var(--slate-500);margin-top:3px;line-height:1.5">"성산일출봉 코스" 내일(04.08) 강풍 예보. 대체 코스 추천을 확인하세요.</div>
+            <div style="font-size:11px;color:var(--teal-700);font-weight:700;margin-top:8px">대체 코스 보기 ›</div>
+          </div>
+          <div style="font-size:10px;color:var(--slate-400)">방금</div>
+        </div>
+
+        <div style="margin:0 20px 10px;background:#fff;border-radius:14px;padding:14px;border:1px solid var(--slate-100);display:flex;gap:12px">
+          <div style="width:36px;height:36px;border-radius:10px;background:var(--teal-50);color:var(--teal-700);display:flex;align-items:center;justify-content:center;flex-shrink:0">📅</div>
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:700;color:var(--teal-900)">내일 여행 시작!</div>
+            <div style="font-size:12px;color:var(--slate-500);margin-top:3px;line-height:1.5">"성산일출봉 & 섭지코지 코스" 출발 D-1. 준비물을 확인해 보세요.</div>
+          </div>
+          <div style="font-size:10px;color:var(--slate-400)">2시간 전</div>
+        </div>
+
+        <div style="margin:0 20px 10px;background:#fff;border-radius:14px;padding:14px;border:1px solid var(--slate-100);display:flex;gap:12px">
+          <div style="width:36px;height:36px;border-radius:10px;background:#FFF8E6;color:var(--sand-900);display:flex;align-items:center;justify-content:center;flex-shrink:0">💡</div>
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:700;color:var(--teal-900)">새 추천 일정이 도착했어요</div>
+            <div style="font-size:12px;color:var(--slate-500);margin-top:3px;line-height:1.5">조건과 잘 맞는 "비 오는 날 박물관 코스" 3개를 준비했어요.</div>
+          </div>
+          <div style="font-size:10px;color:var(--slate-400)">5시간 전</div>
+        </div>
+
+        <div style="padding:14px 20px 8px;font-size:11px;font-weight:700;color:var(--slate-500);letter-spacing:.5px">이전 알림</div>
+
+        <div style="margin:0 20px 10px;background:#fff;border-radius:14px;padding:14px;border:1px solid var(--slate-100);display:flex;gap:12px;opacity:.7">
+          <div style="width:36px;height:36px;border-radius:10px;background:var(--bg);color:var(--slate-500);display:flex;align-items:center;justify-content:center;flex-shrink:0">⭐</div>
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:600;color:var(--slate-700)">후기 작성 부탁드려요</div>
+            <div style="font-size:12px;color:var(--slate-500);margin-top:3px">"애월 해안 코스" 어떠셨어요?</div>
+          </div>
+          <div style="font-size:10px;color:var(--slate-400)">어제</div>
+        </div>
+
+        <div style="margin:0 20px 10px;background:#fff;border-radius:14px;padding:14px;border:1px solid var(--slate-100);display:flex;gap:12px;opacity:.7">
+          <div style="width:36px;height:36px;border-radius:10px;background:var(--bg);color:var(--slate-500);display:flex;align-items:center;justify-content:center;flex-shrink:0">🏆</div>
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:600;color:var(--slate-700)">레벨 업! LV.2 → LV.3</div>
+            <div style="font-size:12px;color:var(--slate-500);margin-top:3px">완료 여행 3개 달성. "탐험가" 배지를 받았어요.</div>
+          </div>
+          <div style="font-size:10px;color:var(--slate-400)">3일 전</div>
+        </div>
+
+        <div style="height:8px"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 17. LIKED COURSES ══════════ -->
+  <div class="screen-wrap">
+    <p class="screen-label"><span>17</span> · Liked · 찜한 코스</p>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="statusbar"><span>9:41</span><span class="right">●●●● 5G</span></div>
+      <div class="appbar">
+        <div class="back">‹</div>
+        <div class="title">찜한 코스</div>
+      </div>
+      <div style="padding:14px 20px 0;background:#fff">
+        <div class="seg">
+          <div class="opt active">코스 (8)</div>
+          <div class="opt">장소 (12)</div>
+        </div>
+      </div>
+      <div class="scroll" style="background:var(--bg)">
+        <div style="padding:14px 20px 6px;font-size:12px;color:var(--slate-500)">최근 찜한 순</div>
+
+        <div style="margin:0 20px 12px;background:#fff;border-radius:16px;border:1px solid var(--slate-100);overflow:hidden">
+          <div style="height:100px;background:linear-gradient(135deg,var(--teal-700),var(--teal-500));position:relative">
+            <div style="position:absolute;top:12px;right:12px;width:34px;height:34px;border-radius:50%;background:#E53935;color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px">♥</div>
+            <div style="position:absolute;left:14px;bottom:10px;color:#fff;font-size:11px;font-weight:700">2일 코스 · 동부</div>
+          </div>
+          <div style="padding:14px">
+            <div style="font-size:15px;font-weight:700;color:var(--teal-900)">성산일출봉 & 섭지코지 코스</div>
+            <div style="font-size:11px;color:var(--slate-500);margin-top:4px">⭐ 4.9 · 안전점수 87 · 2시간 전 찜</div>
+          </div>
+        </div>
+
+        <div style="margin:0 20px 12px;background:#fff;border-radius:16px;border:1px solid var(--slate-100);overflow:hidden">
+          <div style="height:100px;background:linear-gradient(135deg,var(--sand-900),var(--sand-500));position:relative">
+            <div style="position:absolute;top:12px;right:12px;width:34px;height:34px;border-radius:50%;background:#E53935;color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px">♥</div>
+            <div style="position:absolute;left:14px;bottom:10px;color:#fff;font-size:11px;font-weight:700">1일 코스 · 실내</div>
+          </div>
+          <div style="padding:14px">
+            <div style="font-size:15px;font-weight:700;color:var(--teal-900)">비 와도 괜찮은 박물관 투어</div>
+            <div style="font-size:11px;color:var(--slate-500);margin-top:4px">⭐ 4.8 · 안전점수 92 · 어제 찜</div>
+          </div>
+        </div>
+
+        <div style="margin:0 20px 12px;background:#fff;border-radius:16px;border:1px solid var(--slate-100);overflow:hidden">
+          <div style="height:100px;background:linear-gradient(135deg,#5B9D80,#136073);position:relative">
+            <div style="position:absolute;top:12px;right:12px;width:34px;height:34px;border-radius:50%;background:#E53935;color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px">♥</div>
+            <div style="position:absolute;left:14px;bottom:10px;color:#fff;font-size:11px;font-weight:700">1일 코스 · 한라산</div>
+          </div>
+          <div style="padding:14px">
+            <div style="font-size:15px;font-weight:700;color:var(--teal-900)">한라산 둘레길 평지 코스</div>
+            <div style="font-size:11px;color:var(--slate-500);margin-top:4px">⭐ 4.7 · 안전점수 81 · 3일 전 찜</div>
+          </div>
+        </div>
+        <div style="height:8px"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 18. ITINERARY DETAIL - 3+DAY TAB ══════════ -->
+  <div class="screen-wrap">
+    <p class="screen-label"><span>18</span> · 3+ Day Tabs · 긴 일정 day 탭</p>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="statusbar"><span>9:41</span><span class="right">●●●● 5G</span></div>
+      <div class="appbar">
+        <div class="back">‹</div>
+        <div class="title">한라산 + 동서부 5일</div>
+      </div>
+      <div style="padding:14px 20px 8px;background:#fff;border-bottom:1px solid var(--slate-100)">
+        <div style="font-size:11px;color:var(--slate-500);font-weight:600;margin-bottom:8px">DAY 선택 · 5일 코스</div>
+        <div class="no-sb" style="display:flex;gap:8px;overflow-x:auto;padding-bottom:4px">
+          <div style="flex-shrink:0;min-width:64px;padding:10px 12px;border-radius:12px;background:var(--bg);text-align:center"><div style="font-size:9px;color:var(--slate-500);font-weight:600">DAY</div><div style="font-size:15px;font-weight:800;color:var(--slate-700);margin-top:1px">1</div><div style="font-size:9px;color:var(--slate-400);margin-top:1px">04.10</div></div>
+          <div style="flex-shrink:0;min-width:64px;padding:10px 12px;border-radius:12px;background:var(--teal-800);text-align:center;box-shadow:0 4px 10px rgba(15,76,92,.25)"><div style="font-size:9px;color:rgba(255,255,255,.7);font-weight:600">DAY</div><div style="font-size:15px;font-weight:800;color:#fff;margin-top:1px">2</div><div style="font-size:9px;color:rgba(255,255,255,.6);margin-top:1px">04.11</div></div>
+          <div style="flex-shrink:0;min-width:64px;padding:10px 12px;border-radius:12px;background:var(--bg);text-align:center"><div style="font-size:9px;color:var(--slate-500);font-weight:600">DAY</div><div style="font-size:15px;font-weight:800;color:var(--slate-700);margin-top:1px">3</div><div style="font-size:9px;color:var(--slate-400);margin-top:1px">04.12</div></div>
+          <div style="flex-shrink:0;min-width:64px;padding:10px 12px;border-radius:12px;background:var(--bg);text-align:center;position:relative"><div style="font-size:9px;color:var(--slate-500);font-weight:600">DAY</div><div style="font-size:15px;font-weight:800;color:var(--slate-700);margin-top:1px">4</div><div style="font-size:9px;color:var(--slate-400);margin-top:1px">04.13</div><div style="position:absolute;top:6px;right:6px;width:6px;height:6px;border-radius:50%;background:#E53935"></div></div>
+          <div style="flex-shrink:0;min-width:64px;padding:10px 12px;border-radius:12px;background:var(--bg);text-align:center"><div style="font-size:9px;color:var(--slate-500);font-weight:600">DAY</div><div style="font-size:15px;font-weight:800;color:var(--slate-700);margin-top:1px">5</div><div style="font-size:9px;color:var(--slate-400);margin-top:1px">04.14</div></div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:10px;font-size:11px">
+          <div style="display:flex;align-items:center;gap:4px;color:var(--slate-500)"><div style="width:8px;height:8px;border-radius:50%;background:#E53935"></div>위험 알림</div>
+        </div>
+      </div>
+      <div class="scroll" style="background:var(--bg)">
+        <div style="padding:18px 20px">
+          <div style="font-size:13px;color:var(--slate-500)">DAY 2 · 04.11 (토)</div>
+          <div style="font-size:18px;font-weight:800;color:var(--teal-900);margin-top:2px">동부 해안 라인</div>
+          <div style="font-size:12px;color:var(--slate-500);margin-top:4px">3곳 · 이동 18km · 안전점수 87</div>
+        </div>
+        <div style="padding:0 20px 8px;font-size:12px;color:var(--slate-400);font-style:italic">↓ DAY 2 일정이 여기에 표시됩니다</div>
+        <div style="height:200px"></div>
+      </div>
+      <div class="detail-actions">
+        <button class="btn btn-ghost">🔄 다른 코스</button>
+        <button class="btn btn-primary">일정 저장하기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 19. MAP VIEW ══════════ -->
+  <div class="screen-wrap">
+    <p class="screen-label"><span>19</span> · Map View · 일정 지도 보기</p>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="statusbar"><span>9:41</span><span class="right">●●●● 5G</span></div>
+      <div style="position:relative;flex:1;background:#D9E8E0;height:100%;overflow:hidden">
+        <!-- 지도 background -->
+        <div style="position:absolute;inset:0;background:
+          radial-gradient(circle at 30% 40%, #C5DCC8 0%, transparent 30%),
+          radial-gradient(circle at 70% 60%, #B8D5BC 0%, transparent 35%),
+          linear-gradient(135deg,#D9E8E0,#BFD8C5)"></div>
+        <!-- 임시 도로선 -->
+        <svg style="position:absolute;inset:0;width:100%;height:100%" viewBox="0 0 390 800" preserveAspectRatio="none">
+          <path d="M 60 200 Q 160 260 220 360 T 320 560" stroke="#0F4C5C" stroke-width="3" stroke-dasharray="6 6" fill="none" opacity=".7"/>
+        </svg>
+
+        <!-- 상단 컨트롤 -->
+        <div style="position:absolute;top:14px;left:14px;right:14px;display:flex;gap:10px">
+          <div style="width:42px;height:42px;border-radius:12px;background:#fff;box-shadow:var(--shadow-md);display:flex;align-items:center;justify-content:center;font-size:20px">‹</div>
+          <div style="flex:1;background:#fff;border-radius:12px;padding:10px 14px;box-shadow:var(--shadow-md);font-size:13px;font-weight:700;color:var(--teal-900)">성산일출봉 & 섭지코지 코스</div>
+        </div>
+
+        <!-- Day 토글 -->
+        <div style="position:absolute;top:74px;left:14px;display:flex;gap:6px;background:#fff;border-radius:12px;padding:4px;box-shadow:var(--shadow-md)">
+          <div style="padding:6px 12px;border-radius:9px;background:var(--teal-800);color:#fff;font-size:11px;font-weight:700">DAY 1</div>
+          <div style="padding:6px 12px;border-radius:9px;color:var(--slate-500);font-size:11px;font-weight:700">DAY 2</div>
+        </div>
+
+        <!-- 지도 핀 -->
+        <div style="position:absolute;top:170px;left:55px;text-align:center"><div style="width:32px;height:32px;border-radius:50%;background:var(--teal-800);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;border:3px solid #fff;box-shadow:var(--shadow-md)">1</div></div>
+        <div style="position:absolute;top:330px;left:200px;text-align:center"><div style="width:32px;height:32px;border-radius:50%;background:var(--teal-800);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;border:3px solid #fff;box-shadow:var(--shadow-md)">2</div></div>
+        <div style="position:absolute;top:530px;left:300px;text-align:center"><div style="width:32px;height:32px;border-radius:50%;background:var(--teal-800);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;border:3px solid #fff;box-shadow:var(--shadow-md)">3</div></div>
+
+        <!-- 우측 컨트롤 -->
+        <div style="position:absolute;top:74px;right:14px;display:flex;flex-direction:column;gap:8px">
+          <div style="width:42px;height:42px;border-radius:12px;background:#fff;box-shadow:var(--shadow-md);display:flex;align-items:center;justify-content:center;font-size:18px">＋</div>
+          <div style="width:42px;height:42px;border-radius:12px;background:#fff;box-shadow:var(--shadow-md);display:flex;align-items:center;justify-content:center;font-size:18px">−</div>
+          <div style="width:42px;height:42px;border-radius:12px;background:#fff;box-shadow:var(--shadow-md);display:flex;align-items:center;justify-content:center;font-size:16px">📍</div>
+        </div>
+
+        <!-- 하단 시트 -->
+        <div style="position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:20px 20px 0 0;padding:18px 20px 24px;box-shadow:0 -4px 20px rgba(0,0,0,.08)">
+          <div style="width:36px;height:4px;background:var(--slate-200);border-radius:2px;margin:0 auto 14px"></div>
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:48px;height:48px;border-radius:12px;background:var(--teal-800);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px">2</div>
+            <div style="flex:1">
+              <div style="font-size:15px;font-weight:800;color:var(--teal-900)">섭지코지</div>
+              <div style="font-size:11px;color:var(--slate-500);margin-top:2px">11:00 · 2시간 · 휠체어 OK</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:14px">
+            <button class="btn btn-secondary" style="flex:1;height:44px;font-size:13px">길찾기</button>
+            <button class="btn btn-primary" style="flex:1;height:44px;font-size:13px">상세보기</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 20. FAVORITE PLACES ══════════ -->
+  <div class="screen-wrap">
+    <p class="screen-label"><span>20</span> · Favorites · 즐겨찾기 장소</p>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="statusbar"><span>9:41</span><span class="right">●●●● 5G</span></div>
+      <div class="appbar">
+        <div class="back">‹</div>
+        <div class="title">즐겨찾기 장소</div>
+        <div class="right">정렬</div>
+      </div>
+      <div class="scroll" style="background:var(--bg)">
+        <div style="padding:14px 20px;font-size:12px;color:var(--slate-500)">총 12곳 · 폴더로 묶어서 관리할 수 있어요</div>
+
+        <div class="no-sb" style="display:flex;gap:8px;overflow-x:auto;padding:0 20px 12px">
+          <div class="filter-chip active">전체 12</div>
+          <div class="filter-chip">📁 가족 4</div>
+          <div class="filter-chip">📁 카페 3</div>
+          <div class="filter-chip">📁 박물관 5</div>
+          <div class="filter-chip">＋ 폴더</div>
+        </div>
+
+        <div style="margin:0 20px 10px;background:#fff;border-radius:14px;padding:14px;display:flex;gap:12px;border:1px solid var(--slate-100)">
+          <div style="width:64px;height:64px;border-radius:12px;background:linear-gradient(135deg,var(--teal-500),var(--teal-700));flex-shrink:0"></div>
+          <div style="flex:1">
+            <div style="font-size:14px;font-weight:700;color:var(--teal-900)">성산일출봉</div>
+            <div style="font-size:11px;color:var(--slate-500);margin-top:2px">자연 · ⭐ 4.8 · 4/4 무장애</div>
+            <div style="display:flex;gap:5px;margin-top:6px"><span class="badge b-ramp" style="font-size:10px">경사로</span><span class="badge b-toilet" style="font-size:10px">휠체어WC</span></div>
+          </div>
+          <div style="font-size:18px;color:#E53935">★</div>
+        </div>
+        <div style="margin:0 20px 10px;background:#fff;border-radius:14px;padding:14px;display:flex;gap:12px;border:1px solid var(--slate-100)">
+          <div style="width:64px;height:64px;border-radius:12px;background:linear-gradient(135deg,var(--sand-500),var(--sand-900));flex-shrink:0"></div>
+          <div style="flex:1">
+            <div style="font-size:14px;font-weight:700;color:var(--teal-900)">델문도 카페</div>
+            <div style="font-size:11px;color:var(--slate-500);margin-top:2px">카페 · ⭐ 4.6 · 3/4 무장애</div>
+            <div style="display:flex;gap:5px;margin-top:6px"><span class="badge b-elev" style="font-size:10px">엘리베이터</span><span class="badge b-rest" style="font-size:10px">휴식</span></div>
+          </div>
+          <div style="font-size:18px;color:#E53935">★</div>
+        </div>
+        <div style="margin:0 20px 10px;background:#fff;border-radius:14px;padding:14px;display:flex;gap:12px;border:1px solid var(--slate-100)">
+          <div style="width:64px;height:64px;border-radius:12px;background:linear-gradient(135deg,#5B9D80,#136073);flex-shrink:0"></div>
+          <div style="flex:1">
+            <div style="font-size:14px;font-weight:700;color:var(--teal-900)">국립제주박물관</div>
+            <div style="font-size:11px;color:var(--slate-500);margin-top:2px">박물관 · ⭐ 4.7 · 4/4 무장애</div>
+            <div style="display:flex;gap:5px;margin-top:6px"><span class="badge b-success" style="font-size:10px">✓ 안전</span></div>
+          </div>
+          <div style="font-size:18px;color:#E53935">★</div>
+        </div>
+        <div style="height:8px"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 21. RECENT ITINERARIES ══════════ -->
+  <div class="screen-wrap">
+    <p class="screen-label"><span>21</span> · Recent · 최근 본 일정</p>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="statusbar"><span>9:41</span><span class="right">●●●● 5G</span></div>
+      <div class="appbar">
+        <div class="back">‹</div>
+        <div class="title">최근 본 일정</div>
+        <div class="right" style="color:#E53935">전체 삭제</div>
+      </div>
+      <div class="scroll" style="background:var(--bg)">
+        <div style="padding:14px 20px 6px;font-size:12px;color:var(--slate-500)">최근 30일 · 16개</div>
+
+        <div style="padding:14px 20px 4px;font-size:11px;font-weight:700;color:var(--slate-500)">오늘</div>
+        <div style="margin:0 20px 8px;background:#fff;border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:12px;border:1px solid var(--slate-100)">
+          <div style="width:48px;height:48px;border-radius:10px;background:linear-gradient(135deg,var(--teal-700),var(--teal-500))"></div>
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:700;color:var(--teal-900)">성산일출봉 & 섭지코지 코스</div>
+            <div style="font-size:11px;color:var(--slate-500);margin-top:2px">2일 · 09:23 열람</div>
+          </div>
+          <div style="font-size:14px;color:var(--slate-300)">✕</div>
+        </div>
+        <div style="margin:0 20px 8px;background:#fff;border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:12px;border:1px solid var(--slate-100)">
+          <div style="width:48px;height:48px;border-radius:10px;background:linear-gradient(135deg,var(--sand-500),var(--sand-900))"></div>
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:700;color:var(--teal-900)">비 와도 괜찮은 박물관 투어</div>
+            <div style="font-size:11px;color:var(--slate-500);margin-top:2px">1일 · 08:50 열람</div>
+          </div>
+          <div style="font-size:14px;color:var(--slate-300)">✕</div>
+        </div>
+
+        <div style="padding:14px 20px 4px;font-size:11px;font-weight:700;color:var(--slate-500)">어제</div>
+        <div style="margin:0 20px 8px;background:#fff;border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:12px;border:1px solid var(--slate-100)">
+          <div style="width:48px;height:48px;border-radius:10px;background:linear-gradient(135deg,#5B9D80,#136073)"></div>
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:700;color:var(--teal-900)">한라산 둘레길 평지 코스</div>
+            <div style="font-size:11px;color:var(--slate-500);margin-top:2px">1일 · 어제 21:14</div>
+          </div>
+          <div style="font-size:14px;color:var(--slate-300)">✕</div>
+        </div>
+        <div style="height:8px"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 22. REVIEWS LIST ══════════ -->
+  <div class="screen-wrap">
+    <p class="screen-label"><span>22</span> · Reviews · 후기 목록 (일정·장소 공용)</p>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="statusbar"><span>9:41</span><span class="right">●●●● 5G</span></div>
+      <div class="appbar">
+        <div class="back">‹</div>
+        <div class="title">후기 (1,284)</div>
+        <div class="right">작성</div>
+      </div>
+      <div style="padding:18px 20px 14px;background:#fff;border-bottom:1px solid var(--slate-100)">
+        <div style="display:flex;align-items:center;gap:18px">
+          <div style="text-align:center">
+            <div style="font-size:36px;font-weight:800;color:var(--teal-900);line-height:1">4.8</div>
+            <div style="font-size:13px;color:#FFA000;margin-top:4px">★★★★★</div>
+            <div style="font-size:10px;color:var(--slate-500);margin-top:2px">1,284명 평가</div>
+          </div>
+          <div style="flex:1">
+            <div style="display:flex;align-items:center;gap:8px;font-size:10px;color:var(--slate-500);margin-bottom:4px"><div style="width:14px">5</div><div style="flex:1;height:6px;background:var(--bg);border-radius:3px;overflow:hidden"><div style="width:78%;height:100%;background:var(--teal-700)"></div></div><div style="width:24px;text-align:right">78%</div></div>
+            <div style="display:flex;align-items:center;gap:8px;font-size:10px;color:var(--slate-500);margin-bottom:4px"><div style="width:14px">4</div><div style="flex:1;height:6px;background:var(--bg);border-radius:3px;overflow:hidden"><div style="width:14%;height:100%;background:var(--teal-500)"></div></div><div style="width:24px;text-align:right">14%</div></div>
+            <div style="display:flex;align-items:center;gap:8px;font-size:10px;color:var(--slate-500);margin-bottom:4px"><div style="width:14px">3</div><div style="flex:1;height:6px;background:var(--bg);border-radius:3px;overflow:hidden"><div style="width:5%;height:100%;background:var(--sand-500)"></div></div><div style="width:24px;text-align:right">5%</div></div>
+            <div style="display:flex;align-items:center;gap:8px;font-size:10px;color:var(--slate-500);margin-bottom:4px"><div style="width:14px">2</div><div style="flex:1;height:6px;background:var(--bg);border-radius:3px;overflow:hidden"><div style="width:2%;height:100%;background:var(--sand-900)"></div></div><div style="width:24px;text-align:right">2%</div></div>
+            <div style="display:flex;align-items:center;gap:8px;font-size:10px;color:var(--slate-500)"><div style="width:14px">1</div><div style="flex:1;height:6px;background:var(--bg);border-radius:3px;overflow:hidden"><div style="width:1%;height:100%;background:#E53935"></div></div><div style="width:24px;text-align:right">1%</div></div>
+          </div>
+        </div>
+        <div style="margin-top:14px;font-size:11px;color:var(--slate-500);font-weight:700">접근성 평가</div>
+        <div class="no-sb" style="display:flex;gap:6px;margin-top:8px;overflow-x:auto">
+          <span class="filter-chip active">경사로 충분 · 92%</span>
+          <span class="filter-chip">휠체어 WC · 88%</span>
+          <span class="filter-chip">휴식 공간 · 76%</span>
+        </div>
+      </div>
+
+      <div class="no-sb" style="display:flex;gap:8px;padding:12px 20px;overflow-x:auto;background:#fff;border-bottom:1px solid var(--slate-100)">
+        <div class="filter-chip active">최신순</div>
+        <div class="filter-chip">평점 높은순</div>
+        <div class="filter-chip">♿ 휠체어 사용자</div>
+        <div class="filter-chip">📷 사진 있음</div>
+      </div>
+
+      <div class="scroll" style="background:var(--bg)">
+        <!-- review item 1 -->
+        <div style="margin:14px 20px;background:#fff;border-radius:14px;padding:16px;border:1px solid var(--slate-100)">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:36px;height:36px;border-radius:50%;background:var(--teal-100);display:flex;align-items:center;justify-content:center;font-size:16px">👤</div>
+            <div style="flex:1">
+              <div style="font-size:13px;font-weight:700;color:var(--teal-900)">제주여행자88 <span class="badge" style="background:var(--teal-50);color:var(--teal-800);font-size:9px;margin-left:4px">♿ 휠체어</span></div>
+              <div style="font-size:10px;color:var(--slate-400);margin-top:1px">2026.03.20 · 방문 인증</div>
+            </div>
+            <div style="font-size:12px;color:#FFA000;font-weight:700">★ 5.0</div>
+          </div>
+          <div style="font-size:13px;color:var(--slate-700);margin-top:10px;line-height:1.6">주차장에서 입구까지 정말 평지였어요. 휠체어 화장실도 깨끗하고 휴식 공간도 곳곳에 있어서 부담 없이 다녀왔습니다. 강추!</div>
+          <div style="display:flex;gap:6px;margin-top:10px">
+            <div style="width:64px;height:64px;border-radius:8px;background:linear-gradient(135deg,var(--teal-500),var(--teal-700))"></div>
+            <div style="width:64px;height:64px;border-radius:8px;background:linear-gradient(135deg,var(--sand-500),var(--sand-900))"></div>
+          </div>
+          <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap">
+            <span class="badge b-success" style="font-size:10px">✓ 경사로 충분</span>
+            <span class="badge b-toilet" style="font-size:10px">휠체어 WC 깨끗</span>
+            <span class="badge b-rest" style="font-size:10px">휴식 충분</span>
+          </div>
+          <div style="display:flex;gap:14px;margin-top:12px;padding-top:12px;border-top:1px solid var(--slate-100);font-size:11px;color:var(--slate-500)">
+            <div>👍 도움됐어요 · 24</div>
+            <div>💬 답글 3</div>
+          </div>
+        </div>
+
+        <div style="margin:0 20px 14px;background:#fff;border-radius:14px;padding:16px;border:1px solid var(--slate-100)">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:36px;height:36px;border-radius:50%;background:var(--sand-100);display:flex;align-items:center;justify-content:center;font-size:16px">👤</div>
+            <div style="flex:1">
+              <div style="font-size:13px;font-weight:700;color:var(--teal-900)">유아맘제주 <span class="badge" style="background:var(--sand-100);color:var(--sand-900);font-size:9px;margin-left:4px">🍼 유아차</span></div>
+              <div style="font-size:10px;color:var(--slate-400);margin-top:1px">2026.03.18 · 방문 인증</div>
+            </div>
+            <div style="font-size:12px;color:#FFA000;font-weight:700">★ 4.0</div>
+          </div>
+          <div style="font-size:13px;color:var(--slate-700);margin-top:10px;line-height:1.6">유아차 끌고 가기에 무리 없었어요. 다만 주말 오후에는 사람이 너무 많아서 평일 오전을 추천합니다.</div>
+          <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap">
+            <span class="badge b-ramp" style="font-size:10px">경사로 OK</span>
+            <span class="badge" style="background:#FFE9D6;color:#A85B00;font-size:10px">⚠ 혼잡</span>
+          </div>
+        </div>
+        <div style="height:8px"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

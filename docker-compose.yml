@@ -1,0 +1,93 @@
+version: '3.9'
+
+services:
+  # ──────────────────────────────
+  # MySQL 8 (프로덕션 DB)
+  # ──────────────────────────────
+  mysql:
+    image: mysql:8.0
+    container_name: jeju_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root1234}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-jeju}
+      MYSQL_USER: ${MYSQL_USER:-jeju_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-jeju_pass}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./backend/src/main/resources/sql/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-time-zone=+09:00
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - jeju_net
+
+  # ──────────────────────────────
+  # Redis (캐시 & 세션)
+  # ──────────────────────────────
+  redis:
+    image: redis:7.2-alpine
+    container_name: jeju_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redis1234}
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-redis1234}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - jeju_net
+
+  # ──────────────────────────────
+  # Spring Boot Backend
+  # (로컬 개발 시에는 주석 처리 후 IDE에서 직접 실행 권장)
+  # ──────────────────────────────
+  # backend:
+  #   build:
+  #     context: ./backend
+  #     dockerfile: Dockerfile
+  #   container_name: jeju_backend
+  #   restart: unless-stopped
+  #   depends_on:
+  #     mysql:
+  #       condition: service_healthy
+  #     redis:
+  #       condition: service_healthy
+  #   environment:
+  #     SPRING_PROFILES_ACTIVE: prod
+  #     DB_HOST: mysql
+  #     DB_PORT: 3306
+  #     DB_NAME: ${MYSQL_DATABASE:-jeju}
+  #     DB_USERNAME: ${MYSQL_USER:-jeju_user}
+  #     DB_PASSWORD: ${MYSQL_PASSWORD:-jeju_pass}
+  #     REDIS_HOST: redis
+  #     REDIS_PORT: 6379
+  #     REDIS_PASSWORD: ${REDIS_PASSWORD:-redis1234}
+  #     TOUR_API_KEY: ${TOUR_API_KEY}
+  #     JWT_SECRET: ${JWT_SECRET}
+  #   ports:
+  #     - "8080:8080"
+  #   networks:
+  #     - jeju_net
+
+volumes:
+  mysql_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  jeju_net:
+    driver: bridge

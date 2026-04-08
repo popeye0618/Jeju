@@ -71,4 +71,7 @@ public class PlaceDetailResponse {
     public List<String> getImages()           { return images; }
     public int getReviewCount()               { return reviewCount; }
     public double getAvgRating()              { return avgRating; }
+
+    public void setReviewCount(int reviewCount)   { this.reviewCount = reviewCount; }
+    public void setAvgRating(double avgRating)    { this.avgRating = avgRating; }
 }

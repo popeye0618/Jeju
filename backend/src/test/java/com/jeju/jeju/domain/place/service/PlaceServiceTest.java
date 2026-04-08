@@ -11,6 +11,7 @@ import com.jeju.jeju.domain.place.entity.TouristSpot;
 import com.jeju.jeju.domain.place.entity.UserPlaceLike;
 import com.jeju.jeju.domain.place.repository.TouristSpotRepository;
 import com.jeju.jeju.domain.place.repository.UserPlaceLikeRepository;
+import com.jeju.jeju.domain.review.repository.ReviewRepository;
 import com.jeju.jeju.domain.user.entity.User;
 import com.jeju.jeju.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -53,6 +54,7 @@ class PlaceServiceTest {
     @Mock private UserPlaceLikeRepository userPlaceLikeRepository;
     @Mock private UserRepository userRepository;
     @Mock private StringRedisTemplate redisTemplate;
+    @Mock private ReviewRepository reviewRepository;
 
     @InjectMocks
     private PlaceService placeService;

@@ -12,6 +12,7 @@ import com.jeju.jeju.domain.place.entity.TouristSpot;
 import com.jeju.jeju.domain.place.entity.UserPlaceLike;
 import com.jeju.jeju.domain.place.repository.TouristSpotRepository;
 import com.jeju.jeju.domain.place.repository.UserPlaceLikeRepository;
+import com.jeju.jeju.domain.review.repository.ReviewRepository;
 import com.jeju.jeju.domain.user.entity.User;
 import com.jeju.jeju.domain.user.repository.UserRepository;
 import org.springframework.data.domain.Page;
@@ -41,15 +42,18 @@ public class PlaceService {
     private final UserPlaceLikeRepository userPlaceLikeRepository;
     private final UserRepository userRepository;
     private final StringRedisTemplate redisTemplate;
+    private final ReviewRepository reviewRepository;
 
     public PlaceService(TouristSpotRepository touristSpotRepository,
                         UserPlaceLikeRepository userPlaceLikeRepository,
                         UserRepository userRepository,
-                        StringRedisTemplate redisTemplate) {
+                        StringRedisTemplate redisTemplate,
+                        ReviewRepository reviewRepository) {
         this.touristSpotRepository = touristSpotRepository;
         this.userPlaceLikeRepository = userPlaceLikeRepository;
         this.userRepository = userRepository;
         this.redisTemplate = redisTemplate;
+        this.reviewRepository = reviewRepository;
     }
 
     public PageResponse<PlaceSummaryResponse> getPlaces(String category, Boolean barrierFree,
@@ -122,6 +126,8 @@ public class PlaceService {
         boolean liked = userId != null
                 && userPlaceLikeRepository.existsByUserIdAndTouristSpotId(userId, placeId);
         PlaceDetailResponse response = PlaceDetailResponse.from(spot, liked);
+        response.setReviewCount((int) reviewRepository.countByTouristSpotId(placeId));
+        response.setAvgRating(reviewRepository.findAvgRatingByTouristSpotId(placeId).orElse(0.0));
 
         if (userId != null) {
             String key = RECENT_KEY_PREFIX + userId;

@@ -74,6 +74,10 @@ public class Itinerary extends BaseTimeEntity {
         this.routes.clear();
     }
 
+    public void updateAccessibilityScore(Integer score) {
+        this.accessibilityScore = score;
+    }
+
     public void generateShareToken(String token, LocalDateTime expiresAt) {
         this.shareToken = token;
         this.shareExpiresAt = expiresAt;

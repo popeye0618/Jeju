@@ -38,7 +38,7 @@ public class TourApiClient {
     @SuppressWarnings("unchecked")
     public List<TourApiPlaceDto> fetchPlaces(String areaCode, int pageNo, int numOfRows) {
         try {
-            String url = UriComponentsBuilder.fromHttpUrl(BASE_URL + "/areaBasedList1")
+            String url = UriComponentsBuilder.fromUriString(BASE_URL + "/areaBasedList1")
                     .queryParam("serviceKey", serviceKey)
                     .queryParam("numOfRows", numOfRows)
                     .queryParam("pageNo", pageNo)

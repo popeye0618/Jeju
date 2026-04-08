@@ -10,6 +10,7 @@ import com.jeju.jeju.domain.place.dto.RecentPlaceResponse;
 import com.jeju.jeju.domain.place.service.PlaceService;
 import com.jeju.jeju.security.CustomUserDetails;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,8 +43,8 @@ public class PlaceController {
             @RequestParam(required = false) Integer areaCode,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
-            @AuthenticationPrincipal(required = false) CustomUserDetails userDetails) {
-        Long userId = userDetails != null ? userDetails.getUserId() : null;
+            Authentication authentication) {
+        Long userId = extractUserId(authentication);
         return ResponseEntity.ok(ApiResponse.success(
                 placeService.getPlaces(category, barrierFree, areaCode, page, size, userId)));
     }
@@ -57,8 +58,8 @@ public class PlaceController {
             @RequestParam("q") String keyword,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
-            @AuthenticationPrincipal(required = false) CustomUserDetails userDetails) {
-        Long userId = userDetails != null ? userDetails.getUserId() : null;
+            Authentication authentication) {
+        Long userId = extractUserId(authentication);
         return ResponseEntity.ok(ApiResponse.success(
                 placeService.searchPlaces(keyword, page, size, userId)));
     }
@@ -71,7 +72,7 @@ public class PlaceController {
     public ResponseEntity<ApiResponse<List<AutocompleteResponse>>> autocomplete(
             @RequestParam("q") String keyword,
             @RequestParam(defaultValue = "5") int limit,
-            @AuthenticationPrincipal(required = false) CustomUserDetails userDetails) {
+            Authentication authentication) {
         return ResponseEntity.ok(ApiResponse.success(
                 placeService.autocomplete(keyword, limit)));
     }
@@ -108,8 +109,8 @@ public class PlaceController {
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<PlaceDetailResponse>> getPlaceDetail(
             @PathVariable Long id,
-            @AuthenticationPrincipal(required = false) CustomUserDetails userDetails) {
-        Long userId = userDetails != null ? userDetails.getUserId() : null;
+            Authentication authentication) {
+        Long userId = extractUserId(authentication);
         return ResponseEntity.ok(ApiResponse.success(
                 placeService.getPlaceDetail(id, userId)));
     }
@@ -136,5 +137,14 @@ public class PlaceController {
             @AuthenticationPrincipal CustomUserDetails userDetails) {
         return ResponseEntity.ok(ApiResponse.success(
                 placeService.unlikePlace(id, userDetails.getUserId())));
+    }
+
+    private Long extractUserId(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) return null;
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof CustomUserDetails details) {
+            return details.getUserId();
+        }
+        return null;
     }
 }

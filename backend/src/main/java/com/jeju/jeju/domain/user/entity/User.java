@@ -3,6 +3,8 @@ package com.jeju.jeju.domain.user.entity;
 import com.jeju.jeju.common.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "users")
 public class User extends BaseTimeEntity {
@@ -55,6 +57,10 @@ public class User extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private WithdrawReason withdrawReason;
 
+    private String verificationCode;
+
+    private LocalDateTime verificationCodeExpiry;
+
     // ── 생성자 ─────────────────────────────────────
 
     protected User() {}
@@ -82,6 +88,11 @@ public class User extends BaseTimeEntity {
 
     public void verifyEmail() {
         this.emailVerified = true;
+    }
+
+    public void setVerificationCode(String code, LocalDateTime expiry) {
+        this.verificationCode = code;
+        this.verificationCodeExpiry = expiry;
     }
 
     public void completeOnboarding(Companion companion, Preference preference,
@@ -114,22 +125,24 @@ public class User extends BaseTimeEntity {
 
     // ── Getter ─────────────────────────────────────
 
-    public Long getId()                     { return id; }
-    public String getEmail()                { return email; }
-    public String getPassword()             { return password; }
-    public String getNickname()             { return nickname; }
-    public Provider getProvider()           { return provider; }
-    public String getProviderId()           { return providerId; }
-    public Role getRole()                   { return role; }
-    public boolean isEmailVerified()        { return emailVerified; }
-    public boolean isOnboardingComplete()   { return onboardingComplete; }
-    public Companion getCompanion()         { return companion; }
-    public Preference getPreference()       { return preference; }
-    public Mobility getMobility()           { return mobility; }
-    public Integer getTravelDays()          { return travelDays; }
-    public boolean isTermsAgreed()          { return termsAgreed; }
-    public boolean isPrivacyAgreed()        { return privacyAgreed; }
-    public WithdrawReason getWithdrawReason() { return withdrawReason; }
+    public Long getId()                              { return id; }
+    public String getEmail()                         { return email; }
+    public String getPassword()                      { return password; }
+    public String getNickname()                      { return nickname; }
+    public Provider getProvider()                    { return provider; }
+    public String getProviderId()                    { return providerId; }
+    public Role getRole()                            { return role; }
+    public boolean isEmailVerified()                 { return emailVerified; }
+    public boolean isOnboardingComplete()            { return onboardingComplete; }
+    public Companion getCompanion()                  { return companion; }
+    public Preference getPreference()                { return preference; }
+    public Mobility getMobility()                    { return mobility; }
+    public Integer getTravelDays()                   { return travelDays; }
+    public boolean isTermsAgreed()                   { return termsAgreed; }
+    public boolean isPrivacyAgreed()                 { return privacyAgreed; }
+    public WithdrawReason getWithdrawReason()        { return withdrawReason; }
+    public String getVerificationCode()              { return verificationCode; }
+    public LocalDateTime getVerificationCodeExpiry() { return verificationCodeExpiry; }
 
     // ── Enum ──────────────────────────────────────
 

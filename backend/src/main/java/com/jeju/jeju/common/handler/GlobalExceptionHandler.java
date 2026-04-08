@@ -6,6 +6,7 @@ import com.jeju.jeju.common.response.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -37,6 +38,15 @@ public class GlobalExceptionHandler {
                         ErrorCode.COMMON_001.getCode(),
                         ErrorCode.COMMON_001.getMessage(),
                         fieldErrors));
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ApiResponse<Void>> handleMissingParam(MissingServletRequestParameterException e) {
+        return ResponseEntity
+                .badRequest()
+                .body(ApiResponse.error(
+                        ErrorCode.COMMON_001.getCode(),
+                        e.getMessage()));
     }
 
     @ExceptionHandler(Exception.class)

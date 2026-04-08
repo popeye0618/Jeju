@@ -42,6 +42,7 @@ public class SecurityConfig {
                 .requestMatchers("/actuator/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/users/nickname/check").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/places/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/itineraries/{id}").permitAll()
                 .anyRequest().authenticated()
             )
             .oauth2Login(oauth2 -> oauth2

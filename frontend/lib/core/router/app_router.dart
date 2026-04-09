@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:jeju_together/features/auth/providers/auth_state_provider.dart';
 
 // 라우트 경로 상수
 class AppRoutes {
@@ -14,10 +15,55 @@ class AppRoutes {
   static const mypage = '/mypage';
 }
 
+// 인증이 필요한 경로 목록
+const _protectedRoutes = [
+  AppRoutes.itineraryResult,
+  AppRoutes.mypage,
+];
+
 final appRouterProvider = Provider<GoRouter>((ref) {
+  final authStateNotifier = ValueNotifier<bool>(false);
+
+  ref.listen(authStateProvider, (_, next) {
+    authStateNotifier.value = !authStateNotifier.value;
+  });
+
   return GoRouter(
     initialLocation: AppRoutes.splash,
     debugLogDiagnostics: true,
+    refreshListenable: authStateNotifier,
+    redirect: (context, state) {
+      final authAsync = ref.read(authStateProvider);
+      final isLoading = authAsync.isLoading;
+
+      if (isLoading) return null;
+
+      final user = authAsync.valueOrNull;
+      final isLoggedIn = user != null;
+      final location = state.matchedLocation;
+
+      // 비로그인 + 보호 경로 → 로그인
+      final isProtected = _protectedRoutes.any(
+        (r) => location == r || location.startsWith(r.replaceAll(':id', '')),
+      );
+      if (!isLoggedIn && isProtected) {
+        return AppRoutes.login;
+      }
+
+      // 로그인 + /login 접근 → 홈
+      if (isLoggedIn && location == AppRoutes.login) {
+        return AppRoutes.itineraryResult;
+      }
+
+      // 로그인 + 온보딩 미완료 → 온보딩
+      if (isLoggedIn &&
+          user.onboardingComplete == false &&
+          location != AppRoutes.onboarding) {
+        return AppRoutes.onboarding;
+      }
+
+      return null;
+    },
     routes: [
       GoRoute(
         path: AppRoutes.splash,

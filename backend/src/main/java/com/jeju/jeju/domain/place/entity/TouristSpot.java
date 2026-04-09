@@ -64,6 +64,61 @@ public class TouristSpot extends BaseTimeEntity {
 
     protected TouristSpot() {}
 
+    // ── 팩토리 메서드 ──────────────────────────────
+
+    public static TouristSpot create(String contentId, String name, String address,
+                                     Double lat, Double lng, Category category,
+                                     String tel, String thumbnail) {
+        TouristSpot spot = new TouristSpot();
+        spot.contentId = contentId;
+        spot.name = name;
+        spot.address = address;
+        spot.lat = lat;
+        spot.lng = lng;
+        spot.category = category;
+        spot.tel = tel;
+        spot.thumbnail = thumbnail;
+        return spot;
+    }
+
+    // ── 도메인 메서드 ──────────────────────────────
+
+    public void update(String name, String address, Double lat, Double lng,
+                       Category category, String tel, String thumbnail) {
+        this.name = name;
+        this.address = address;
+        this.lat = lat;
+        this.lng = lng;
+        this.category = category;
+        this.tel = tel;
+        this.thumbnail = thumbnail;
+    }
+
+    public void updateBarrierFree(boolean hasRamp, boolean hasElevator,
+                                   boolean hasAccessibleToilet, boolean hasRestZone,
+                                   boolean hasAccessibleParking) {
+        this.hasRamp = hasRamp;
+        this.hasElevator = hasElevator;
+        this.hasAccessibleToilet = hasAccessibleToilet;
+        this.hasRestZone = hasRestZone;
+        this.hasAccessibleParking = hasAccessibleParking;
+        this.accessibilityScore = calculateAccessibilityScore();
+    }
+
+    public void updateImages(List<String> images) {
+        this.images = images;
+    }
+
+    private int calculateAccessibilityScore() {
+        int count = 0;
+        if (hasRamp) count++;
+        if (hasElevator) count++;
+        if (hasAccessibleToilet) count++;
+        if (hasRestZone) count++;
+        if (hasAccessibleParking) count++;
+        return count * 20;
+    }
+
     // ── Getter ─────────────────────────────────────
 
     public Long getId()                     { return id; }

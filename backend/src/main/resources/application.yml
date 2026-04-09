@@ -24,8 +24,8 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: ${MAIL_USERNAME:}
-    password: ${MAIL_PASSWORD:}
+    username: ${MAIL_USERNAME:dummy@gmail.com}
+    password: ${MAIL_PASSWORD:dfdf dfdf dfdf dfdf}
     properties:
       mail:
         smtp:
@@ -69,10 +69,11 @@ jwt:
 # ── 한국관광공사 OpenAPI ──────────────────────────────────────────
 tour:
   api:
-    key: ${TOUR_API_KEY:your_api_key_here}
+    kor-service-key: ${TOUR_KOR_SERVICE_KEY:}       # 국문 관광정보 서비스 (KorService2)
+    kor-with-service-key: ${TOUR_KOR_WITH_SERVICE_KEY:}  # 무장애 여행 정보 (KorWithService2)
     base-url: https://apis.data.go.kr/B551011
-    barrier-free-path: /KorWithService1/areaBasedList1
-    tour-info-path: /KorService1/areaBasedList1
+    kor-service-path: /KorService2
+    kor-with-service-path: /KorWithService2
 
 # ── 프로파일별 설정 ───────────────────────────────────────────────
 ---

@@ -60,19 +60,15 @@ public class AuthController {
         return ResponseEntity.ok(ApiResponse.success(authService.refreshToken(req)));
     }
 
+    @PostMapping("/kakao")
+    public ResponseEntity<ApiResponse<SocialLoginResponse>> kakaoLogin(@RequestBody @Valid KakaoLoginRequest req) {
+        return ResponseEntity.ok(ApiResponse.success(authService.loginWithKakao(req)));
+    }
+
     @DeleteMapping("/logout")
     public ResponseEntity<ApiResponse<Void>> logout(@AuthenticationPrincipal CustomUserDetails userDetails) {
         authService.logout(userDetails.getUserId());
         return ResponseEntity.ok(ApiResponse.success(null));
     }
 
-    @GetMapping("/oauth/kakao/callback")
-    public ResponseEntity<ApiResponse<String>> kakaoCallback() {
-        return ResponseEntity.ok(ApiResponse.success("OAuth2 flow is handled by Spring Security"));
-    }
-
-    @GetMapping("/oauth/google/callback")
-    public ResponseEntity<ApiResponse<String>> googleCallback() {
-        return ResponseEntity.ok(ApiResponse.success("OAuth2 flow is handled by Spring Security"));
-    }
 }

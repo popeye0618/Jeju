@@ -24,6 +24,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
@@ -34,6 +35,7 @@ class AuthServiceTest {
     @Mock private JwtTokenProvider jwtTokenProvider;
     @Mock private StringRedisTemplate redisTemplate;
     @Mock private ValueOperations<String, String> valueOperations;
+    @Mock private EmailService emailService;
 
     @InjectMocks
     private AuthService authService;
@@ -62,6 +64,7 @@ class AuthServiceTest {
 
         assertThat(response.email()).isEqualTo("new@example.com");
         assertThat(response.emailVerified()).isFalse();
+        then(emailService).should().sendVerificationEmail(eq("new@example.com"), anyString());
     }
 
     @Test

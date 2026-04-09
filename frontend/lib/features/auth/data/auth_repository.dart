@@ -88,6 +88,16 @@ class AuthRepository {
     }
   }
 
+  Future<SocialLoginResponse> loginWithKakao(String kakaoAccessToken) async {
+    try {
+      final raw = await _api.kakaoLogin(kakaoAccessToken);
+      final data = raw['data'] as Map<String, dynamic>;
+      return SocialLoginResponse.fromJson(data);
+    } on DioException catch (e) {
+      throw ApiException.fromDioException(e);
+    }
+  }
+
   Future<void> logout() async {
     try {
       await _api.logout();
@@ -96,23 +106,4 @@ class AuthRepository {
     }
   }
 
-  Future<SocialLoginResponse> kakaoCallback({required String code}) async {
-    try {
-      final raw = await _api.kakaoCallback(code);
-      final data = raw['data'] as Map<String, dynamic>;
-      return SocialLoginResponse.fromJson(data);
-    } on DioException catch (e) {
-      throw ApiException.fromDioException(e);
-    }
-  }
-
-  Future<SocialLoginResponse> googleCallback({required String code}) async {
-    try {
-      final raw = await _api.googleCallback(code);
-      final data = raw['data'] as Map<String, dynamic>;
-      return SocialLoginResponse.fromJson(data);
-    } on DioException catch (e) {
-      throw ApiException.fromDioException(e);
-    }
-  }
 }

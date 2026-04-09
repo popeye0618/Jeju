@@ -1,3 +1,6 @@
+# Environment variables
+.env
+
 # Miscellaneous
 *.class
 *.log
@@ -43,3 +46,6 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# 환경변수 (앱 키 등 민감 정보)
+.dart_defines.json

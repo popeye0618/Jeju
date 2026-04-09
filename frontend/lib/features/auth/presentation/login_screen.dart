@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:jeju_together/core/router/app_router.dart';
+import 'package:jeju_together/features/auth/providers/auth_provider.dart';
+import 'package:jeju_together/features/auth/providers/auth_state_provider.dart';
 
 /// F-2 02. Login Screen
 /// 카카오 OAuth, 구글 OAuth, 이메일 로그인 진입점을 제공한다.
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends ConsumerWidget {
   const LoginScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       backgroundColor: const Color(0xFFFAFAF7),
       body: SafeArea(
@@ -18,10 +22,8 @@ class LoginScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const Spacer(flex: 2),
-              // 로고 + 앱 이름
               const _LogoSection(),
               const SizedBox(height: 12),
-              // 서브타이틀
               const Text(
                 '조건만 입력하면,\n최적 안내를 해드립니다.',
                 textAlign: TextAlign.center,
@@ -43,7 +45,7 @@ class LoginScreen extends StatelessWidget {
                   backgroundColor: const Color(0xFFFEE500),
                   textColor: const Color(0xFF3B2F1D),
                   icon: const _KakaoIcon(),
-                  onTap: () => _handleKakaoLogin(context),
+                  onTap: () => _handleKakaoLogin(context, ref),
                 ),
               ),
               const SizedBox(height: 12),
@@ -52,10 +54,11 @@ class LoginScreen extends StatelessWidget {
                 label: '구글로 로그인',
                 button: true,
                 child: _SocialLoginButton(
-                  label: 'Apple로 계속하기',
-                  backgroundColor: const Color(0xFF000000),
-                  textColor: Colors.white,
-                  icon: const Icon(Icons.apple, color: Colors.white, size: 22),
+                  label: 'Google로 로그인하기',
+                  backgroundColor: Colors.white,
+                  textColor: const Color(0xFF3C4043),
+                  borderColor: const Color(0xFFDADCE0),
+                  icon: const _GoogleIcon(),
                   onTap: () => _handleGoogleLogin(context),
                 ),
               ),
@@ -119,17 +122,32 @@ class LoginScreen extends StatelessWidget {
     );
   }
 
-  void _handleKakaoLogin(BuildContext context) {
-    // TODO: Kakao OAuth WebView 연동
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('카카오 로그인 준비 중입니다.')),
-    );
+  Future<void> _handleKakaoLogin(BuildContext context, WidgetRef ref) async {
+    try {
+      // 카카오톡 앱 → 카카오 계정 순으로 시도
+      OAuthToken token;
+      if (await isKakaoTalkInstalled()) {
+        token = await UserApi.instance.loginWithKakaoTalk();
+      } else {
+        token = await UserApi.instance.loginWithKakaoAccount();
+      }
+
+      // 백엔드에 카카오 액세스 토큰 전달 → JWT 획득
+      final repo = ref.read(authRepositoryProvider);
+      final socialResponse = await repo.loginWithKakao(token.accessToken);
+      await ref.read(authStateProvider.notifier).loginWithSocial(socialResponse);
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('카카오 로그인 실패: $e')),
+        );
+      }
+    }
   }
 
   void _handleGoogleLogin(BuildContext context) {
-    // TODO: Google OAuth WebView 연동
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Apple 로그인 준비 중입니다.')),
+      const SnackBar(content: Text('구글 로그인 준비 중입니다.')),
     );
   }
 }
@@ -192,6 +210,7 @@ class _SocialLoginButton extends StatelessWidget {
     required this.textColor,
     required this.icon,
     required this.onTap,
+    this.borderColor,
   });
 
   final String label;
@@ -199,6 +218,7 @@ class _SocialLoginButton extends StatelessWidget {
   final Color textColor;
   final Widget icon;
   final VoidCallback onTap;
+  final Color? borderColor;
 
   @override
   Widget build(BuildContext context) {
@@ -210,6 +230,9 @@ class _SocialLoginButton extends StatelessWidget {
         decoration: BoxDecoration(
           color: backgroundColor,
           borderRadius: BorderRadius.circular(12),
+          border: borderColor != null
+              ? Border.all(color: borderColor!, width: 1)
+              : null,
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -248,6 +271,33 @@ class _KakaoIcon extends StatelessWidget {
         Icons.chat_bubble,
         size: 14,
         color: Color(0xFFFEE500),
+      ),
+    );
+  }
+}
+
+class _GoogleIcon extends StatelessWidget {
+  const _GoogleIcon();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 22,
+      height: 22,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        shape: BoxShape.circle,
+        border: Border.all(color: const Color(0xFFDADCE0), width: 1),
+      ),
+      child: const Center(
+        child: Text(
+          'G',
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+            color: Color(0xFF4285F4),
+          ),
+        ),
       ),
     );
   }

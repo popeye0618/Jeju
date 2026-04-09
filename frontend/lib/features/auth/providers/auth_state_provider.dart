@@ -18,12 +18,29 @@ class AuthState extends _$AuthState {
 
   Future<void> _initialize() async {
     final storage = ref.read(secureStorageServiceProvider);
-    final token = await storage.getAccessToken();
-    if (token == null) {
+    final accessToken = await storage.getAccessToken();
+    if (accessToken == null) {
       state = const AsyncValue.data(null);
-    } else {
-      // 토큰이 있으면 로그인 상태로 간주 (실제 유저 정보는 UserRepository에서 로드)
-      state = const AsyncValue.data(null); // placeholder — 실제 구현 시 /users/me 호출
+      return;
+    }
+
+    // 저장된 토큰으로 세션 복원 시도
+    state = await AsyncValue.guard(() async {
+      final dio = ref.read(dioProvider);
+      final res = await dio.get<Map<String, dynamic>>('/users/me');
+      final data = (res.data?['data'] as Map<String, dynamic>?) ?? {};
+      return AuthUser(
+        userId: (data['userId'] as int?) ?? 0,
+        email: data['email'] as String? ?? '',
+        nickname: data['nickname'] as String?,
+        onboardingComplete: data['onboardingComplete'] as bool? ?? false,
+      );
+    });
+
+    // 토큰 만료 등으로 실패 시 로컬 토큰 삭제
+    if (state.hasError) {
+      await storage.clearTokens();
+      state = const AsyncValue.data(null);
     }
   }
 
@@ -65,11 +82,15 @@ class AuthState extends _$AuthState {
         accessToken: response.accessToken,
         refreshToken: response.refreshToken,
       );
+      final dio = ref.read(dioProvider);
+      final res = await dio.get<Map<String, dynamic>>('/users/me');
+      final data = (res.data?['data'] as Map<String, dynamic>?) ?? {};
       return AuthUser(
-        userId: 0,
-        email: '',
+        userId: (data['userId'] as int?) ?? 0,
+        email: data['email'] as String? ?? '',
+        nickname: data['nickname'] as String?,
         isNewUser: response.isNewUser,
-        onboardingComplete: !response.isNewUser,
+        onboardingComplete: data['onboardingComplete'] as bool? ?? !response.isNewUser,
       );
     });
   }

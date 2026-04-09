@@ -1,20 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:jeju_together/core/router/app_router.dart';
+import 'package:jeju_together/features/auth/providers/auth_state_provider.dart';
 
 /// F-2 01. Splash Screen
-/// 앱 시작 시 2초간 로고와 앱 이름을 보여주고 로그인 화면으로 이동한다.
-class SplashScreen extends StatefulWidget {
+/// 앱 시작 시 로고를 보여주고, 저장된 토큰 유효성 확인 후 홈 or 로그인으로 이동한다.
+class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  State<SplashScreen> createState() => _SplashScreenState();
+  ConsumerState<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen>
+class _SplashScreenState extends ConsumerState<SplashScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
+  bool _minDelayPassed = false;
+  bool _navigated = false;
 
   @override
   void initState() {
@@ -30,8 +34,24 @@ class _SplashScreenState extends State<SplashScreen>
     _controller.forward();
 
     Future.delayed(const Duration(seconds: 2), () {
-      if (mounted) context.go(AppRoutes.login);
+      if (!mounted) return;
+      _minDelayPassed = true;
+      _tryNavigate();
     });
+  }
+
+  void _tryNavigate() {
+    if (_navigated || !_minDelayPassed) return;
+    final authAsync = ref.read(authStateProvider);
+    if (authAsync.isLoading) return; // auth 초기화 아직 중 → listener가 다시 호출
+
+    _navigated = true;
+    final user = authAsync.valueOrNull;
+    if (user != null) {
+      context.go(user.onboardingComplete ? AppRoutes.itineraryResult : AppRoutes.onboarding);
+    } else {
+      context.go(AppRoutes.login);
+    }
   }
 
   @override
@@ -42,6 +62,11 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
+    // auth 초기화 완료 시 navigate 시도 (딜레이가 이미 지났을 경우 즉시 이동)
+    ref.listen(authStateProvider, (_, next) {
+      if (!next.isLoading) _tryNavigate();
+    });
+
     return Scaffold(
       backgroundColor: const Color(0xFF0F4C5C),
       body: Semantics(

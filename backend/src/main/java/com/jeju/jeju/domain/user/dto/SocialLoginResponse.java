@@ -1,11 +1,14 @@
 package com.jeju.jeju.domain.user.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class SocialLoginResponse {
 
     private String accessToken;
     private String refreshToken;
     private String tokenType;
     private long expiresIn;
+    @JsonProperty("isNewUser")
     private boolean isNewUser;
 
     public SocialLoginResponse() {}

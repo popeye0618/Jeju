@@ -50,19 +50,12 @@ class AuthApi {
     return response.data!;
   }
 
-  Future<Map<String, dynamic>> kakaoCallback(String code) async {
-    final response = await _dio.get<Map<String, dynamic>>(
-      '/auth/oauth/kakao/callback',
-      queryParameters: {'code': code},
+  Future<Map<String, dynamic>> kakaoLogin(String accessToken) async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/auth/kakao',
+      data: {'accessToken': accessToken},
     );
     return response.data!;
   }
 
-  Future<Map<String, dynamic>> googleCallback(String code) async {
-    final response = await _dio.get<Map<String, dynamic>>(
-      '/auth/oauth/google/callback',
-      queryParameters: {'code': code},
-    );
-    return response.data!;
-  }
 }

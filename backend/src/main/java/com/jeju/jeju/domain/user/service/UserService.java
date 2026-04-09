@@ -42,8 +42,8 @@ public class UserService {
                 req.mobility(),
                 req.days(),
                 req.nickname(),
-                req.termsAgreed(),
-                req.privacyAgreed()
+                Boolean.TRUE.equals(req.termsAgreed()),
+                Boolean.TRUE.equals(req.privacyAgreed())
         );
     }
 
@@ -60,6 +60,7 @@ public class UserService {
                 user.getCompanion() != null ? user.getCompanion().name() : null,
                 user.getPreference() != null ? user.getPreference().name() : null,
                 user.getMobility() != null ? user.getMobility().name() : null,
+                user.isOnboardingComplete(),
                 0L,
                 0L
         );
@@ -84,6 +85,7 @@ public class UserService {
                 user.getCompanion() != null ? user.getCompanion().name() : null,
                 user.getPreference() != null ? user.getPreference().name() : null,
                 user.getMobility() != null ? user.getMobility().name() : null,
+                user.isOnboardingComplete(),
                 0L,
                 0L
         );

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'core/config/app_config.dart';
 import 'core/router/app_router.dart';
 import 'shared/theme/app_theme.dart';
@@ -7,6 +8,7 @@ import 'shared/theme/app_theme.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await AppConfig.init();
+  await KakaoSdk.init(nativeAppKey: AppConfig.kakaoNativeAppKey);
   runApp(
     const ProviderScope(
       child: JejuApp(),

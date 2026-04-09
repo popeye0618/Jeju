@@ -43,7 +43,7 @@ class ApiClient {
                   BaseOptions(baseUrl: AppConfig.baseUrl),
                 );
                 final response = await refreshDio.post(
-                  '/auth/refresh',
+                  '/auth/token/refresh',
                   data: {'refreshToken': refreshToken},
                 );
                 final newAccessToken = response.data['accessToken'];

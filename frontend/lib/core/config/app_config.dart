@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class AppConfig {
@@ -11,6 +12,10 @@ class AppConfig {
   static const String _prodBaseUrl = 'https://your-production-domain.com/api/v1';
 
   static String get baseUrl => kDebugMode ? _devBaseUrl : _prodBaseUrl;
+
+  // ── 카카오 네이티브 앱 키 ─────────────────────────────
+  static String get kakaoNativeAppKey =>
+      dotenv.env['KAKAO_NATIVE_APP_KEY'] ?? '';
 
   // ── 네이버 지도 Client ID ────────────────────────────
   // https://console.ncloud.com 에서 발급 (Maps 서비스)
@@ -27,7 +32,7 @@ class AppConfig {
   static const _refreshTokenKey = 'refresh_token';
 
   static Future<void> init() async {
-    // 앱 시작 시 초기화 작업
+    await dotenv.load(fileName: '.env');
   }
 
   static Future<String?> getAccessToken() =>

@@ -2,34 +2,38 @@ package com.jeju.jeju.infrastructure.tourapi;
 
 public class TourApiPlaceDto {
 
-    private String contentId;
+    private String contentid;
     private String title;
     private String addr1;
     private String mapx;
     private String mapy;
     private String contenttypeid;
     private String firstimage;
+    private String tel;
 
     public TourApiPlaceDto() {}
 
-    public String getContentId()               { return contentId; }
-    public void setContentId(String contentId) { this.contentId = contentId; }
+    public String getContentid()                        { return contentid; }
+    public void setContentid(String contentid)          { this.contentid = contentid; }
 
-    public String getTitle()                   { return title; }
-    public void setTitle(String title)         { this.title = title; }
+    public String getTitle()                            { return title; }
+    public void setTitle(String title)                  { this.title = title; }
 
-    public String getAddr1()                   { return addr1; }
-    public void setAddr1(String addr1)         { this.addr1 = addr1; }
+    public String getAddr1()                            { return addr1; }
+    public void setAddr1(String addr1)                  { this.addr1 = addr1; }
 
-    public String getMapx()                    { return mapx; }
-    public void setMapx(String mapx)           { this.mapx = mapx; }
+    public String getMapx()                             { return mapx; }
+    public void setMapx(String mapx)                    { this.mapx = mapx; }
 
-    public String getMapy()                    { return mapy; }
-    public void setMapy(String mapy)           { this.mapy = mapy; }
+    public String getMapy()                             { return mapy; }
+    public void setMapy(String mapy)                    { this.mapy = mapy; }
 
-    public String getContenttypeid()                         { return contenttypeid; }
-    public void setContenttypeid(String contenttypeid)       { this.contenttypeid = contenttypeid; }
+    public String getContenttypeid()                    { return contenttypeid; }
+    public void setContenttypeid(String contenttypeid)  { this.contenttypeid = contenttypeid; }
 
-    public String getFirstimage()                            { return firstimage; }
-    public void setFirstimage(String firstimage)             { this.firstimage = firstimage; }
+    public String getFirstimage()                       { return firstimage; }
+    public void setFirstimage(String firstimage)        { this.firstimage = firstimage; }
+
+    public String getTel()                              { return tel; }
+    public void setTel(String tel)                      { this.tel = tel; }
 }

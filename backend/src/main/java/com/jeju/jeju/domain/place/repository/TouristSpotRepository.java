@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface TouristSpotRepository extends JpaRepository<TouristSpot, Long> {
 
@@ -23,4 +24,9 @@ public interface TouristSpotRepository extends JpaRepository<TouristSpot, Long> 
     Page<TouristSpot> findByNameContainingIgnoreCase(String keyword, Pageable pageable);
 
     List<TouristSpot> findTop5ByNameContainingIgnoreCaseOrderByNameAsc(String keyword);
+
+    Optional<TouristSpot> findByContentId(String contentId);
+
+    @Query("SELECT t FROM TouristSpot t WHERE t.images IS NULL OR t.images = '[]'")
+    List<TouristSpot> findByImagesIsNullOrImagesIsEmpty();
 }

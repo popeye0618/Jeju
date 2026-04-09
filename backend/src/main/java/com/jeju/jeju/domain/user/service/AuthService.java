@@ -25,6 +25,7 @@ public class AuthService {
     private final BCryptPasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final StringRedisTemplate redisTemplate;
+    private final EmailService emailService;
 
     @Value("${jwt.refresh-token-expiry}")
     private long refreshTokenExpiry;
@@ -35,11 +36,13 @@ public class AuthService {
     public AuthService(UserRepository userRepository,
                        BCryptPasswordEncoder passwordEncoder,
                        JwtTokenProvider jwtTokenProvider,
-                       StringRedisTemplate redisTemplate) {
+                       StringRedisTemplate redisTemplate,
+                       EmailService emailService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenProvider = jwtTokenProvider;
         this.redisTemplate = redisTemplate;
+        this.emailService = emailService;
     }
 
     public SignupResponse signup(SignupRequest req) {
@@ -55,7 +58,7 @@ public class AuthService {
         String code = String.format("%06d", new Random().nextInt(1_000_000));
         user.setVerificationCode(code, LocalDateTime.now().plusMinutes(10));
 
-        // TODO: 이메일 발송 서비스 연동 (인증코드: code)
+        emailService.sendVerificationEmail(req.email(), code);
 
         return new SignupResponse(user.getId(), user.getEmail(), user.isEmailVerified());
     }
@@ -82,7 +85,7 @@ public class AuthService {
         String code = String.format("%06d", new Random().nextInt(1_000_000));
         user.setVerificationCode(code, LocalDateTime.now().plusMinutes(10));
 
-        // TODO: 이메일 발송 서비스 연동 (재발송 인증코드: code)
+        emailService.sendVerificationEmail(req.email(), code);
     }
 
     public TokenResponse login(LoginRequest req) {
@@ -117,7 +120,7 @@ public class AuthService {
         String code = String.format("%06d", new Random().nextInt(1_000_000));
         user.setVerificationCode(code, LocalDateTime.now().plusMinutes(10));
 
-        // TODO: 이메일 발송 서비스 연동 (비밀번호 재설정 코드: code)
+        emailService.sendPasswordResetEmail(req.email(), code);
     }
 
     public void resetPassword(PasswordResetRequest req) {

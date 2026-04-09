@@ -1,12 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:jeju_together/features/auth/presentation/email_login_screen.dart';
+import 'package:jeju_together/features/auth/presentation/email_verification_screen.dart';
+import 'package:jeju_together/features/auth/presentation/login_screen.dart';
+import 'package:jeju_together/features/auth/presentation/onboarding_screen.dart';
+import 'package:jeju_together/features/auth/presentation/signup_screen.dart';
+import 'package:jeju_together/features/auth/presentation/splash_screen.dart';
 import 'package:jeju_together/features/auth/providers/auth_state_provider.dart';
 
-// 라우트 경로 상수
+// ── 라우트 경로 상수 ──────────────────────────────────────────────────────────
 class AppRoutes {
   static const splash = '/';
   static const login = '/login';
+  static const emailLogin = '/login/email';
+  static const signup = '/signup';
+  static const emailVerification = '/signup/verify';
   static const onboarding = '/onboarding';
   static const itineraryResult = '/itinerary/result';
   static const itineraryDetail = '/itinerary/:id';
@@ -42,6 +51,17 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       final isLoggedIn = user != null;
       final location = state.matchedLocation;
 
+      // 인증 관련 화면 (리다이렉트 제외 경로)
+      const authPaths = [
+        AppRoutes.splash,
+        AppRoutes.login,
+        AppRoutes.emailLogin,
+        AppRoutes.signup,
+        AppRoutes.emailVerification,
+        AppRoutes.onboarding,
+      ];
+      final isAuthPath = authPaths.any((p) => location.startsWith(p));
+
       // 비로그인 + 보호 경로 → 로그인
       final isProtected = _protectedRoutes.any(
         (r) => location == r || location.startsWith(r.replaceAll(':id', '')),
@@ -50,8 +70,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         return AppRoutes.login;
       }
 
-      // 로그인 + /login 접근 → 홈
-      if (isLoggedIn && location == AppRoutes.login) {
+      // 로그인 + 인증 경로 접근 → 홈
+      if (isLoggedIn && isAuthPath && location != AppRoutes.splash) {
+        if (user.onboardingComplete == false) {
+          return location == AppRoutes.onboarding ? null : AppRoutes.onboarding;
+        }
         return AppRoutes.itineraryResult;
       }
 
@@ -65,18 +88,42 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       return null;
     },
     routes: [
+      // 스플래시
       GoRoute(
         path: AppRoutes.splash,
-        builder: (context, state) => const _SplashPage(),
+        builder: (context, state) => const SplashScreen(),
       ),
+      // 로그인 (소셜)
       GoRoute(
         path: AppRoutes.login,
-        builder: (context, state) => const _PlaceholderPage('로그인'),
+        builder: (context, state) => const LoginScreen(),
       ),
+      // 이메일 로그인
+      GoRoute(
+        path: AppRoutes.emailLogin,
+        builder: (context, state) => const EmailLoginScreen(),
+      ),
+      // 회원가입
+      GoRoute(
+        path: AppRoutes.signup,
+        builder: (context, state) => const SignupScreen(),
+      ),
+      // 이메일 인증
+      GoRoute(
+        path: AppRoutes.emailVerification,
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final email = extra?['email'] as String? ?? '';
+          final password = extra?['password'] as String? ?? '';
+          return EmailVerificationScreen(email: email, password: password);
+        },
+      ),
+      // 온보딩
       GoRoute(
         path: AppRoutes.onboarding,
-        builder: (context, state) => const _PlaceholderPage('조건 입력'),
+        builder: (context, state) => const OnboardingScreen(),
       ),
+      // 이후 화면 (placeholder)
       GoRoute(
         path: AppRoutes.itineraryResult,
         builder: (context, state) => const _PlaceholderPage('동선 추천 결과'),
@@ -92,58 +139,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     ],
   );
 });
-
-// ── 임시 스플래시 ──────────────────────────────────────────────────
-class _SplashPage extends StatefulWidget {
-  const _SplashPage();
-
-  @override
-  State<_SplashPage> createState() => _SplashPageState();
-}
-
-class _SplashPageState extends State<_SplashPage> {
-  @override
-  void initState() {
-    super.initState();
-    Future.delayed(const Duration(seconds: 2), () {
-      if (mounted) context.go(AppRoutes.login);
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      backgroundColor: Color(0xFF1E6BB0),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.accessible_forward, size: 64, color: Colors.white),
-            SizedBox(height: 24),
-            Text(
-              '같이가는 제주',
-              style: TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
-                fontFamily: 'Pretendard',
-              ),
-            ),
-            SizedBox(height: 8),
-            Text(
-              '무장애 여행 일정 설계 서비스',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.white70,
-                fontFamily: 'Pretendard',
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
 
 class _PlaceholderPage extends StatelessWidget {
   final String title;

@@ -8,6 +8,7 @@ public record UserProfileResponse(
         String companion,
         String preference,
         String mobility,
+        boolean onboardingComplete,
         long savedItineraryCount,
         long likedPlaceCount
 ) {}

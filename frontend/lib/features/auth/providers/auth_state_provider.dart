@@ -1,3 +1,4 @@
+import 'package:jeju_together/core/network/dio_provider.dart';
 import 'package:jeju_together/core/storage/secure_storage_service.dart';
 import 'package:jeju_together/features/auth/data/models/auth_user.dart';
 import 'package:jeju_together/features/auth/data/models/social_login_response.dart';
@@ -42,10 +43,16 @@ class AuthState extends _$AuthState {
         accessToken: token.accessToken,
         refreshToken: token.refreshToken,
       );
+
+      // 실제 유저 정보(onboardingComplete 포함)를 서버에서 조회
+      final dio = ref.read(dioProvider);
+      final res = await dio.get<Map<String, dynamic>>('/users/me');
+      final data = (res.data?['data'] as Map<String, dynamic>?) ?? {};
       return AuthUser(
-        userId: 0,
+        userId: (data['userId'] as int?) ?? 0,
         email: email,
-        onboardingComplete: false,
+        nickname: data['nickname'] as String?,
+        onboardingComplete: data['onboardingComplete'] as bool? ?? false,
       );
     });
   }

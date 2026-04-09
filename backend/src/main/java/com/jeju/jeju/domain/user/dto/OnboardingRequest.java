@@ -12,6 +12,6 @@ public record OnboardingRequest(
         @NotNull User.Mobility mobility,
         @NotNull @Min(1) @Max(30) Integer days,
         @NotBlank String nickname,
-        boolean termsAgreed,
-        boolean privacyAgreed
+        Boolean termsAgreed,
+        Boolean privacyAgreed
 ) {}

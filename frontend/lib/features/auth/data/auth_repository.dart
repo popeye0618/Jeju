@@ -41,10 +41,9 @@ class AuthRepository {
     required String code,
   }) async {
     try {
-      final raw =
-          await _api.verifyEmail({'email': email, 'code': code});
-      final data = raw['data'] as Map<String, dynamic>?;
-      return data?['emailVerified'] as bool? ?? false;
+      final raw = await _api.verifyEmail({'email': email, 'code': code});
+      // 서버는 성공 시 data: null 반환 — 예외 없이 응답이 왔으면 성공
+      return raw['success'] as bool? ?? false;
     } on DioException catch (e) {
       throw ApiException.fromDioException(e);
     }

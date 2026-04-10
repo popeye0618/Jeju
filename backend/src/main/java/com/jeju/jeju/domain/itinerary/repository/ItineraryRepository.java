@@ -10,4 +10,6 @@ public interface ItineraryRepository extends JpaRepository<Itinerary, Long> {
     Page<Itinerary> findByUserIdOrderByCreatedAtDesc(Long userId, Pageable pageable);
 
     Page<Itinerary> findByTypeOrderByCreatedAtDesc(Itinerary.ItineraryType type, Pageable pageable);
+
+    long countByType(Itinerary.ItineraryType type);
 }

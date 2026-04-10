@@ -418,7 +418,13 @@ class _ItineraryCard extends StatefulWidget {
 }
 
 class _ItineraryCardState extends State<_ItineraryCard> {
-  bool _saved = false;
+  late bool _saved;
+
+  @override
+  void initState() {
+    super.initState();
+    _saved = widget.itinerary.isSaved;
+  }
 
   LinearGradient _coverGradient(String type) {
     switch (type.toUpperCase()) {
@@ -461,32 +467,42 @@ class _ItineraryCardState extends State<_ItineraryCard> {
   }
 
   String _coverTag(ItinerarySummary it) {
-    if (it.places.isNotEmpty) {
-      return '${it.places.length}곳 코스';
-    }
-    return it.title;
+    return it.places > 0 ? '${it.places}곳 코스' : it.title;
   }
 
-  String _mobilityLabel(double score) {
+  String _typeSubtitle(String type) {
+    switch (type.toUpperCase()) {
+      case 'BEACH':
+        return '바다와 함께하는 무장애 동선';
+      case 'FOREST':
+        return '자연 속 편안한 무장애 코스';
+      case 'INDOOR':
+        return '날씨 걱정 없는 실내 위주 코스';
+      default:
+        return '맞춤형 무장애 여행 일정';
+    }
+  }
+
+  String _mobilityLabel(int score) {
     if (score >= 80) return '낮음';
     if (score >= 50) return '보통';
     return '높음';
   }
 
-  String _restPoints(double score) {
+  String _restPoints(int score) {
     if (score >= 80) return '5곳+';
     if (score >= 60) return '3곳';
     return '1곳';
   }
 
-  String _reasonText(double score) {
+  String _reasonText(int score) {
     if (score >= 80) {
       return '💡 모든 장소가 무장애 시설을 갖추고 이동 부담이 적어요';
     }
     return '💡 안전하게 즐길 수 있는 코스예요';
   }
 
-  Color _scoreColor(double score) {
+  Color _scoreColor(int score) {
     if (score >= 80) return AppColors.successDark;
     if (score >= 50) return AppColors.warningDark;
     return AppColors.dangerDark;
@@ -524,7 +540,7 @@ class _ItineraryCardState extends State<_ItineraryCard> {
                 gradient: _coverGradient(it.type),
                 tag: _coverTag(it),
                 title: it.title,
-                subtitle: it.places.take(3).join(' · '),
+                subtitle: _typeSubtitle(it.type),
                 saved: _saved,
                 onSaveToggle: () => setState(() => _saved = !_saved),
               ),
@@ -543,7 +559,7 @@ class _ItineraryCardState extends State<_ItineraryCard> {
                           ? AppColors.successDark
                           : AppColors.dangerDark,
                       restPoints: _restPoints(score),
-                      safetyScore: '${score.toInt()}점',
+                      safetyScore: '$score점',
                       safetyColor: _scoreColor(score),
                     ),
 

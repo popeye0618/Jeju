@@ -23,10 +23,18 @@ mixin _$ItinerarySummary {
   int get id => throw _privateConstructorUsedError;
   String get title => throw _privateConstructorUsedError;
   String? get thumbnail => throw _privateConstructorUsedError;
-  List<String> get places => throw _privateConstructorUsedError;
+
+  /// 백엔드가 int(장소 개수)로 내려줌
+  int get places => throw _privateConstructorUsedError;
   int get estimatedTime => throw _privateConstructorUsedError;
-  double get accessibilityScore => throw _privateConstructorUsedError;
+
+  /// 백엔드가 Integer(nullable)로 내려줌 → null 시 0
+  int get accessibilityScore => throw _privateConstructorUsedError;
   String get type => throw _privateConstructorUsedError;
+
+  /// 백엔드 Jackson: isSaved() → JSON key "saved"
+  @JsonKey(name: 'saved')
+  bool get isSaved => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -44,10 +52,11 @@ abstract class $ItinerarySummaryCopyWith<$Res> {
       {int id,
       String title,
       String? thumbnail,
-      List<String> places,
+      int places,
       int estimatedTime,
-      double accessibilityScore,
-      String type});
+      int accessibilityScore,
+      String type,
+      @JsonKey(name: 'saved') bool isSaved});
 }
 
 /// @nodoc
@@ -70,6 +79,7 @@ class _$ItinerarySummaryCopyWithImpl<$Res, $Val extends ItinerarySummary>
     Object? estimatedTime = null,
     Object? accessibilityScore = null,
     Object? type = null,
+    Object? isSaved = null,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -87,7 +97,7 @@ class _$ItinerarySummaryCopyWithImpl<$Res, $Val extends ItinerarySummary>
       places: null == places
           ? _value.places
           : places // ignore: cast_nullable_to_non_nullable
-              as List<String>,
+              as int,
       estimatedTime: null == estimatedTime
           ? _value.estimatedTime
           : estimatedTime // ignore: cast_nullable_to_non_nullable
@@ -95,11 +105,15 @@ class _$ItinerarySummaryCopyWithImpl<$Res, $Val extends ItinerarySummary>
       accessibilityScore: null == accessibilityScore
           ? _value.accessibilityScore
           : accessibilityScore // ignore: cast_nullable_to_non_nullable
-              as double,
+              as int,
       type: null == type
           ? _value.type
           : type // ignore: cast_nullable_to_non_nullable
               as String,
+      isSaved: null == isSaved
+          ? _value.isSaved
+          : isSaved // ignore: cast_nullable_to_non_nullable
+              as bool,
     ) as $Val);
   }
 }
@@ -116,10 +130,11 @@ abstract class _$$ItinerarySummaryImplCopyWith<$Res>
       {int id,
       String title,
       String? thumbnail,
-      List<String> places,
+      int places,
       int estimatedTime,
-      double accessibilityScore,
-      String type});
+      int accessibilityScore,
+      String type,
+      @JsonKey(name: 'saved') bool isSaved});
 }
 
 /// @nodoc
@@ -140,6 +155,7 @@ class __$$ItinerarySummaryImplCopyWithImpl<$Res>
     Object? estimatedTime = null,
     Object? accessibilityScore = null,
     Object? type = null,
+    Object? isSaved = null,
   }) {
     return _then(_$ItinerarySummaryImpl(
       id: null == id
@@ -155,9 +171,9 @@ class __$$ItinerarySummaryImplCopyWithImpl<$Res>
           : thumbnail // ignore: cast_nullable_to_non_nullable
               as String?,
       places: null == places
-          ? _value._places
+          ? _value.places
           : places // ignore: cast_nullable_to_non_nullable
-              as List<String>,
+              as int,
       estimatedTime: null == estimatedTime
           ? _value.estimatedTime
           : estimatedTime // ignore: cast_nullable_to_non_nullable
@@ -165,11 +181,15 @@ class __$$ItinerarySummaryImplCopyWithImpl<$Res>
       accessibilityScore: null == accessibilityScore
           ? _value.accessibilityScore
           : accessibilityScore // ignore: cast_nullable_to_non_nullable
-              as double,
+              as int,
       type: null == type
           ? _value.type
           : type // ignore: cast_nullable_to_non_nullable
               as String,
+      isSaved: null == isSaved
+          ? _value.isSaved
+          : isSaved // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 }
@@ -181,11 +201,11 @@ class _$ItinerarySummaryImpl implements _ItinerarySummary {
       {required this.id,
       required this.title,
       this.thumbnail,
-      final List<String> places = const [],
+      this.places = 0,
       required this.estimatedTime,
-      required this.accessibilityScore,
-      required this.type})
-      : _places = places;
+      this.accessibilityScore = 0,
+      required this.type,
+      @JsonKey(name: 'saved') this.isSaved = false});
 
   factory _$ItinerarySummaryImpl.fromJson(Map<String, dynamic> json) =>
       _$$ItinerarySummaryImplFromJson(json);
@@ -196,25 +216,29 @@ class _$ItinerarySummaryImpl implements _ItinerarySummary {
   final String title;
   @override
   final String? thumbnail;
-  final List<String> _places;
+
+  /// 백엔드가 int(장소 개수)로 내려줌
   @override
   @JsonKey()
-  List<String> get places {
-    if (_places is EqualUnmodifiableListView) return _places;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_places);
-  }
-
+  final int places;
   @override
   final int estimatedTime;
+
+  /// 백엔드가 Integer(nullable)로 내려줌 → null 시 0
   @override
-  final double accessibilityScore;
+  @JsonKey()
+  final int accessibilityScore;
   @override
   final String type;
 
+  /// 백엔드 Jackson: isSaved() → JSON key "saved"
+  @override
+  @JsonKey(name: 'saved')
+  final bool isSaved;
+
   @override
   String toString() {
-    return 'ItinerarySummary(id: $id, title: $title, thumbnail: $thumbnail, places: $places, estimatedTime: $estimatedTime, accessibilityScore: $accessibilityScore, type: $type)';
+    return 'ItinerarySummary(id: $id, title: $title, thumbnail: $thumbnail, places: $places, estimatedTime: $estimatedTime, accessibilityScore: $accessibilityScore, type: $type, isSaved: $isSaved)';
   }
 
   @override
@@ -226,25 +250,19 @@ class _$ItinerarySummaryImpl implements _ItinerarySummary {
             (identical(other.title, title) || other.title == title) &&
             (identical(other.thumbnail, thumbnail) ||
                 other.thumbnail == thumbnail) &&
-            const DeepCollectionEquality().equals(other._places, _places) &&
+            (identical(other.places, places) || other.places == places) &&
             (identical(other.estimatedTime, estimatedTime) ||
                 other.estimatedTime == estimatedTime) &&
             (identical(other.accessibilityScore, accessibilityScore) ||
                 other.accessibilityScore == accessibilityScore) &&
-            (identical(other.type, type) || other.type == type));
+            (identical(other.type, type) || other.type == type) &&
+            (identical(other.isSaved, isSaved) || other.isSaved == isSaved));
   }
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      id,
-      title,
-      thumbnail,
-      const DeepCollectionEquality().hash(_places),
-      estimatedTime,
-      accessibilityScore,
-      type);
+  int get hashCode => Object.hash(runtimeType, id, title, thumbnail, places,
+      estimatedTime, accessibilityScore, type, isSaved);
 
   @JsonKey(ignore: true)
   @override
@@ -266,10 +284,11 @@ abstract class _ItinerarySummary implements ItinerarySummary {
       {required final int id,
       required final String title,
       final String? thumbnail,
-      final List<String> places,
+      final int places,
       required final int estimatedTime,
-      required final double accessibilityScore,
-      required final String type}) = _$ItinerarySummaryImpl;
+      final int accessibilityScore,
+      required final String type,
+      @JsonKey(name: 'saved') final bool isSaved}) = _$ItinerarySummaryImpl;
 
   factory _ItinerarySummary.fromJson(Map<String, dynamic> json) =
       _$ItinerarySummaryImpl.fromJson;
@@ -281,13 +300,22 @@ abstract class _ItinerarySummary implements ItinerarySummary {
   @override
   String? get thumbnail;
   @override
-  List<String> get places;
+
+  /// 백엔드가 int(장소 개수)로 내려줌
+  int get places;
   @override
   int get estimatedTime;
   @override
-  double get accessibilityScore;
+
+  /// 백엔드가 Integer(nullable)로 내려줌 → null 시 0
+  int get accessibilityScore;
   @override
   String get type;
+  @override
+
+  /// 백엔드 Jackson: isSaved() → JSON key "saved"
+  @JsonKey(name: 'saved')
+  bool get isSaved;
   @override
   @JsonKey(ignore: true)
   _$$ItinerarySummaryImplCopyWith<_$ItinerarySummaryImpl> get copyWith =>

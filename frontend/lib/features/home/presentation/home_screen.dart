@@ -43,6 +43,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             onSelected: (i) => setState(() => _selectedFilter = i),
           ),
 
+          const SizedBox(height: 20),
+
           // ── 일정 카드 목록 ─────────────────────────────────────────────────
           Expanded(
             child: asyncItineraries.when(
@@ -65,7 +67,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   );
                 }
                 return ListView.builder(
-                  padding: const EdgeInsets.only(top: 16, bottom: 24),
+                  padding: const EdgeInsets.only(bottom: 24),
                   itemCount: list.length,
                   itemBuilder: (context, i) => Padding(
                     padding: const EdgeInsets.fromLTRB(24, 0, 24, 14),
@@ -382,7 +384,7 @@ class _FilterStrip extends StatelessWidget {
                   border: Border.all(
                     color: selected
                         ? AppColors.primary
-                        : const Color(0xFFE2E8F0), // slate-200
+                        : const Color(0xFFE2E8F0),
                   ),
                 ),
                 alignment: Alignment.center,
@@ -394,7 +396,7 @@ class _FilterStrip extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                     color: selected
                         ? Colors.white
-                        : const Color(0xFF384151), // slate-700
+                        : const Color(0xFF384151),
                   ),
                 ),
               ),

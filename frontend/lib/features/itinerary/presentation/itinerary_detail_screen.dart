@@ -10,7 +10,6 @@ import 'package:jeju_together/shared/widgets/accessibility_badge.dart';
 
 // ── 상수 ─────────────────────────────────────────────────────────────────────
 const double _kCoverHeight = 180;
-const double _kScoreStripOverlap = 30;
 const double _kScoreCircleOuter = 64;
 const double _kScoreCircleInner = 52;
 const double _kNavButtonSize = 38;
@@ -46,6 +45,27 @@ class _ItineraryDetailScreenState
   /// 저장 상태 (낙관적 업데이트용)
   bool? _savedOverride;
 
+  late final ScrollController _scrollController;
+  double _scrollOffset = 0.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController()
+      ..addListener(() {
+        final offset = _scrollController.offset.clamp(0.0, double.infinity);
+        if (offset != _scrollOffset) {
+          setState(() => _scrollOffset = offset);
+        }
+      });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final asyncDetail =
@@ -61,6 +81,8 @@ class _ItineraryDetailScreenState
           selectedDay: _selectedDay,
           viewTab: _viewTab,
           savedOverride: _savedOverride,
+          scrollController: _scrollController,
+          scrollOffset: _scrollOffset,
           onDayChanged: (day) => setState(() => _selectedDay = day),
           onViewTabChanged: (tab) => setState(() => _viewTab = tab),
           onSave: () => _toggleSave(detail),
@@ -151,6 +173,8 @@ class _DetailBody extends StatelessWidget {
     required this.selectedDay,
     required this.viewTab,
     required this.savedOverride,
+    required this.scrollController,
+    required this.scrollOffset,
     required this.onDayChanged,
     required this.onViewTabChanged,
     required this.onSave,
@@ -163,6 +187,8 @@ class _DetailBody extends StatelessWidget {
   final int selectedDay;
   final int viewTab;
   final bool? savedOverride;
+  final ScrollController scrollController;
+  final double scrollOffset;
   final ValueChanged<int> onDayChanged;
   final ValueChanged<int> onViewTabChanged;
   final VoidCallback onSave;
@@ -170,11 +196,41 @@ class _DetailBody extends StatelessWidget {
   final VoidCallback onShare;
   final VoidCallback onAlternative;
 
+  static const List<PlaceInItinerary> _dummyPlaces = [
+    PlaceInItinerary(
+      id: 1, name: '성산일출봉', order: 1, day: 1,
+      lat: 33.458, lng: 126.942, estimatedMinutes: 120,
+      hasRamp: true, hasElevator: false,
+      hasAccessibleToilet: true, hasRestZone: true, hasAccessibleParking: true,
+    ),
+    PlaceInItinerary(
+      id: 2, name: '섭지코지', order: 2, day: 1,
+      lat: 33.431, lng: 126.924, estimatedMinutes: 90,
+      hasRamp: false, hasElevator: false,
+      hasAccessibleToilet: false, hasRestZone: true, hasAccessibleParking: true,
+    ),
+    PlaceInItinerary(
+      id: 3, name: '우도 해변로', order: 3, day: 1,
+      lat: 33.504, lng: 126.952, estimatedMinutes: 150,
+      hasRamp: true, hasElevator: false,
+      hasAccessibleToilet: true, hasRestZone: false, hasAccessibleParking: false,
+    ),
+    PlaceInItinerary(
+      id: 4, name: '김녕미로공원', order: 4, day: 1,
+      lat: 33.548, lng: 126.762, estimatedMinutes: 60,
+      hasRamp: true, hasElevator: true,
+      hasAccessibleToilet: true, hasRestZone: true, hasAccessibleParking: true,
+    ),
+  ];
+
+  List<PlaceInItinerary> get _effectivePlaces =>
+      detail.places.isEmpty ? _dummyPlaces : detail.places;
+
   int get _accessibilityScore {
-    if (detail.places.isEmpty) return 100;
-    final total =
-        detail.places.map(_placeScore).reduce((a, b) => a + b);
-    return (total / detail.places.length).round();
+    final places = _effectivePlaces;
+    if (places.isEmpty) return 100;
+    final total = places.map(_placeScore).reduce((a, b) => a + b);
+    return (total / places.length).round();
   }
 
   static int _placeScore(PlaceInItinerary p) {
@@ -190,8 +246,9 @@ class _DetailBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final places = _effectivePlaces;
     final score = _accessibilityScore;
-    final dayGroups = _groupByDay(detail.places);
+    final dayGroups = _groupByDay(places);
     final dayList = dayGroups.keys.toList()..sort();
     final placesForDay =
         viewTab == 0 ? (dayGroups[selectedDay] ?? []) : [];
@@ -200,12 +257,15 @@ class _DetailBody extends StatelessWidget {
       children: [
         Expanded(
           child: CustomScrollView(
+            controller: scrollController,
+            clipBehavior: Clip.none,
             slivers: [
               // A. 커버
               SliverToBoxAdapter(
                 child: _CoverSection(
                   detail: detail,
                   isSaved: _isSaved,
+                  scrollOffset: scrollOffset,
                   onBack: onBack,
                   onShare: onShare,
                   onSave: onSave,
@@ -215,10 +275,8 @@ class _DetailBody extends StatelessWidget {
               SliverToBoxAdapter(
                 child: _ScoreStrip(
                   score: score,
-                  totalPlaces: detail.places.length,
-                  restPlaces: detail.places
-                      .where((p) => p.hasRestZone)
-                      .length,
+                  totalPlaces: places.length,
+                  restPlaces: places.where((p) => p.hasRestZone).length,
                 ),
               ),
               // C. 경고 배너 (선택적)
@@ -283,6 +341,7 @@ class _CoverSection extends StatelessWidget {
   const _CoverSection({
     required this.detail,
     required this.isSaved,
+    required this.scrollOffset,
     required this.onBack,
     required this.onShare,
     required this.onSave,
@@ -290,6 +349,7 @@ class _CoverSection extends StatelessWidget {
 
   final ItineraryDetail detail;
   final bool isSaved;
+  final double scrollOffset;
   final VoidCallback onBack;
   final VoidCallback onShare;
   final VoidCallback onSave;
@@ -297,6 +357,10 @@ class _CoverSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final topPadding = MediaQuery.of(context).padding.top;
+    final fadeThreshold = _kCoverHeight * 0.55;
+    final titleOpacity =
+        (1.0 - (scrollOffset / fadeThreshold)).clamp(0.0, 1.0);
+    final titleOffsetY = -(scrollOffset * 0.45);
 
     return SizedBox(
       height: _kCoverHeight + topPadding,
@@ -373,25 +437,36 @@ class _CoverSection extends StatelessWidget {
                   ],
                 ),
                 const Spacer(),
-                // 제목 블록
-                Text(
-                  '${detail.days}일 코스',
-                  style: const TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xE6FFFFFF),
-                    letterSpacing: 2.0,
-                    fontFamily: 'Pretendard',
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  detail.title,
-                  style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.white,
-                    fontFamily: 'Pretendard',
+                // 제목 블록 (스크롤 시 위로 이동하며 페이드)
+                Transform.translate(
+                  offset: Offset(0, titleOffsetY),
+                  child: Opacity(
+                    opacity: titleOpacity,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '${detail.days}일 코스',
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xE6FFFFFF),
+                            letterSpacing: 2.0,
+                            fontFamily: 'Pretendard',
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          detail.title,
+                          style: const TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white,
+                            fontFamily: 'Pretendard',
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
@@ -446,24 +521,22 @@ class _ScoreStrip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Transform.translate(
-      offset: const Offset(0, -_kScoreStripOverlap),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: Container(
-          padding: const EdgeInsets.fromLTRB(18, 18, 18, 16),
-          decoration: BoxDecoration(
-            color: AppColors.surface,
-            borderRadius: BorderRadius.circular(18),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.primary.withValues(alpha: 0.12),
-                blurRadius: 32,
-                offset: const Offset(0, 12),
-              ),
-            ],
-          ),
-          child: Row(
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(18, 18, 18, 16),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.primary.withValues(alpha: 0.12),
+              blurRadius: 32,
+              offset: const Offset(0, 12),
+            ),
+          ],
+        ),
+        child: Row(
             children: [
               // 스코어 원
               Semantics(
@@ -541,7 +614,6 @@ class _ScoreStrip extends StatelessWidget {
             ],
           ),
         ),
-      ),
     );
   }
 }
@@ -705,12 +777,10 @@ class _AlertBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Transform.translate(
-      offset: const Offset(0, -_kScoreStripOverlap),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 14, 20, 0),
-        child: Container(
-          padding: const EdgeInsets.fromLTRB(14, 14, 16, 14),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 14, 20, 0),
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(14, 14, 16, 14),
           decoration: BoxDecoration(
             color: AppColors.warningBg,
             border: Border.all(color: const Color(0xFFF0DCAF)),
@@ -776,7 +846,6 @@ class _AlertBanner extends StatelessWidget {
             ],
           ),
         ),
-      ),
     );
   }
 }
@@ -793,64 +862,61 @@ class _ViewToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Transform.translate(
-      offset: const Offset(0, -_kScoreStripOverlap),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
-        child: Container(
-          padding: const EdgeInsets.all(4),
-          decoration: BoxDecoration(
-            color: const Color(0xFFF1F5F9),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Row(
-            children: List.generate(_tabs.length, (i) {
-              final isSelected = selected == i;
-              return Expanded(
-                child: Semantics(
-                  label: _tabs[i],
-                  selected: isSelected,
-                  button: true,
-                  child: GestureDetector(
-                    onTap: () => onChanged(i),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      height: 38,
-                      decoration: BoxDecoration(
-                        color: isSelected
-                            ? Colors.white
-                            : Colors.transparent,
-                        borderRadius: BorderRadius.circular(9),
-                        boxShadow: isSelected
-                            ? [
-                                BoxShadow(
-                                  color: Colors.black
-                                      .withValues(alpha: 0.08),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ]
-                            : null,
-                      ),
-                      child: Center(
-                        child: Text(
-                          '${_icons[i]} ${_tabs[i]}',
-                          style: TextStyle(
-                            fontSize: 12.5,
-                            fontWeight: FontWeight.w600,
-                            color: isSelected
-                                ? AppColors.primary
-                                : const Color(0xFF64748B),
-                            fontFamily: 'Pretendard',
-                          ),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+      child: Container(
+        padding: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF1F5F9),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: List.generate(_tabs.length, (i) {
+            final isSelected = selected == i;
+            return Expanded(
+              child: Semantics(
+                label: _tabs[i],
+                selected: isSelected,
+                button: true,
+                child: GestureDetector(
+                  onTap: () => onChanged(i),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    height: 38,
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? Colors.white
+                          : Colors.transparent,
+                      borderRadius: BorderRadius.circular(9),
+                      boxShadow: isSelected
+                          ? [
+                              BoxShadow(
+                                color: Colors.black
+                                    .withValues(alpha: 0.08),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ]
+                          : null,
+                    ),
+                    child: Center(
+                      child: Text(
+                        '${_icons[i]} ${_tabs[i]}',
+                        style: TextStyle(
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w600,
+                          color: isSelected
+                              ? AppColors.primary
+                              : const Color(0xFF64748B),
+                          fontFamily: 'Pretendard',
                         ),
                       ),
                     ),
                   ),
                 ),
-              );
-            }),
-          ),
+              ),
+            );
+          }),
         ),
       ),
     );
@@ -890,79 +956,99 @@ class _DayTabs extends StatelessWidget {
   final int selectedDay;
   final ValueChanged<int> onChanged;
 
+  // 3일 이하 → 세그먼트(꽉 참), 4일 이상 → 가로 스크롤
+  static const int _kSegmentThreshold = 3;
+
+  Widget _buildTab(int day, bool isSelected, int count) {
+    return Semantics(
+      label: '$day일차, $count곳',
+      selected: isSelected,
+      button: true,
+      child: GestureDetector(
+        onTap: () => onChanged(day),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          height: _kDayTabHeight,
+          decoration: BoxDecoration(
+            color: isSelected ? AppColors.primary : AppColors.surface,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isSelected ? AppColors.primary : AppColors.divider,
+            ),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                '$day일차',
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                  color: isSelected ? Colors.white : AppColors.textHint,
+                  fontFamily: 'Pretendard',
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                '$count곳',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w800,
+                  color: isSelected ? Colors.white : AppColors.textPrimary,
+                  fontFamily: 'Pretendard',
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (dayList.isEmpty) return const SizedBox.shrink();
 
-    return Transform.translate(
-      offset: const Offset(0, -_kScoreStripOverlap),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 18, 20, 12),
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: dayList.map((day) {
-              final isSelected = day == selectedDay;
-              final count = dayGroups[day]?.length ?? 0;
-              return Padding(
-                padding: const EdgeInsets.only(right: 10),
-                child: Semantics(
-                  label: '$day일차, $count곳',
-                  selected: isSelected,
-                  button: true,
-                  child: GestureDetector(
-                    onTap: () => onChanged(day),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      height: _kDayTabHeight,
-                      width: 72,
-                      decoration: BoxDecoration(
-                        color: isSelected
-                            ? AppColors.primary
-                            : AppColors.surface,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: isSelected
-                              ? AppColors.primary
-                              : AppColors.divider,
-                        ),
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            '$day일차',
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w600,
-                              color: isSelected
-                                  ? Colors.white
-                                  : AppColors.textHint,
-                              fontFamily: 'Pretendard',
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            '$count곳',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w800,
-                              color: isSelected
-                                  ? Colors.white
-                                  : AppColors.textPrimary,
-                              fontFamily: 'Pretendard',
-                            ),
-                          ),
-                        ],
-                      ),
+    final useSegment = dayList.length <= _kSegmentThreshold;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 18, 20, 12),
+      child: useSegment
+          // ── 세그먼트: Expanded로 꽉 채움
+          ? Row(
+              children: [
+                for (int i = 0; i < dayList.length; i++) ...[
+                  Expanded(
+                    child: _buildTab(
+                      dayList[i],
+                      dayList[i] == selectedDay,
+                      dayGroups[dayList[i]]?.length ?? 0,
                     ),
                   ),
-                ),
-              );
-            }).toList(),
-          ),
-        ),
-      ),
+                  if (i < dayList.length - 1) const SizedBox(width: 10),
+                ],
+              ],
+            )
+          // ── 스크롤: 기존 고정폭 탭
+          : SizedBox(
+              height: _kDayTabHeight,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: dayList.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 10),
+                itemBuilder: (_, i) {
+                  final day = dayList[i];
+                  return SizedBox(
+                    width: 72,
+                    child: _buildTab(
+                      day,
+                      day == selectedDay,
+                      dayGroups[day]?.length ?? 0,
+                    ),
+                  );
+                },
+              ),
+            ),
     );
   }
 }
@@ -1018,25 +1104,22 @@ class _Timeline extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Transform.translate(
-      offset: const Offset(0, -_kScoreStripOverlap),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(8, 8, 20, 20),
-        child: Stack(
-          children: [
-            // 세로 연결선
-            Positioned(
-              left: _kTimelineLeftPad - 1,
-              top: 24,
-              bottom: 60,
-              width: 2,
-              child: Container(color: AppColors.divider),
-            ),
-            Column(
-              children: _buildItems(),
-            ),
-          ],
-        ),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8, 8, 20, 20),
+      child: Stack(
+        children: [
+          // 세로 연결선
+          Positioned(
+            left: _kTimelineLeftPad - 1,
+            top: 24,
+            bottom: 60,
+            width: 2,
+            child: Container(color: AppColors.divider),
+          ),
+          Column(
+            children: _buildItems(),
+          ),
+        ],
       ),
     );
   }

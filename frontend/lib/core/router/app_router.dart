@@ -63,7 +63,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         AppRoutes.emailVerification,
         AppRoutes.onboarding,
       ];
-      final isAuthPath = authPaths.any((p) => location.startsWith(p));
+      final isAuthPath = authPaths.any((p) =>
+          p == AppRoutes.splash ? location == p : location.startsWith(p));
 
       // 비로그인 + 보호 경로 → 로그인
       final isProtected = _protectedRoutes.any(

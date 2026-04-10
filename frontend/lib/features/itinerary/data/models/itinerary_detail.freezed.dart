@@ -183,7 +183,7 @@ class _$ItineraryDetailImpl implements _ItineraryDetail {
       required this.days,
       required this.estimatedTime,
       required this.savedCount,
-      required this.isSaved,
+      this.isSaved = false,
       final List<PlaceInItinerary> places = const []})
       : _places = places;
 
@@ -259,7 +259,7 @@ abstract class _ItineraryDetail implements ItineraryDetail {
       required final int days,
       required final int estimatedTime,
       required final int savedCount,
-      required final bool isSaved,
+      final bool isSaved,
       final List<PlaceInItinerary> places}) = _$ItineraryDetailImpl;
 
   factory _ItineraryDetail.fromJson(Map<String, dynamic> json) =

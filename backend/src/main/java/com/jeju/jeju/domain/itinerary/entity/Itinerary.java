@@ -17,7 +17,7 @@ public class Itinerary extends BaseTimeEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = true)
     private User user;
 
     @Column(nullable = false)
@@ -66,6 +66,18 @@ public class Itinerary extends BaseTimeEntity {
         return it;
     }
 
+    /** 시스템 추천 일정 — 특정 유저에 귀속되지 않는 공용 추천 코스 */
+    public static Itinerary ofSystemRecommended(String title, int tripDays, String thumbnail, int accessibilityScore) {
+        Itinerary it = new Itinerary();
+        it.user = null;
+        it.title = title;
+        it.tripDays = tripDays;
+        it.thumbnail = thumbnail;
+        it.accessibilityScore = accessibilityScore;
+        it.type = ItineraryType.RECOMMENDED;
+        return it;
+    }
+
     // ── 도메인 메서드 ────────────────────────────────
 
     public void update(String title, int tripDays) {
@@ -84,7 +96,7 @@ public class Itinerary extends BaseTimeEntity {
     }
 
     public boolean isOwner(Long userId) {
-        return this.user.getId().equals(userId);
+        return this.user != null && this.user.getId().equals(userId);
     }
 
     // ── Getter ─────────────────────────────────────

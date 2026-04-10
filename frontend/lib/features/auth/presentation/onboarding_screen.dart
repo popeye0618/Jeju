@@ -37,11 +37,17 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     final success = await ref.read(onboardingProvider.notifier).submit();
     if (!mounted) return;
     if (success) {
-      // 온보딩 완료 → authState 갱신 (GoRouter redirect가 홈으로 이동)
+      // 온보딩 완료 → authState 갱신 (닉네임 + onboardingComplete)
       final currentUser = ref.read(authStateProvider).valueOrNull;
+      final enteredNickname = ref.read(onboardingProvider).nickname.trim();
       if (currentUser != null) {
         ref.read(authStateProvider.notifier).setUser(
-              currentUser.copyWith(onboardingComplete: true),
+              currentUser.copyWith(
+                onboardingComplete: true,
+                nickname: enteredNickname.isNotEmpty
+                    ? enteredNickname
+                    : currentUser.nickname,
+              ),
             );
       }
     }

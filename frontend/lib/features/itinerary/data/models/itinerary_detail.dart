@@ -1,3 +1,4 @@
+// ignore_for_file: invalid_annotation_target
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'place_in_itinerary.dart';
 
@@ -12,7 +13,7 @@ class ItineraryDetail with _$ItineraryDetail {
     required int days,
     required int estimatedTime,
     required int savedCount,
-    required bool isSaved,
+    @JsonKey(name: 'saved') @Default(false) bool isSaved,
     @Default([]) List<PlaceInItinerary> places,
   }) = _ItineraryDetail;
 

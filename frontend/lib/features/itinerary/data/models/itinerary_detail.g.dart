@@ -14,7 +14,7 @@ _$ItineraryDetailImpl _$$ItineraryDetailImplFromJson(
       days: (json['days'] as num).toInt(),
       estimatedTime: (json['estimatedTime'] as num).toInt(),
       savedCount: (json['savedCount'] as num).toInt(),
-      isSaved: json['isSaved'] as bool,
+      isSaved: json['saved'] as bool? ?? false,
       places: (json['places'] as List<dynamic>?)
               ?.map((e) => PlaceInItinerary.fromJson(e as Map<String, dynamic>))
               .toList() ??
@@ -29,6 +29,6 @@ Map<String, dynamic> _$$ItineraryDetailImplToJson(
       'days': instance.days,
       'estimatedTime': instance.estimatedTime,
       'savedCount': instance.savedCount,
-      'isSaved': instance.isSaved,
+      'saved': instance.isSaved,
       'places': instance.places,
     };

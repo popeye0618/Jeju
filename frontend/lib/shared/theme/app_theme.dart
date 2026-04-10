@@ -1,29 +1,44 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  // Primary
-  static const primary = Color(0xFF1E6BB0);
-  static const primaryLight = Color(0xFFD6E8F7);
-  static const accent = Color(0xFF0EA5E9);
+  // Primary (Teal)
+  static const primary = Color(0xFF0F4C5C);       // teal-800
+  static const primaryDark = Color(0xFF0A3A48);   // teal-900
+  static const primaryMid = Color(0xFF136073);    // teal-700
+  static const primaryLight = Color(0xFFE2F1F3);  // teal-100
+  static const primaryXLight = Color(0xFFF1F8F9); // teal-50
+  // 기존 호환 alias
+  static const accent = Color(0xFF1E7A8C);        // teal-600
 
-  // Semantic
-  static const warning = Color(0xFFF59E0B);
-  static const danger = Color(0xFFEF4444);
-  static const success = Color(0xFF10B981);
+  // Semantic — warning
+  static const warning = Color(0xFFD99E41);
+  static const warningDark = Color(0xFFAB7726);
+  static const warningBg = Color(0xFFFCF4E1);
+
+  // Semantic — danger
+  static const danger = Color(0xFFC65B5B);
+  static const dangerDark = Color(0xFFA44646);
+  static const dangerBg = Color(0xFFFBEDED);
+
+  // Semantic — success
+  static const success = Color(0xFF5B9D80);
+  static const successDark = Color(0xFF3B7B63);
+  static const successBg = Color(0xFFE8F5ED);
 
   // Neutral
-  static const background = Color(0xFFF5F7FA);
+  static const background = Color(0xFFFAFAF7);    // bg
   static const surface = Color(0xFFFFFFFF);
-  static const textPrimary = Color(0xFF1A1A2E);
-  static const textSecondary = Color(0xFF555555);
-  static const textHint = Color(0xFF888888);
-  static const divider = Color(0xFFE0E6ED);
+  static const textPrimary = Color(0xFF121827);   // slate-900
+  static const textSecondary = Color(0xFF384151); // slate-700
+  static const textHint = Color(0xFF64748B);      // slate-500
+  static const divider = Color(0xFFE2E8F0);       // slate-200
+  static const dividerLight = Color(0xFFF1F5F9);  // slate-100
 
   // Accessibility badges
-  static const rampColor = Color(0xFF2196F3);
-  static const elevatorColor = Color(0xFF9C27B0);
-  static const toiletColor = Color(0xFF4CAF50);
-  static const restAreaColor = Color(0xFFFF9800);
+  static const rampColor = Color(0xFF488AAD);     // ramp
+  static const elevatorColor = Color(0xFF84609E); // elev
+  static const toiletColor = Color(0xFF589F78);   // toilet
+  static const restAreaColor = Color(0xFFD4943F); // rest
 }
 
 class AppTheme {
@@ -34,7 +49,6 @@ class AppTheme {
           brightness: Brightness.light,
           primary: AppColors.primary,
           secondary: AppColors.accent,
-          background: AppColors.background,
           surface: AppColors.surface,
           error: AppColors.danger,
         ),

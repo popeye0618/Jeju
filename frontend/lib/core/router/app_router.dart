@@ -8,6 +8,8 @@ import 'package:jeju_together/features/auth/presentation/onboarding_screen.dart'
 import 'package:jeju_together/features/auth/presentation/signup_screen.dart';
 import 'package:jeju_together/features/auth/presentation/splash_screen.dart';
 import 'package:jeju_together/features/auth/providers/auth_state_provider.dart';
+import 'package:jeju_together/features/home/presentation/home_screen.dart';
+import 'package:jeju_together/features/itinerary/presentation/itinerary_detail_screen.dart';
 
 // ── 라우트 경로 상수 ──────────────────────────────────────────────────────────
 class AppRoutes {
@@ -27,6 +29,7 @@ class AppRoutes {
 // 인증이 필요한 경로 목록
 const _protectedRoutes = [
   AppRoutes.itineraryResult,
+  AppRoutes.itineraryDetail,
   AppRoutes.mypage,
 ];
 
@@ -60,7 +63,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         AppRoutes.emailVerification,
         AppRoutes.onboarding,
       ];
-      final isAuthPath = authPaths.any((p) => location.startsWith(p));
+      final isAuthPath = authPaths.any((p) =>
+          p == AppRoutes.splash ? location == p : location.startsWith(p));
 
       // 비로그인 + 보호 경로 → 로그인
       final isProtected = _protectedRoutes.any(
@@ -123,10 +127,17 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.onboarding,
         builder: (context, state) => const OnboardingScreen(),
       ),
-      // 이후 화면 (placeholder)
+      // 홈 화면
       GoRoute(
         path: AppRoutes.itineraryResult,
-        builder: (context, state) => const _PlaceholderPage('동선 추천 결과'),
+        builder: (context, state) => const HomeScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.itineraryDetail,
+        builder: (context, state) {
+          final id = int.parse(state.pathParameters['id']!);
+          return ItineraryDetailScreen(itineraryId: id);
+        },
       ),
       GoRoute(
         path: AppRoutes.spotSearch,

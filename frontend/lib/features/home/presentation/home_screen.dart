@@ -65,7 +65,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   );
                 }
                 return ListView.builder(
-                  padding: const EdgeInsets.only(bottom: 24),
+                  padding: const EdgeInsets.only(top: 16, bottom: 24),
                   itemCount: list.length,
                   itemBuilder: (context, i) => Padding(
                     padding: const EdgeInsets.fromLTRB(24, 0, 24, 14),
